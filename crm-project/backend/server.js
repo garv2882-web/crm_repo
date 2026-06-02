@@ -125,6 +125,10 @@ async function initDb() {
       CREATE TABLE IF NOT EXISTS deals (
         deal_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         lead_id UUID REFERENCES leads(lead_id) ON DELETE CASCADE,
+        company_id UUID REFERENCES companies(company_id) ON DELETE SET NULL,
+        contact_id UUID REFERENCES contacts(contact_id) ON DELETE SET NULL,
+        deal_owner UUID REFERENCES users(user_id) ON DELETE SET NULL,
+        created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
         deal_name VARCHAR(255) NOT NULL,
         deal_stage VARCHAR(100),
         deal_status deal_status DEFAULT 'Open',
@@ -132,6 +136,7 @@ async function initDb() {
         probability_percentage DECIMAL(5,2),
         deal_value DECIMAL(15,2) NOT NULL,
         currency VARCHAR(10) DEFAULT 'INR',
+        sales_pipeline VARCHAR(100),
         expected_closing_date DATE,
         product_service VARCHAR(255),
         competitors TEXT,
@@ -172,6 +177,8 @@ async function initDb() {
       ALTER TABLE deals 
       ADD COLUMN IF NOT EXISTS company_id UUID REFERENCES companies(company_id) ON DELETE SET NULL,
       ADD COLUMN IF NOT EXISTS contact_id UUID REFERENCES contacts(contact_id) ON DELETE SET NULL,
+      ADD COLUMN IF NOT EXISTS deal_owner UUID REFERENCES users(user_id) ON DELETE SET NULL,
+      ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
       ADD COLUMN IF NOT EXISTS sales_pipeline VARCHAR(100);
     `);
 
