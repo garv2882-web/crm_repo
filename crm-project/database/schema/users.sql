@@ -6,6 +6,8 @@ CREATE TABLE users (
 
     email VARCHAR(255) UNIQUE NOT NULL,
 
+    password_hash VARCHAR(255),
+
     role user_role NOT NULL DEFAULT 'Sales',
 
     status VARCHAR(50) DEFAULT 'Active',

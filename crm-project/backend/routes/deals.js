@@ -95,7 +95,7 @@ router.post('/', async (req, res, next) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
       RETURNING *`,
       [
-        lead_id, company_id || null, contact_id || null, deal_owner || null, created_by || null,
+        lead_id || null, company_id || null, contact_id || null, deal_owner || null, created_by || null,
         deal_name, deal_stage || 'Qualification', deal_status || 'Open', priority || 'Medium',
         probability_percentage || 0, deal_value || 0, currency || 'INR', sales_pipeline || 'Standard',
         expected_closing_date || null, product_service || '', competitors || '',

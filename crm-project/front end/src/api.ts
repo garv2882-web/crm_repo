@@ -1,11 +1,49 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
+// Auth Interfaces
+export interface LoginRequest {
+  email: string;
+  password?: string;
+}
+
+export interface RegisterRequest {
+  full_name: string;
+  email: string;
+  password?: string;
+  role?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+// Token helper
+const getToken = () => localStorage.getItem('crm_auth_token');
+
+async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const token = getToken();
+  const headers = {
+    ...options.headers,
+  } as Record<string, string>;
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
 export interface User {
   user_id: string;
   full_name: string;
   email: string;
   role: string;
   status: string;
+  created_at?: string;
 }
 
 export interface Company {
@@ -119,24 +157,57 @@ export interface Activity {
 
 // REST Client Helper Methods
 export const api = {
+  // Auth
+  async login(data: LoginRequest): Promise<AuthResponse> {
+    const res = await authFetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Invalid credentials');
+    }
+    return res.json();
+  },
+
+  async signup(data: RegisterRequest): Promise<AuthResponse> {
+    const res = await authFetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to sign up');
+    }
+    return res.json();
+  },
+
+  async getCurrentUser(): Promise<{ user: User }> {
+    const res = await authFetch(`${API_BASE_URL}/auth/me`);
+    if (!res.ok) throw new Error('Unauthenticated');
+    return res.json();
+  },
+
   // Users
   async getUsers(): Promise<User[]> {
-    const res = await fetch(`${API_BASE_URL}/users`);
+    const res = await authFetch(`${API_BASE_URL}/users`);
     return res.json();
   },
 
   // Companies
   async getCompanies(): Promise<Company[]> {
-    const res = await fetch(`${API_BASE_URL}/companies`);
+    const res = await authFetch(`${API_BASE_URL}/companies`);
     return res.json();
   },
   async getCompany(id: string): Promise<Company & { contacts: Contact[]; leads: Lead[] }> {
-    const res = await fetch(`${API_BASE_URL}/companies/${id}`);
+    const res = await authFetch(`${API_BASE_URL}/companies/${id}`);
     if (!res.ok) throw new Error('Company not found');
     return res.json();
   },
   async createCompany(data: Partial<Company>): Promise<Company> {
-    const res = await fetch(`${API_BASE_URL}/companies`, {
+    const res = await authFetch(`${API_BASE_URL}/companies`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -144,7 +215,7 @@ export const api = {
     return res.json();
   },
   async updateCompany(id: string, data: Partial<Company>): Promise<Company> {
-    const res = await fetch(`${API_BASE_URL}/companies/${id}`, {
+    const res = await authFetch(`${API_BASE_URL}/companies/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -152,20 +223,20 @@ export const api = {
     return res.json();
   },
   async deleteCompany(id: string): Promise<void> {
-    await fetch(`${API_BASE_URL}/companies/${id}`, { method: 'DELETE' });
+    await authFetch(`${API_BASE_URL}/companies/${id}`, { method: 'DELETE' });
   },
 
   // Contacts
   async getContacts(): Promise<Contact[]> {
-    const res = await fetch(`${API_BASE_URL}/contacts`);
+    const res = await authFetch(`${API_BASE_URL}/contacts`);
     return res.json();
   },
   async getContact(id: string): Promise<Contact> {
-    const res = await fetch(`${API_BASE_URL}/contacts/${id}`);
+    const res = await authFetch(`${API_BASE_URL}/contacts/${id}`);
     return res.json();
   },
   async createContact(data: Partial<Contact>): Promise<Contact> {
-    const res = await fetch(`${API_BASE_URL}/contacts`, {
+    const res = await authFetch(`${API_BASE_URL}/contacts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -173,7 +244,7 @@ export const api = {
     return res.json();
   },
   async updateContact(id: string, data: Partial<Contact>): Promise<Contact> {
-    const res = await fetch(`${API_BASE_URL}/contacts/${id}`, {
+    const res = await authFetch(`${API_BASE_URL}/contacts/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -181,21 +252,21 @@ export const api = {
     return res.json();
   },
   async deleteContact(id: string): Promise<void> {
-    await fetch(`${API_BASE_URL}/contacts/${id}`, { method: 'DELETE' });
+    await authFetch(`${API_BASE_URL}/contacts/${id}`, { method: 'DELETE' });
   },
 
   // Leads
   async getLeads(): Promise<Lead[]> {
-    const res = await fetch(`${API_BASE_URL}/leads`);
+    const res = await authFetch(`${API_BASE_URL}/leads`);
     return res.json();
   },
   async getLead(id: string): Promise<Lead & { tasks: Task[]; deals: Deal[] }> {
-    const res = await fetch(`${API_BASE_URL}/leads/${id}`);
+    const res = await authFetch(`${API_BASE_URL}/leads/${id}`);
     if (!res.ok) throw new Error('Lead not found');
     return res.json();
   },
   async createLead(data: Partial<Lead>): Promise<Lead> {
-    const res = await fetch(`${API_BASE_URL}/leads`, {
+    const res = await authFetch(`${API_BASE_URL}/leads`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -203,7 +274,7 @@ export const api = {
     return res.json();
   },
   async updateLead(id: string, data: Partial<Lead>): Promise<Lead> {
-    const res = await fetch(`${API_BASE_URL}/leads/${id}`, {
+    const res = await authFetch(`${API_BASE_URL}/leads/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -211,7 +282,7 @@ export const api = {
     return res.json();
   },
   async deleteLead(id: string): Promise<void> {
-    await fetch(`${API_BASE_URL}/leads/${id}`, { method: 'DELETE' });
+    await authFetch(`${API_BASE_URL}/leads/${id}`, { method: 'DELETE' });
   },
   async convertLeadToDeal(id: string): Promise<Deal> {
     const leadDetail = await this.getLead(id);
@@ -233,7 +304,7 @@ export const api = {
     // Also update lead status to Converted
     await this.updateLead(id, { lead_status: 'Converted' });
     
-    const res = await fetch(`${API_BASE_URL}/deals`, {
+    const res = await authFetch(`${API_BASE_URL}/deals`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dealData)
@@ -243,16 +314,16 @@ export const api = {
 
   // Deals
   async getDeals(): Promise<Deal[]> {
-    const res = await fetch(`${API_BASE_URL}/deals`);
+    const res = await authFetch(`${API_BASE_URL}/deals`);
     return res.json();
   },
   async getDeal(id: string): Promise<Deal & { tasks: Task[] }> {
-    const res = await fetch(`${API_BASE_URL}/deals/${id}`);
+    const res = await authFetch(`${API_BASE_URL}/deals/${id}`);
     if (!res.ok) throw new Error('Deal not found');
     return res.json();
   },
   async createDeal(data: Partial<Deal>): Promise<Deal> {
-    const res = await fetch(`${API_BASE_URL}/deals`, {
+    const res = await authFetch(`${API_BASE_URL}/deals`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -260,7 +331,7 @@ export const api = {
     return res.json();
   },
   async updateDeal(id: string, data: Partial<Deal>): Promise<Deal> {
-    const res = await fetch(`${API_BASE_URL}/deals/${id}`, {
+    const res = await authFetch(`${API_BASE_URL}/deals/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -268,7 +339,7 @@ export const api = {
     return res.json();
   },
   async deleteDeal(id: string): Promise<void> {
-    await fetch(`${API_BASE_URL}/deals/${id}`, { method: 'DELETE' });
+    await authFetch(`${API_BASE_URL}/deals/${id}`, { method: 'DELETE' });
   },
 
   // Tasks
@@ -278,11 +349,11 @@ export const api = {
       const q = new URLSearchParams(filters as any).toString();
       if (q) url += `?${q}`;
     }
-    const res = await fetch(url);
+    const res = await authFetch(url);
     return res.json();
   },
   async createTask(data: Partial<Task>): Promise<Task> {
-    const res = await fetch(`${API_BASE_URL}/tasks`, {
+    const res = await authFetch(`${API_BASE_URL}/tasks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -290,7 +361,7 @@ export const api = {
     return res.json();
   },
   async updateTask(id: string, data: Partial<Task>): Promise<Task> {
-    const res = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    const res = await authFetch(`${API_BASE_URL}/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -298,16 +369,16 @@ export const api = {
     return res.json();
   },
   async deleteTask(id: string): Promise<void> {
-    await fetch(`${API_BASE_URL}/tasks/${id}`, { method: 'DELETE' });
+    await authFetch(`${API_BASE_URL}/tasks/${id}`, { method: 'DELETE' });
   },
 
   // Activities
   async getActivities(): Promise<Activity[]> {
-    const res = await fetch(`${API_BASE_URL}/activities`);
+    const res = await authFetch(`${API_BASE_URL}/activities`);
     return res.json();
   },
   async createActivity(text: string, actionType?: string): Promise<Activity> {
-    const res = await fetch(`${API_BASE_URL}/activities`, {
+    const res = await authFetch(`${API_BASE_URL}/activities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, action_type: actionType })

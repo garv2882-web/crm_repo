@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { api, type User } from '../api';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { type User } from '../api';
 import { 
   PieChart, 
   Building2, 
@@ -9,11 +9,13 @@ import {
   Handshake, 
   CheckSquare, 
   Settings,
-  ChevronDown
+  LogOut,
+  ChevronUp
 } from 'lucide-react';
 
 interface SidebarProps {
   collapsed: boolean;
+  onLogout: () => void;
 }
 
 const DEFAULT_USER: User = { 
@@ -24,14 +26,14 @@ const DEFAULT_USER: User = {
   status: 'Active' 
 };
 
-export default function Sidebar({ collapsed }: SidebarProps) {
+export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<User>(DEFAULT_USER);
-  const [users, setUsers] = useState<User[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     // Load active user
-    const saved = localStorage.getItem('crm_current_user');
+    const saved = localStorage.getItem('crm_auth_user');
     if (saved) {
       try {
         setCurrentUser(JSON.parse(saved));
@@ -39,21 +41,10 @@ export default function Sidebar({ collapsed }: SidebarProps) {
         console.error(e);
       }
     }
-    
-    // Load list of users
-    api.getUsers().then(setUsers).catch(console.error);
   }, []);
 
-  const handleUserSwitch = (user: User) => {
-    localStorage.setItem('crm_current_user', JSON.stringify(user));
-    setCurrentUser(user);
-    setShowDropdown(false);
-    // Reload page to re-render context throughout page modules
-    window.location.reload();
-  };
-
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('');
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
@@ -125,46 +116,45 @@ export default function Sidebar({ collapsed }: SidebarProps) {
           flexDirection: 'column',
           gap: '4px'
         }}>
-          <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', padding: '4px 8px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
-            Switch User Identity
+          <div 
+            onClick={() => { setShowDropdown(false); navigate('/settings'); }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '8px 12px',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '13px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <Settings className="w-4 h-4 text-slate-400" />
+            <span>System Settings</span>
           </div>
-          {users.map(u => (
-            <div 
-              key={u.user_id} 
-              onClick={() => handleUserSwitch(u)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '8px',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-                backgroundColor: currentUser.user_id === u.user_id ? 'rgba(255,255,255,0.08)' : 'transparent',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = currentUser.user_id === u.user_id ? 'rgba(255,255,255,0.08)' : 'transparent'}
-            >
-              <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                backgroundColor: u.role === 'Admin' ? 'var(--primary)' : 'hsl(35, 92%, 45%)',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 700,
-                fontSize: '11px'
-              }}>
-                {getInitials(u.full_name)}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'white' }}>{u.full_name}</span>
-                <span style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>{u.role}</span>
-              </div>
-            </div>
-          ))}
+
+          <div 
+            onClick={() => { setShowDropdown(false); onLogout(); }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '8px 12px',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              color: '#ef4444',
+              fontSize: '13px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </div>
         </div>
       )}
       
@@ -180,7 +170,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
             <span className="profile-role">{currentUser.role}</span>
           </div>
         </div>
-        <ChevronDown className="w-4 h-4 text-slate-400 profile-chevron" />
+        <ChevronUp className="w-4 h-4 text-slate-400 profile-chevron" />
       </div>
     </aside>
   );

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 import pool from './db.js';
 import { 
   SEED_USERS, 
@@ -25,6 +26,20 @@ async function initDb() {
   try {
     console.log('🔄 Running database migrations...');
     
+    // 0. Alter users to add password_hash if missing
+    await client.query(`
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+    `);
+
+    // If any user has NULL password_hash, update it to default bcrypt hash of 'password123'
+    const defaultHash = bcrypt.hashSync('password123', 10);
+    await client.query(`
+      UPDATE users 
+      SET password_hash = $1 
+      WHERE password_hash IS NULL
+    `, [defaultHash]);
+
     // 1. Alter companies to add annual_revenue if missing
     await client.query(`
       ALTER TABLE companies 
@@ -74,11 +89,12 @@ async function initDb() {
     const usersCount = await client.query('SELECT COUNT(*) FROM users');
     if (parseInt(usersCount.rows[0].count) === 0) {
       console.log('🌱 Seeding users...');
+      const defaultHash = bcrypt.hashSync('password123', 10);
       for (const u of SEED_USERS) {
         await client.query(
-          `INSERT INTO users (user_id, full_name, email, role, status) 
-           VALUES ($1, $2, $3, $4, $5)`,
-          [u.user_id, u.full_name, u.email, u.role, u.status]
+          `INSERT INTO users (user_id, full_name, email, role, status, password_hash) 
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [u.user_id, u.full_name, u.email, u.role, u.status, defaultHash]
         );
       }
     }
@@ -172,7 +188,8 @@ initDb().then(() => {
   // We will mount router configurations
 });
 
-// Import route files (we will write these next)
+// Import route files
+import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import companiesRouter from './routes/companies.js';
 import contactsRouter from './routes/contacts.js';
@@ -181,13 +198,35 @@ import dealsRouter from './routes/deals.js';
 import tasksRouter from './routes/tasks.js';
 import activitiesRouter from './routes/activities.js';
 
-app.use('/api/users', usersRouter);
-app.use('/api/companies', companiesRouter);
-app.use('/api/contacts', contactsRouter);
-app.use('/api/leads', leadsRouter);
-app.use('/api/deals', dealsRouter);
-app.use('/api/tasks', tasksRouter);
-app.use('/api/activities', activitiesRouter);
+// JWT authentication middleware
+const JWT_SECRET = process.env.JWT_SECRET || 'salesnest-super-secret-key-123';
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Access denied. Authenticated token required.' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const verified = jwt.verify(token, JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired token.' });
+  }
+};
+
+// Import jwt globally at top or dynamically here
+import jwt from 'jsonwebtoken';
+
+app.use('/api/auth', authRouter);
+app.use('/api/users', verifyToken, usersRouter);
+app.use('/api/companies', verifyToken, companiesRouter);
+app.use('/api/contacts', verifyToken, contactsRouter);
+app.use('/api/leads', verifyToken, leadsRouter);
+app.use('/api/deals', verifyToken, dealsRouter);
+app.use('/api/tasks', verifyToken, tasksRouter);
+app.use('/api/activities', verifyToken, activitiesRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
