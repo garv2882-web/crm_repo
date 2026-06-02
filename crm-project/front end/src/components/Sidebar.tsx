@@ -19,7 +19,7 @@ interface SidebarProps {
 }
 
 const DEFAULT_USER: User = { 
-  user_id: 'u1111111-1111-4111-8111-111111111111', 
+  user_id: 'e1111111-1111-4111-8111-111111111111', 
   full_name: 'Aman Verma', 
   email: 'aman@salesnest.com', 
   role: 'Admin', 
