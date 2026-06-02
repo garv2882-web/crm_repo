@@ -1,3 +1,9 @@
 {
-  "outputDirectory": "crm-project/front end/dist"
+  "outputDirectory": "crm-project/front end/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
