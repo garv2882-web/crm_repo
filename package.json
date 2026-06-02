@@ -1,0 +1,11 @@
+{
+  "name": "crm-db-root",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "crm-project/front end"
+  ],
+  "scripts": {
+    "build": "npm run build -w front-end"
+  }
+}
