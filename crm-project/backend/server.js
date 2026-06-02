@@ -26,13 +26,136 @@ async function initDb() {
   try {
     console.log('🔄 Running database migrations...');
     
-    // 0. Alter users to add password_hash if missing
+    // 0. Create custom types (enums) if they don't exist
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+          CREATE TYPE user_role AS ENUM ('Admin', 'Sales', 'Manager');
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'lead_status') THEN
+          CREATE TYPE lead_status AS ENUM ('New', 'Contacted', 'Qualified', 'Converted', 'Disqualified');
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'priority_level') THEN
+          CREATE TYPE priority_level AS ENUM ('Low', 'Medium', 'High');
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'deal_status') THEN
+          CREATE TYPE deal_status AS ENUM ('Open', 'Won', 'Lost', 'Cancelled');
+        END IF;
+      END$$;
+    `);
+
+    // 1. Create core tables if they don't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        full_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255),
+        role user_role NOT NULL DEFAULT 'Sales',
+        status VARCHAR(50) DEFAULT 'Active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS companies (
+        company_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+        company_name VARCHAR(255) NOT NULL,
+        company_code VARCHAR(100) UNIQUE,
+        industry VARCHAR(100),
+        website VARCHAR(255),
+        country VARCHAR(100),
+        state VARCHAR(100),
+        city VARCHAR(100),
+        notes TEXT,
+        is_deleted BOOLEAN DEFAULT FALSE,
+        deleted_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS contacts (
+        contact_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        company_id UUID REFERENCES companies(company_id) ON DELETE SET NULL,
+        first_name VARCHAR(100) NOT NULL,
+        last_name VARCHAR(100),
+        email VARCHAR(255),
+        mobile_number VARCHAR(20),
+        linkedin_profile VARCHAR(255),
+        job_title VARCHAR(100),
+        department VARCHAR(100),
+        notes TEXT,
+        is_deleted BOOLEAN DEFAULT FALSE,
+        deleted_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS leads (
+        lead_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        company_id UUID REFERENCES companies(company_id) ON DELETE SET NULL,
+        primary_contact_id UUID REFERENCES contacts(contact_id) ON DELETE SET NULL,
+        assigned_to UUID REFERENCES users(user_id) ON DELETE SET NULL,
+        created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+        lead_title VARCHAR(255) NOT NULL,
+        lead_source VARCHAR(100),
+        lead_status lead_status DEFAULT 'New',
+        priority priority_level DEFAULT 'Medium',
+        estimated_revenue DECIMAL(15,2),
+        conversion_probability DECIMAL(5,2),
+        campaign_name VARCHAR(255),
+        tags JSON,
+        custom_fields JSON,
+        notes TEXT,
+        is_deleted BOOLEAN DEFAULT FALSE,
+        deleted_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS deals (
+        deal_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        lead_id UUID REFERENCES leads(lead_id) ON DELETE CASCADE,
+        deal_name VARCHAR(255) NOT NULL,
+        deal_stage VARCHAR(100),
+        deal_status deal_status DEFAULT 'Open',
+        priority priority_level DEFAULT 'Medium',
+        probability_percentage DECIMAL(5,2),
+        deal_value DECIMAL(15,2) NOT NULL,
+        currency VARCHAR(10) DEFAULT 'INR',
+        expected_closing_date DATE,
+        product_service VARCHAR(255),
+        competitors TEXT,
+        deal_source VARCHAR(100),
+        negotiation_status VARCHAR(100),
+        contract_status VARCHAR(100),
+        last_activity_date TIMESTAMP,
+        next_follow_up_date TIMESTAMP,
+        tags JSON,
+        custom_fields JSON,
+        notes TEXT,
+        is_deleted BOOLEAN DEFAULT FALSE,
+        deleted_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 2. Run alter scripts for backwards-compatibility or partial schemas
     await client.query(`
       ALTER TABLE users 
       ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
     `);
 
-    // If any user has NULL password_hash, update it to default bcrypt hash of 'password123'
     const defaultHash = bcrypt.hashSync('password123', 10);
     await client.query(`
       UPDATE users 
@@ -40,13 +163,11 @@ async function initDb() {
       WHERE password_hash IS NULL
     `, [defaultHash]);
 
-    // 1. Alter companies to add annual_revenue if missing
     await client.query(`
       ALTER TABLE companies 
       ADD COLUMN IF NOT EXISTS annual_revenue NUMERIC(15,2);
     `);
 
-    // 2. Alter deals to add company_id, contact_id, sales_pipeline if missing
     await client.query(`
       ALTER TABLE deals 
       ADD COLUMN IF NOT EXISTS company_id UUID REFERENCES companies(company_id) ON DELETE SET NULL,
