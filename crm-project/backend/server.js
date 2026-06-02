@@ -277,12 +277,12 @@ async function initDb() {
       console.log('🌱 Seeding deals...');
       for (const d of SEED_DEALS) {
         await client.query(
-          `INSERT INTO deals (deal_id, lead_id, company_id, contact_id, deal_owner, deal_stage, deal_status, priority, probability_percentage, deal_value, currency, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          `INSERT INTO deals (deal_id, lead_id, company_id, contact_id, deal_owner, deal_name, deal_stage, deal_status, priority, probability_percentage, deal_value, currency, sales_pipeline, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
           [
-            d.deal_id, d.lead_id, d.company_id, d.contact_id, d.deal_owner,
+            d.deal_id, d.lead_id, d.company_id, d.contact_id, d.deal_owner, d.deal_name,
             d.deal_stage, d.deal_status, d.priority, d.probability_percentage,
-            d.deal_value, d.currency, d.created_at
+            d.deal_value, d.currency, d.sales_pipeline || 'Standard', d.created_at
           ]
         );
       }
