@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SalesNest CRM Contacts List.">
+  <title>Contacts | SalesNest</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared CSS stylesheet -->
+  <link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+
+  <div class="crm-layout">
+    
+    <!-- DYNAMIC SIDEBAR (Rendered by shared.js) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="crm-main">
+      
+      <!-- DYNAMIC NAVBAR (Rendered by shared.js) -->
+      <div id="navbar-placeholder"></div>
+
+      <!-- MAIN CONTENT -->
+      <section class="crm-content">
+        
+        <!-- Header Controls -->
+        <div class="filter-bar">
+          <div class="filter-left">
+            <h2 style="font-size: 18px; font-weight: 700; color: var(--text-primary);">Contacts Directory</h2>
+          </div>
+          
+          <button class="btn btn-primary" disabled style="opacity: 0.6; cursor: not-allowed;">
+            <i class="fa-solid fa-plus"></i>
+            <span>Create Contact</span>
+          </button>
+        </div>
+
+        <!-- Contacts Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-address-book"></i>
+              <span>All Associated Contacts</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table class="crm-table">
+                <thead>
+                  <tr>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Mobile Number</th>
+                    <th>Job Title</th>
+                    <th>Department</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">Aman Verma</td>
+                    <td><a href="mailto:aman@technova.com" style="color: var(--primary); text-decoration: underline;">aman@technova.com</a></td>
+                    <td>+91 98765 43210</td>
+                    <td>Procurement Head</td>
+                    <td>Purchasing</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">Vikash Sharma</td>
+                    <td><a href="mailto:vikash@softsol.com" style="color: var(--primary); text-decoration: underline;">vikash@softsol.com</a></td>
+                    <td>+91 98765 43211</td>
+                    <td>CTO</td>
+                    <td>Technology</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">Shreya Sen</td>
+                    <td><a href="mailto:shreya@bytesystems.io" style="color: var(--primary); text-decoration: underline;">shreya@bytesystems.io</a></td>
+                    <td>+91 98765 43212</td>
+                    <td>Director of IT</td>
+                    <td>Information Technology</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">Vikram Malhotra</td>
+                    <td><a href="mailto:vikram@nextgen.io" style="color: var(--primary); text-decoration: underline;">vikram@nextgen.io</a></td>
+                    <td>+91 98765 43213</td>
+                    <td>VP Operations</td>
+                    <td>Operations</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">Sneha Reddy</td>
+                    <td><a href="mailto:sneha@creativeminds.design" style="color: var(--primary); text-decoration: underline;">sneha@creativeminds.design</a></td>
+                    <td>+91 98765 43214</td>
+                    <td>Creative Director</td>
+                    <td>Design</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Shared layout controller -->
+  <script src="../shared/shared.js"></script>
+</body>
+</html>

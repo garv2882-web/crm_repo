@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create Lead | SalesNest - Enterprise-grade lead profiling form.">
+  <title>Create Lead | SalesNest</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared CSS stylesheet -->
+  <link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+
+  <div class="crm-layout">
+    
+    <!-- DYNAMIC SIDEBAR (Rendered by shared.js) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="crm-main">
+      
+      <!-- DYNAMIC NAVBAR (Rendered by shared.js) -->
+      <div id="navbar-placeholder"></div>
+
+      <!-- MAIN CONTENT -->
+      <section class="crm-content">
+        
+        <div class="create-lead-container">
+          
+          <!-- Navigation header bar -->
+          <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
+            <a href="leads-dashboard.html" class="back-btn" title="Back to Dashboard">
+              <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div>
+              <h2 style="font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">Create New Lead Profile</h2>
+              <p style="font-size: 13px; color: var(--text-secondary);">Fill in the operational, financial, and relational detail tags.</p>
+            </div>
+          </div>
+
+          <!-- Refined card form -->
+          <div class="card">
+            <form id="standalone-create-lead-form" style="margin: 0;">
+              <div class="card-body" style="padding: 28px;">
+                <div class="form-grid">
+                  
+                  <div class="form-group form-full-width">
+                    <label for="form-title">Lead Title<span>*</span></label>
+                    <input type="text" id="form-title" class="form-control" placeholder="e.g. CRM Software Proposal" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-company">Company Name<span>*</span></label>
+                    <select id="form-company" class="form-control" required>
+                      <!-- Dynamic -->
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-contact">Primary Contact<span>*</span></label>
+                    <select id="form-contact" class="form-control" required>
+                      <!-- Dynamic -->
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-status">Lead Status</label>
+                    <select id="form-status" class="form-control">
+                      <option value="New" selected>New</option>
+                      <option value="Contacted">Contacted</option>
+                      <option value="Qualified">Qualified</option>
+                      <option value="Converted">Converted</option>
+                      <option value="Disqualified">Disqualified</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-priority">Priority</label>
+                    <select id="form-priority" class="form-control">
+                      <option value="Low">Low</option>
+                      <option value="Medium" selected>Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-revenue">Estimated Revenue (₹)</label>
+                    <input type="number" id="form-revenue" class="form-control" placeholder="e.g. 500000" min="0" step="1000">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-probability">Conversion Probability (%)</label>
+                    <input type="number" id="form-probability" class="form-control" placeholder="e.g. 50" min="0" max="100" step="1">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-assignee">Assigned To<span>*</span></label>
+                    <select id="form-assignee" class="form-control" required>
+                      <!-- Dynamic -->
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="form-source">Lead Source</label>
+                    <select id="form-source" class="form-control">
+                      <option value="Website" selected>Website</option>
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Referral">Referral</option>
+                      <option value="Campaign">Campaign</option>
+                      <option value="Event">Event</option>
+                      <option value="Cold Call">Cold Call</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group form-full-width">
+                    <label for="form-campaign">Campaign Name</label>
+                    <input type="text" id="form-campaign" class="form-control" placeholder="e.g. Summer App Ads">
+                  </div>
+                  
+                  <div class="form-group form-full-width">
+                    <label for="form-notes">Notes</label>
+                    <textarea id="form-notes" class="form-control" rows="4" placeholder="Enter background details, call summaries, or next steps..."></textarea>
+                  </div>
+                  
+                </div>
+              </div>
+              
+              <!-- Sticky action footer styling -->
+              <div style="padding: 18px 28px; border-top: 1px solid var(--border-color); background-color: hsl(210, 40%, 99%); display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-create">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Lead</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/shared.js"></script>
+  <script src="leads.js"></script>
+</body>
+</html>

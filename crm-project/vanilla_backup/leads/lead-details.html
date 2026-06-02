@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lead Details | SalesNest - Relational profile dashboard view.">
+  <title>Lead Details | SalesNest</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared CSS stylesheet -->
+  <link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+
+  <div class="crm-layout">
+    
+    <!-- DYNAMIC SIDEBAR (Rendered by shared.js) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="crm-main">
+      
+      <!-- DYNAMIC NAVBAR (Rendered by shared.js) -->
+      <div id="navbar-placeholder"></div>
+
+      <!-- MAIN CONTENT -->
+      <section class="crm-content">
+        
+        <!-- Container for dynamic JS rendering -->
+        <div id="lead-details-content-wrapper">
+          
+          <!-- DETAILS HEADER BAR -->
+          <div class="details-header">
+            <div class="details-header-left">
+              <a href="leads-dashboard.html" class="back-btn" title="Back to Dashboard">
+                <i class="fa-solid fa-arrow-left"></i>
+              </a>
+              <div class="details-title-wrap">
+                <h2 class="details-title" id="bind-title">Loading Lead Details...</h2>
+                <div class="details-meta-badges">
+                  <span id="bind-status-badge" class="badge">Status</span>
+                  <span id="bind-priority-badge" class="badge">Priority</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="details-header-right">
+              <button id="btn-details-convert" class="btn btn-secondary btn-outline-blue">
+                <i class="fa-solid fa-handshake"></i>
+                <span>Convert to Deal</span>
+              </button>
+              <button id="btn-details-delete" class="btn btn-danger">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>Delete Lead</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SPLIT DETAIL LAYOUT -->
+          <div class="details-grid">
+            
+            <!-- LEFT PANEL: Core Metrics & Notes -->
+            <div class="details-left-panel">
+              
+              <!-- Lead Core Info Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Lead Information</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="info-list">
+                    <div class="info-item">
+                      <span class="info-label">Estimated Revenue</span>
+                      <span class="info-value info-value-currency" id="bind-revenue">₹0</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Conversion Probability</span>
+                      <span class="info-value" id="bind-probability">0%</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Lead Source</span>
+                      <span class="info-value" id="bind-source">N/A</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Campaign Name</span>
+                      <span class="info-value" id="bind-campaign">N/A</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Created At</span>
+                      <span class="info-value" id="bind-created-date">N/A</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Last Updated</span>
+                      <span class="info-value" id="bind-updated-date">N/A</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Action controls -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Quick Operations</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="info-list">
+                    <div class="form-group">
+                      <label for="update-status">Update Status</label>
+                      <select id="update-status" class="form-control">
+                        <option value="New">New</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Qualified">Qualified</option>
+                        <option value="Converted">Converted</option>
+                        <option value="Disqualified">Disqualified</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="update-priority">Update Priority</label>
+                      <select id="update-priority" class="form-control">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lead Notes Panel -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-regular fa-comment-dots"></i>
+                    <span>Internal Notes & Interaction History</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <!-- Add note form -->
+                  <form id="form-add-note" style="margin-bottom: 20px;">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                      <textarea id="new-note-text" class="form-control" rows="3" placeholder="Append feedback notes or call logs to lead history..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="height: 34px; padding: 0 14px; font-size: 12.5px;">
+                      <i class="fa-solid fa-pencil"></i> Add Note
+                    </button>
+                  </form>
+                  
+                  <div id="bind-notes-history" class="notes-history">
+                    <!-- Dynamic -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT PANEL: Relational Connections -->
+            <div class="details-right-panel">
+              
+              <!-- Company Details Card -->
+              <div class="card related-card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-building"></i>
+                    <span>Associated Company</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="related-row company">
+                    <div class="related-icon"><i class="fa-solid fa-briefcase"></i></div>
+                    <div class="related-info">
+                      <span class="related-name" id="bind-comp-name">Company Name</span>
+                      <span class="related-desc" id="bind-comp-industry">Industry</span>
+                      <span class="related-desc" id="bind-comp-location">Location</span>
+                      <a href="#" class="related-link" id="bind-comp-website" target="_blank" rel="noopener noreferrer">
+                        <span>Visit Website</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 9px;"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Primary Contact details card -->
+              <div class="card related-card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-address-card"></i>
+                    <span>Primary Contact</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="related-row contact">
+                    <div class="related-icon"><i class="fa-solid fa-user"></i></div>
+                    <div class="related-info">
+                      <span class="related-name" id="bind-cont-name">Contact Full Name</span>
+                      <span class="related-desc" id="bind-cont-job">Job Title</span>
+                      <a href="#" class="related-link" id="bind-cont-email">Email</a>
+                      <span class="related-desc" id="bind-cont-phone">Mobile</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Assigned User details card -->
+              <div class="card related-card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Assigned Owner</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="related-row user">
+                    <div class="related-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="related-info">
+                      <span class="related-name" id="bind-user-name">User Full Name</span>
+                      <a href="#" class="related-link" id="bind-user-email">Email</a>
+                      <span class="related-desc" id="bind-user-role">Role</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/shared.js"></script>
+  <script src="leads.js"></script>
+</body>
+</html>

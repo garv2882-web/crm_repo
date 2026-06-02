@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SalesNest CRM Companies Dashboard - Enterprise-grade B2B companies management.">
+  <title>Companies Dashboard | SalesNest</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared CSS stylesheet -->
+  <link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+
+  <div class="crm-layout">
+    
+    <!-- DYNAMIC SIDEBAR (Rendered by shared.js) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="crm-main">
+      
+      <!-- DYNAMIC NAVBAR (Rendered by shared.js) -->
+      <div id="navbar-placeholder"></div>
+
+      <!-- MAIN CONTENT -->
+      <section class="crm-content">
+        
+        <!-- CONTROL BAR (Filters & Create Button) -->
+        <div class="filter-bar">
+          <div class="filter-left">
+            <div class="filter-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="companies-search" class="filter-search-input" placeholder="Search companies by name, code, or city..." aria-label="Search companies">
+            </div>
+            
+            <select id="filter-industry" class="filter-dropdown" aria-label="Filter by Industry">
+              <option value="all">Industry</option>
+              <!-- Dynamic options -->
+            </select>
+            
+            <button id="clear-filters-btn" class="btn btn-secondary btn-outline-blue">Clear Filters</button>
+          </div>
+          
+          <button id="btn-open-create-modal" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            <span>Create Company</span>
+          </button>
+        </div>
+
+        <!-- KPI METRIC CARDS -->
+        <div class="stats-grid">
+          <div class="stat-card total">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-building"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Total Companies</span>
+              <span class="stat-value" id="stat-total-val">-</span>
+            </div>
+          </div>
+          
+          <div class="stat-card new">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Total Revenue</span>
+              <span class="stat-value" id="stat-revenue-val">-</span>
+            </div>
+          </div>
+          
+          <div class="stat-card qualified">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-industry"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Top Industry</span>
+              <span class="stat-value" id="stat-industry-val">-</span>
+            </div>
+          </div>
+          
+          <div class="stat-card contacted">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-chart-simple"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Avg Revenue</span>
+              <span class="stat-value" id="stat-avg-revenue-val">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TWO-COLUMN SAAS LAYOUT -->
+        <div class="details-grid">
+          
+          <!-- LEFT COLUMN: Companies Table -->
+          <div class="details-left-panel">
+            <div class="table-card">
+              <div class="table-wrapper">
+                <table class="crm-table">
+                  <thead>
+                    <tr>
+                      <th data-sort="company_name">Company Name <i class="fa-solid fa-sort"></i></th>
+                      <th data-sort="company_code">Code <i class="fa-solid fa-sort"></i></th>
+                      <th data-sort="industry">Industry <i class="fa-solid fa-sort"></i></th>
+                      <th data-sort="website">Website <i class="fa-solid fa-sort"></i></th>
+                      <th data-sort="city">Location <i class="fa-solid fa-sort"></i></th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="companies-table-body">
+                    <!-- Loading Skeletons on startup -->
+                    <tr class="skeleton-row">
+                      <td colspan="6"><div class="skeleton-pulse" style="height: 20px; width: 100%; margin: 8px 0; border-radius: 4px;"></div></td>
+                    </tr>
+                    <tr class="skeleton-row">
+                      <td colspan="6"><div class="skeleton-pulse" style="height: 20px; width: 100%; margin: 8px 0; border-radius: 4px;"></div></td>
+                    </tr>
+                    <tr class="skeleton-row">
+                      <td colspan="6"><div class="skeleton-pulse" style="height: 20px; width: 100%; margin: 8px 0; border-radius: 4px;"></div></td>
+                    </tr>
+                    <tr class="skeleton-row">
+                      <td colspan="6"><div class="skeleton-pulse" style="height: 20px; width: 100%; margin: 8px 0; border-radius: 4px;"></div></td>
+                    </tr>
+                    <tr class="skeleton-row">
+                      <td colspan="6"><div class="skeleton-pulse" style="height: 20px; width: 100%; margin: 8px 0; border-radius: 4px;"></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- PAGINATION -->
+              <div class="table-pagination">
+                <div class="pagination-info" id="pagination-summary">
+                  Showing 0 to 0 of 0 results
+                </div>
+                
+                <div class="pagination-controls">
+                  <div class="pagination-pages" id="pagination-pages">
+                    <!-- Dynamic -->
+                  </div>
+                  
+                  <div class="pagination-size">
+                    <select id="page-size-select" aria-label="Page Size">
+                      <option value="5">5 / page</option>
+                      <option value="10" selected>10 / page</option>
+                      <option value="20">20 / page</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Activities -->
+          <div class="details-right-panel">
+            <!-- Activity Logs Feed -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <span>Recent Activities</span>
+                </div>
+              </div>
+              <div class="card-body" style="padding: 20px;">
+                <div class="activity-feed-list" id="recent-activities-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- CREATE COMPANY MODAL -->
+  <div class="modal-overlay" id="create-company-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-header">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title-header">Create New Company</h2>
+        <button class="modal-close-btn" id="btn-close-create-modal" aria-label="Close Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      
+      <form id="modal-create-company-form">
+        <div class="modal-body">
+          <div class="form-grid">
+            
+            <div class="form-group form-full-width">
+              <label for="form-name">Company Name<span>*</span></label>
+              <input type="text" id="form-name" class="form-control" placeholder="e.g. TechNova" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="form-code">Company Code</label>
+              <input type="text" id="form-code" class="form-control" placeholder="e.g. TN001 (auto-generated if empty)">
+            </div>
+            
+            <div class="form-group">
+              <label for="form-industry">Industry</label>
+              <input type="text" id="form-industry" class="form-control" placeholder="e.g. Software, consulting">
+            </div>
+            
+            <div class="form-group">
+              <label for="form-website">Website</label>
+              <input type="url" id="form-website" class="form-control" placeholder="e.g. https://technova.com">
+            </div>
+            
+            <div class="form-group">
+              <label for="form-revenue">Annual Revenue (₹)</label>
+              <input type="number" id="form-revenue" class="form-control" placeholder="e.g. 120000000" min="0" step="10000">
+            </div>
+            
+            <div class="form-group">
+              <label for="form-city">City</label>
+              <input type="text" id="form-city" class="form-control" placeholder="e.g. Bangalore">
+            </div>
+            
+            <div class="form-group">
+              <label for="form-state">State</label>
+              <input type="text" id="form-state" class="form-control" placeholder="e.g. Karnataka">
+            </div>
+            
+            <div class="form-group">
+              <label for="form-country">Country</label>
+              <input type="text" id="form-country" class="form-control" placeholder="e.g. India">
+            </div>
+            
+            <div class="form-group form-full-width">
+              <label for="form-notes">Notes</label>
+              <textarea id="form-notes" class="form-control" rows="3" placeholder="Enter background details or description..."></textarea>
+            </div>
+            
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-create-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Company</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/shared.js"></script>
+  <script src="companies.js"></script>
+</body>
+</html>

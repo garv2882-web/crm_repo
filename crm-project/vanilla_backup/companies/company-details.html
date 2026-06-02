@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Company Details | SalesNest - Relational profile dashboard view.">
+  <title>Company Details | SalesNest</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared CSS stylesheet -->
+  <link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+
+  <div class="crm-layout">
+    
+    <!-- DYNAMIC SIDEBAR (Rendered by shared.js) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="crm-main">
+      
+      <!-- DYNAMIC NAVBAR (Rendered by shared.js) -->
+      <div id="navbar-placeholder"></div>
+
+      <!-- MAIN CONTENT -->
+      <section class="crm-content">
+        
+        <!-- Container for dynamic JS rendering -->
+        <div id="company-details-content-wrapper">
+          
+          <!-- DETAILS HEADER BAR -->
+          <div class="details-header" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+            <div class="details-header-left" style="display: flex; align-items: center; gap: 16px;">
+              <a href="companies-dashboard.html" class="back-btn" title="Back to Dashboard">
+                <i class="fa-solid fa-arrow-left"></i>
+              </a>
+              <div class="details-title-wrap">
+                <h2 class="details-title" id="bind-title" style="font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">Loading Company Details...</h2>
+                <div class="details-meta-badges" style="margin-top: 4px;">
+                  <span id="bind-code-badge" class="badge badge-status-new">Code</span>
+                  <span id="bind-industry-badge" class="badge badge-priority-medium">Industry</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="details-header-right">
+              <button id="btn-details-delete" class="btn btn-danger">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>Delete Company</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SPLIT DETAIL LAYOUT -->
+          <div class="details-grid">
+            
+            <!-- LEFT PANEL: Core Info, Quick Actions, and Notes -->
+            <div class="details-left-panel">
+              
+              <!-- Company Core Info Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Company Information</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="info-list">
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Company Code</span>
+                      <span class="info-value" id="bind-code" style="font-weight: 600;">N/A</span>
+                    </div>
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Industry</span>
+                      <span class="info-value" id="bind-industry" style="font-weight: 600;">N/A</span>
+                    </div>
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Website</span>
+                      <span class="info-value" style="font-weight: 600;">
+                        <a href="#" id="bind-website-link" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline;">N/A</a>
+                      </span>
+                    </div>
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Annual Revenue</span>
+                      <span class="info-value" id="bind-revenue" style="font-weight: 600; color: hsl(150, 84%, 26%);">₹0</span>
+                    </div>
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Location</span>
+                      <span class="info-value" id="bind-location" style="font-weight: 600;">N/A</span>
+                    </div>
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Created At</span>
+                      <span class="info-value" id="bind-created-date" style="font-weight: 600;">N/A</span>
+                    </div>
+                    <div class="info-item" style="display: flex; justify-content: space-between; padding: 10px 0;">
+                      <span class="info-label" style="color: var(--text-secondary); font-weight: 500;">Last Updated</span>
+                      <span class="info-value" id="bind-updated-date" style="font-weight: 600;">N/A</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Operations Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Quick Operations</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-grid">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                      <label for="update-industry">Update Industry</label>
+                      <input type="text" id="update-industry" class="form-control" placeholder="e.g. IT, Consulting">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                      <label for="update-revenue">Update Annual Revenue (₹)</label>
+                      <input type="number" id="update-revenue" class="form-control" placeholder="e.g. 100000000">
+                    </div>
+                    <div class="form-group form-full-width" style="margin-bottom: 12px;">
+                      <label for="update-website">Update Website</label>
+                      <input type="url" id="update-website" class="form-control" placeholder="e.g. https://website.com">
+                    </div>
+                  </div>
+                  <button id="btn-save-operations" class="btn btn-primary" style="margin-top: 12px;">Save Changes</button>
+                </div>
+              </div>
+
+              <!-- Company Notes Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-regular fa-comment-dots"></i>
+                    <span>Internal Notes & History</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form id="form-add-note" style="margin-bottom: 20px;">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                      <textarea id="new-note-text" class="form-control" rows="3" placeholder="Append notes or descriptions about this company..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="height: 34px; padding: 0 14px; font-size: 12.5px;">
+                      <i class="fa-solid fa-pencil"></i> Add Note
+                    </button>
+                  </form>
+                  
+                  <div id="bind-notes-history" class="notes-history">
+                    <!-- Dynamic -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT PANEL: Relational Connections (Contacts, Leads, Deals) -->
+            <div class="details-right-panel">
+              
+              <!-- Associated Contacts Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-address-book"></i>
+                    <span>Associated Contacts</span>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div class="table-wrapper">
+                    <table class="crm-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Job Title</th>
+                        </tr>
+                      </thead>
+                      <tbody id="associated-contacts-table-body">
+                        <!-- Dynamic -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Associated Leads Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>Associated Leads</span>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div class="table-wrapper">
+                    <table class="crm-table">
+                      <thead>
+                        <tr>
+                          <th>Lead Title</th>
+                          <th>Status</th>
+                          <th>Priority</th>
+                        </tr>
+                      </thead>
+                      <tbody id="associated-leads-table-body">
+                        <!-- Dynamic -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Associated Deals Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Associated Deals</span>
+                  </div>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div class="table-wrapper">
+                    <table class="crm-table">
+                      <thead>
+                        <tr>
+                          <th>Deal Name</th>
+                          <th>Stage</th>
+                          <th>Value</th>
+                        </tr>
+                      </thead>
+                      <tbody id="associated-deals-table-body">
+                        <!-- Dynamic -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/shared.js"></script>
+  <script src="companies.js"></script>
+</body>
+</html>

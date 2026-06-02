@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SalesNest CRM Deals Pipeline Overview.">
+  <title>Deals | SalesNest</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared CSS stylesheet -->
+  <link rel="stylesheet" href="../shared/shared.css">
+</head>
+<body>
+
+  <div class="crm-layout">
+    
+    <!-- DYNAMIC SIDEBAR (Rendered by shared.js) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="crm-main">
+      
+      <!-- DYNAMIC NAVBAR (Rendered by shared.js) -->
+      <div id="navbar-placeholder"></div>
+
+      <!-- MAIN CONTENT -->
+      <section class="crm-content">
+        
+        <!-- Header Controls -->
+        <div class="filter-bar">
+          <div class="filter-left">
+            <h2 style="font-size: 18px; font-weight: 700; color: var(--text-primary);">Deals Pipeline Overview</h2>
+          </div>
+          
+          <button class="btn btn-primary" disabled style="opacity: 0.6; cursor: not-allowed;">
+            <i class="fa-solid fa-plus"></i>
+            <span>Create Deal</span>
+          </button>
+        </div>
+
+        <!-- Deals Stats row -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="stat-card total">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Total Deals Value</span>
+              <span class="stat-value">₹1,520,000</span>
+            </div>
+          </div>
+          
+          <div class="stat-card new">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Open Deals</span>
+              <span class="stat-value">2</span>
+            </div>
+          </div>
+          
+          <div class="stat-card qualified">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Deals Won</span>
+              <span class="stat-value">0</span>
+            </div>
+          </div>
+          
+          <div class="stat-card disqualified">
+            <div class="stat-icon-wrapper"><i class="fa-solid fa-circle-xmark"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Deals Lost</span>
+              <span class="stat-value">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deals Table Card Placeholder -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-receipt"></i>
+              <span>Active Deals Pipeline</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table class="crm-table">
+                <thead>
+                  <tr>
+                    <th>Deal Name</th>
+                    <th>Stage</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Value</th>
+                    <th>Owner</th>
+                    <th>Expected Close</th>
+                  </tr>
+                </thead>
+                <tbody id="deals-table-body">
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">ERP Migration Deal</td>
+                    <td>Proposal</td>
+                    <td><span class="badge badge-status-open">Open</span></td>
+                    <td><span class="badge badge-priority-high">High</span></td>
+                    <td style="font-weight: 600; color: hsl(150, 84%, 26%);">₹1,200,000</td>
+                    <td>Rahul Sharma</td>
+                    <td>30 June 2024</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 600; color: var(--primary);">Creative Minds Web Redesign</td>
+                    <td>Negotiation</td>
+                    <td><span class="badge badge-status-open">Open</span></td>
+                    <td><span class="badge badge-priority-medium">Medium</span></td>
+                    <td style="font-weight: 600; color: hsl(150, 84%, 26%);">₹320,000</td>
+                    <td>Rahul Sharma</td>
+                    <td>15 June 2024</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Shared layout controller -->
+  <script src="../shared/shared.js"></script>
+</body>
+</html>
