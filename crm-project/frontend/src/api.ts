@@ -2,6 +2,7 @@
 // Fully compatible with existing API signatures but backed by localStorage
 
 // Auth Interfaces
+import { isAdminEmail } from './config/adminConfig';
 export interface LoginRequest {
   email: string;
   password?: string;
@@ -450,87 +451,89 @@ export const api = {
   async signup(data: RegisterRequest): Promise<AuthResponse> {
     const db = getDB();
     const exists = db.users.find(u => u.email.toLowerCase() === data.email.toLowerCase());
-    if (exists) {
-      // If employee exists and is pending, activate them on first login
-      if (exists.status === 'Pending') {
-        exists.status = 'Active';
-        exists.full_name = data.full_name;
-        exists.last_active = new Date().toISOString();
+    
+    if (!exists) {
+      // Allow signup ONLY if they are an admin
+      if (isAdminEmail(data.email)) {
+        const newAdmin: User = {
+          user_id: uuidv4(),
+          full_name: data.full_name,
+          email: data.email,
+          role: 'Senior Executive',
+          status: 'Active',
+          designation: 'Workspace Administrator',
+          department: 'Executive',
+          date_added: new Date().toISOString(),
+          last_active: new Date().toISOString(),
+          notes: 'Auto-provisioned administrator account.'
+        };
+        db.users.push(newAdmin);
         
-        // Log in
         const token = 'mock_jwt_token_' + uuidv4();
         localStorage.setItem('crm_auth_token', token);
-        localStorage.setItem('crm_auth_user', JSON.stringify(exists));
+        localStorage.setItem('crm_auth_user', JSON.stringify(newAdmin));
 
-        const session_id = 'sess_' + uuidv4();
-        const loginSession: SessionHistory = {
-          session_id,
-          user_id: exists.user_id,
-          user_name: exists.full_name,
-          user_email: exists.email,
+        db.sessions.push({
+          session_id: 'sess_' + uuidv4(),
+          user_id: newAdmin.user_id,
+          user_name: newAdmin.full_name,
+          user_email: newAdmin.email,
           login_time: new Date().toISOString()
-        };
-        db.sessions.push(loginSession);
-        localStorage.setItem('crm_current_session_id', session_id);
-
-        const log_id = 'log_' + uuidv4();
-        db.activityLog.push({
-          log_id,
-          event_type: 'user_login',
-          actor_name: exists.full_name,
-          actor_email: exists.email,
-          affected_record: `User Session: ${exists.full_name}`,
-          timestamp: new Date().toISOString(),
-          detail_string: 'Pending employee completed onboarding login.'
         });
-
+        
+        db.activityLog.push({
+          log_id: 'log_' + uuidv4(),
+          event_type: 'user_signup',
+          actor_name: newAdmin.full_name,
+          actor_email: newAdmin.email,
+          affected_record: `User Account: ${newAdmin.full_name}`,
+          timestamp: new Date().toISOString(),
+          detail_string: 'Admin account self-registered.'
+        });
+        
         saveDB(db);
-        return { token, user: exists };
+        return { token, user: newAdmin };
+      } else {
+        throw new Error('Your email address was not found in the employee directory. Please contact your CRM Admin.');
       }
-      throw new Error('User already registered');
     }
 
-    // Creating a new user
-    const newUser: User = {
-      user_id: uuidv4(),
-      full_name: data.full_name,
-      email: data.email,
-      role: data.role || 'Sales Rep — Standard',
-      status: 'Active',
-      designation: 'Sales Representative',
-      department: 'Sales',
-      date_added: new Date().toISOString(),
-      last_active: new Date().toISOString(),
-      notes: 'Self-registered user.'
-    };
-    db.users.push(newUser);
+    if (exists.status === 'Pending') {
+      exists.status = 'Active';
+      exists.full_name = data.full_name;
+      exists.last_active = new Date().toISOString();
+      
+      const token = 'mock_jwt_token_' + uuidv4();
+      localStorage.setItem('crm_auth_token', token);
+      localStorage.setItem('crm_auth_user', JSON.stringify(exists));
 
-    const token = 'mock_jwt_token_' + uuidv4();
-    localStorage.setItem('crm_auth_token', token);
-    localStorage.setItem('crm_auth_user', JSON.stringify(newUser));
+      const session_id = 'sess_' + uuidv4();
+      const loginSession: SessionHistory = {
+        session_id,
+        user_id: exists.user_id,
+        user_name: exists.full_name,
+        user_email: exists.email,
+        login_time: new Date().toISOString()
+      };
+      db.sessions.push(loginSession);
+      localStorage.setItem('crm_current_session_id', session_id);
 
-    const session_id = 'sess_' + uuidv4();
-    db.sessions.push({
-      session_id,
-      user_id: newUser.user_id,
-      user_name: newUser.full_name,
-      user_email: newUser.email,
-      login_time: new Date().toISOString()
-    });
-    localStorage.setItem('crm_current_session_id', session_id);
+      const log_id = 'log_' + uuidv4();
+      db.activityLog.push({
+        log_id,
+        event_type: 'user_login',
+        actor_name: exists.full_name,
+        actor_email: exists.email,
+        affected_record: `User Session: ${exists.full_name}`,
+        timestamp: new Date().toISOString(),
+        detail_string: 'Pending employee completed onboarding login.'
+      });
 
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'user_signup',
-      actor_name: newUser.full_name,
-      actor_email: newUser.email,
-      affected_record: `User Account: ${newUser.full_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: 'User registered account.'
-    });
-
-    saveDB(db);
-    return { token, user: newUser };
+      saveDB(db);
+      return { token, user: exists };
+    }
+    
+    throw new Error('This email is already registered. Please sign in instead.');
   },
 
   async logout(): Promise<void> {

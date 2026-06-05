@@ -49,6 +49,25 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       // Generate a mock 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       setGeneratedOtp(otp);
+      
+      // Dispatch real email via FormSubmit AJAX
+      try {
+        fetch(`https://formsubmit.co/ajax/${email}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: "SalesNest CRM - Login Verification Code",
+            "Verification Code": otp,
+            message: `Your SalesNest CRM verification code is ${otp}. Enter this code on the login screen to authenticate.`
+          })
+        });
+      } catch (err) {
+        console.error("Failed to send login OTP email:", err);
+      }
+
       setOtpSent(true);
     } catch (err: any) {
       setError(err.message || 'Failed to send verification code');
@@ -222,7 +241,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         {/* --- OPTION 1: EMPLOYEE SIGN-IN --- */}
         {loginType === 'employee' && (
           <div>
-            {/* Sandbox OTP Notification */}
             {otpSent && (
               <div style={{
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -239,9 +257,9 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
               }}>
                 <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ marginTop: '2px', color: '#3b82f6' }} />
                 <div>
-                  <strong>OTP Sandbox:</strong> Verification code has been dispatched. Code is:
-                  <div style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '2px', color: 'var(--primary)', marginTop: '4px' }}>
-                    {generatedOtp}
+                  <strong>OTP Dispatched:</strong> An email containing your 6-digit verification code has been sent.
+                  <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                    (If you used a mock/dead test email that cannot receive real emails, the sandbox fallback code is: <strong>{generatedOtp}</strong>)
                   </div>
                 </div>
               </div>

@@ -31,16 +31,38 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
       setError('');
       setLoading(true);
       
-      // Verify email isn't already taken (unless pending, which we can activate)
+      // Verify email isn't already taken, and exists in directory if not admin
       const db = api.getRawDB();
       const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (existing && existing.status !== 'Pending') {
-        throw new Error('Email is already registered. Please sign in instead.');
+        throw new Error('Email is already registered and active. Please sign in instead.');
+      }
+      if (!existing && !isAdminEmail(email)) {
+        throw new Error('Your email address was not found in the employee directory. Please contact your CRM Admin to invite you first.');
       }
 
       // Generate a mock 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       setGeneratedOtp(otp);
+      
+      // Dispatch real email via FormSubmit AJAX
+      try {
+        fetch(`https://formsubmit.co/ajax/${email}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: "SalesNest CRM - Signup Verification Code",
+            "Verification Code": otp,
+            message: `Your SalesNest CRM signup verification code is ${otp}. Enter this code on the registration page to activate your account.`
+          })
+        });
+      } catch (err) {
+        console.error("Failed to send signup OTP email:", err);
+      }
+
       setOtpSent(true);
     } catch (err: any) {
       setError(err.message || 'Failed to send verification code');
@@ -117,7 +139,6 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
           </div>
         )}
 
-        {/* Sandbox OTP Notification */}
         {otpSent && (
           <div style={{
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -134,9 +155,9 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
           }}>
             <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ marginTop: '2px', color: '#3b82f6' }} />
             <div>
-              <strong>OTP Sandbox:</strong> Email verification code has been dispatched. Your code is:
-              <div style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '2px', color: 'var(--primary)', marginTop: '4px' }}>
-                {generatedOtp}
+              <strong>OTP Dispatched:</strong> An email containing your 6-digit verification code has been sent.
+              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                (If you used a mock/dead test email that cannot receive real emails, the sandbox fallback code is: <strong>{generatedOtp}</strong>)
               </div>
             </div>
           </div>
