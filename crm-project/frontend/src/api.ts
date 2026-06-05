@@ -566,6 +566,7 @@ export const api = {
     localStorage.removeItem('crm_auth_token');
     localStorage.removeItem('crm_auth_user');
     localStorage.removeItem('crm_current_session_id');
+    localStorage.removeItem('crm_admin_user');
 
     saveDB(db);
   },
