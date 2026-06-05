@@ -82,13 +82,16 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
           picture: `https://api.dicebear.com/7.x/initials/svg?seed=${res.user.email}`
         };
         localStorage.setItem('crm_admin_user', JSON.stringify(mockGoogleProfile));
+        
+        onSignupSuccess(res.user);
+        navigate('/admin');
       } else {
         // Clear any leftover admin session
         localStorage.removeItem('crm_admin_user');
+        
+        onSignupSuccess(res.user);
+        navigate('/');
       }
-      
-      onSignupSuccess(res.user);
-      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Account registration failed');
     } finally {
