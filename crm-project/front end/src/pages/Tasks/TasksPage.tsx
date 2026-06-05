@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react';
-import { api, type Task, type User, type Lead, type Company } from '../../api';
-import { Plus, Search, RefreshCw, Trash2, Calendar, UserCheck } from 'lucide-react';
+import { useState } from 'react';
+import { useCRM } from '../../context/CRMContext';
+import { api, type Task } from '../../api';
+import { Plus, Search, Trash2, Calendar, UserCheck } from 'lucide-react';
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    tasks, 
+    users, 
+    leads, 
+    companies, 
+    userPermissions, 
+    currentUser 
+  } = useCRM();
 
   // Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,35 +30,14 @@ export default function TasksPage() {
     status: 'Pending' as any
   });
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [tasksData, usersData, leadsData, companiesData] = await Promise.all([
-        api.getTasks(),
-        api.getUsers(),
-        api.getLeads(),
-        api.getCompanies()
-      ]);
-      setTasks(tasksData);
-      setUsers(usersData);
-      setLeads(leadsData);
-      setCompanies(companiesData);
-    } catch (err) {
-      console.error('Error fetching tasks workspace data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!userPermissions.canCreateTasks) return;
+
     try {
       const dataToSubmit = {
         ...newTask,
+        assigned_to: newTask.assigned_to || currentUser?.user_id || '',
         due_date: newTask.due_date ? new Date(newTask.due_date).toISOString() : undefined
       };
       await api.createTask(dataToSubmit);
@@ -69,7 +52,6 @@ export default function TasksPage() {
         priority: 'Medium',
         status: 'Pending'
       });
-      fetchData();
     } catch (err) {
       console.error('Error creating task:', err);
     }
@@ -82,26 +64,30 @@ export default function TasksPage() {
         ...task,
         status: nextStatus
       });
-      // Update local state directly for speed
-      setTasks(prev => prev.map(t => t.task_id === task.task_id ? { ...t, status: nextStatus } : t));
     } catch (err) {
       console.error('Error toggling task status:', err);
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    if (!userPermissions.canDeleteTasks) return;
+
     if (confirm('Are you sure you want to delete this task?')) {
       try {
         await api.deleteTask(taskId);
-        setTasks(prev => prev.filter(t => t.task_id !== taskId));
       } catch (err) {
         console.error('Error deleting task:', err);
       }
     }
   };
 
-  // Filters
-  const filtered = tasks.filter(t => {
+  // Filter tasks based on view permissions
+  const viewableTasks = userPermissions.canViewAllTasks
+    ? tasks
+    : tasks.filter(t => t.assigned_to === currentUser?.user_id);
+
+  // Search Filters
+  const filtered = viewableTasks.filter(t => {
     const matchesSearch = t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (t.description && t.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'All' || 
@@ -128,10 +114,12 @@ export default function TasksPage() {
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Manage calls, meetings, proposals, and operations reminders</span>
         </div>
         
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <Plus className="w-4 h-4" />
-          <span>Save New Task</span>
-        </button>
+        {userPermissions.canCreateTasks && (
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <Plus className="w-4 h-4" />
+            <span>Save New Task</span>
+          </button>
+        )}
       </div>
 
       {/* Filter and Search Bar */}
@@ -183,12 +171,7 @@ export default function TasksPage() {
       </div>
 
       {/* Tasks List Card */}
-      {loading ? (
-        <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
-          <RefreshCw className="w-6 h-6 animate-spin text-blue-600 inline-block mb-2" />
-          <p style={{ color: 'var(--text-secondary)' }}>Loading task lists...</p>
-        </div>
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="card" style={{ padding: '48px 24px', textAlign: 'center' }}>
           <p style={{ color: 'var(--text-secondary)' }}>No reminders or tasks registered under this criteria.</p>
         </div>
@@ -267,13 +250,15 @@ export default function TasksPage() {
                     {t.priority}
                   </span>
 
-                  <button
-                    onClick={() => handleDeleteTask(t.task_id)}
-                    style={{ background: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
-                    title="Delete Reminder"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {userPermissions.canDeleteTasks && (
+                    <button
+                      onClick={() => handleDeleteTask(t.task_id)}
+                      style={{ background: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                      title="Delete Reminder"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

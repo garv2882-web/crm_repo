@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { type User } from '../api';
+import { useCRM } from '../context/CRMContext';
 import { 
   PieChart, 
   Building2, 
@@ -18,34 +18,17 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-const DEFAULT_USER: User = { 
-  user_id: 'e1111111-1111-4111-8111-111111111111', 
-  full_name: 'Aman Verma', 
-  email: 'aman@salesnest.com', 
-  role: 'Admin', 
-  status: 'Active' 
-};
-
 export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<User>(DEFAULT_USER);
+  const { currentUser, userPermissions } = useCRM();
   const [showDropdown, setShowDropdown] = useState(false);
 
-  useEffect(() => {
-    // Load active user
-    const saved = localStorage.getItem('crm_auth_user');
-    if (saved) {
-      try {
-        setCurrentUser(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, []);
-
-  const getInitials = (name: string) => {
+  const getInitials = (name?: string) => {
+    if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
+
+  if (!currentUser) return null;
 
   return (
     <aside className={`crm-sidebar ${collapsed ? 'collapsed' : ''}`} id="crm-sidebar-menu" style={{ position: 'relative' }}>
@@ -91,12 +74,14 @@ export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
             <span>Tasks</span>
           </NavLink>
         </li>
-        <li className="sidebar-item">
-          <NavLink to="/settings" className={({ isActive }) => isActive ? 'active' : ''}>
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </NavLink>
-        </li>
+        {userPermissions.canAccessIntegrationsPage && (
+          <li className="sidebar-item">
+            <NavLink to="/settings" className={({ isActive }) => isActive ? 'active' : ''}>
+              <Settings className="w-5 h-5" />
+              <span>Settings</span>
+            </NavLink>
+          </li>
+        )}
       </ul>
 
       {/* Switcher Dropdown */}
@@ -116,25 +101,27 @@ export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
           flexDirection: 'column',
           gap: '4px'
         }}>
-          <div 
-            onClick={() => { setShowDropdown(false); navigate('/settings'); }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '8px 12px',
-              borderRadius: 'var(--radius-sm)',
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: '13px',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-          >
-            <Settings className="w-4 h-4 text-slate-400" />
-            <span>System Settings</span>
-          </div>
+          {userPermissions.canAccessIntegrationsPage && (
+            <div 
+              onClick={() => { setShowDropdown(false); navigate('/settings'); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+                color: 'white',
+                fontSize: '13px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <Settings className="w-4 h-4 text-slate-400" />
+              <span>System Settings</span>
+            </div>
+          )}
 
           <div 
             onClick={() => { setShowDropdown(false); onLogout(); }}

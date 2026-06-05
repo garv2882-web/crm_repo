@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
@@ -13,17 +13,26 @@ import TasksPage from './pages/Tasks/TasksPage';
 import SettingsPage from './pages/Settings/SettingsPage';
 import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
-import { api } from './api';
+import SuspendedScreen from './pages/Auth/SuspendedScreen';
+import { CRMProvider, useCRM } from './context/CRMContext';
+import { AdminGuard, CRMGuard } from './components/Guards';
 
-export default function App() {
+// Admin Page Imports
+import AdminLayout from './pages/Admin/AdminLayout';
+import AdminOverview from './pages/Admin/AdminOverview';
+import AdminEmployees from './pages/Admin/AdminEmployees';
+import AdminDealMonitor from './pages/Admin/AdminDealMonitor';
+import AdminActivityLog from './pages/Admin/AdminActivityLog';
+import AdminSettings from './pages/Admin/AdminSettings';
+import AdminLogin from './pages/Admin/AdminLogin';
+import AdminDenied from './pages/Admin/AdminDenied';
+
+function AppContent() {
+  const { currentUser, setCurrentUser, logout } = useCRM();
+  
   // Sync collapsible state with localStorage
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem('crm_sidebar_collapsed') === 'true';
-  });
-
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('crm_auth_user');
-    return saved ? JSON.parse(saved) : null;
   });
 
   const handleToggleSidebar = () => {
@@ -35,73 +44,78 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('crm_auth_token');
-    localStorage.removeItem('crm_auth_user');
-    setCurrentUser(null);
+    logout();
   };
-
-  // Sync/Verify user session on boot
-  useEffect(() => {
-    const verifySession = async () => {
-      const token = localStorage.getItem('crm_auth_token');
-      if (token) {
-        try {
-          const res = await api.getCurrentUser();
-          setCurrentUser(res.user);
-          localStorage.setItem('crm_auth_user', JSON.stringify(res.user));
-        } catch (err) {
-          console.error('Session verification failed, logging out:', err);
-          handleLogout();
-        }
-      }
-    };
-    verifySession();
-  }, []);
-
-  // Auth Guard
-  if (!currentUser) {
-    return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage onLoginSuccess={setCurrentUser} />} />
-          <Route path="/signup" element={<SignupPage onSignupSuccess={setCurrentUser} />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    );
-  }
 
   return (
     <BrowserRouter>
-      <div className="crm-layout">
+      <Routes>
+        {/* Admin Portal Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/denied" element={<AdminDenied />} />
         
-        {/* Collapsible Left Sidebar */}
-        <Sidebar collapsed={sidebarCollapsed} onLogout={handleLogout} />
+        <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+          <Route index element={<AdminOverview />} />
+          <Route path="employees" element={<AdminEmployees />} />
+          <Route path="deals" element={<AdminDealMonitor />} />
+          <Route path="activity" element={<AdminActivityLog />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
 
-        {/* Main Workspace Frame */}
-        <main className="crm-main">
-          
-          {/* Top Navbar */}
-          <Navbar onToggleSidebar={handleToggleSidebar} user={currentUser} />
+        {/* Suspended Page Route */}
+        <Route path="/suspended" element={<SuspendedScreen />} />
 
-          {/* Module Content Area */}
-          <section className="crm-content">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/leads" element={<LeadsPage />} />
-              <Route path="/leads/:id" element={<LeadDetailsPage />} />
-              <Route path="/companies" element={<CompaniesPage />} />
-              <Route path="/companies/:id" element={<CompanyDetailsPage />} />
-              <Route path="/contacts" element={<ContactsPage />} />
-              <Route path="/deals" element={<DealsPage />} />
-              <Route path="/tasks" element={<TasksPage />} />
-              <Route path="/settings" element={<SettingsPage user={currentUser} />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </section>
+        {/* Employee Login / Signup */}
+        <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <LoginPage onLoginSuccess={setCurrentUser} />} />
+        <Route path="/signup" element={currentUser ? <Navigate to="/" replace /> : <SignupPage onSignupSuccess={setCurrentUser} />} />
 
-        </main>
-      </div>
+        {/* Employee CRM Workspace Module Areas */}
+        <Route 
+          path="/*" 
+          element={
+            <CRMGuard>
+              {currentUser ? (
+                <div className="crm-layout">
+                  {/* Collapsible Left Sidebar */}
+                  <Sidebar collapsed={sidebarCollapsed} onLogout={handleLogout} />
+
+                  {/* Main Workspace Frame */}
+                  <main className="crm-main">
+                    {/* Top Navbar */}
+                    <Navbar onToggleSidebar={handleToggleSidebar} user={currentUser} />
+
+                    {/* Module Content Area */}
+                    <section className="crm-content">
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/leads" element={<LeadsPage />} />
+                        <Route path="/leads/:id" element={<LeadDetailsPage />} />
+                        <Route path="/companies" element={<CompaniesPage />} />
+                        <Route path="/companies/:id" element={<CompanyDetailsPage />} />
+                        <Route path="/contacts" element={<ContactsPage />} />
+                        <Route path="/deals" element={<DealsPage />} />
+                        <Route path="/tasks" element={<TasksPage />} />
+                        <Route path="/settings" element={<SettingsPage user={currentUser} />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </section>
+                  </main>
+                </div>
+              ) : <Navigate to="/login" replace />}
+            </CRMGuard>
+          } 
+        />
+      </Routes>
     </BrowserRouter>
+  );
+}
+
+export default function App() {
+  return (
+    <CRMProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </CRMProvider>
   );
 }

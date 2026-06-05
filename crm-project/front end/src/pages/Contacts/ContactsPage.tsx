@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { api, type Contact, type Company } from '../../api';
 import { Plus, Search, RefreshCw, Trash2, Mail, Phone } from 'lucide-react';
+import { useCRM } from '../../context/CRMContext';
 
 export default function ContactsPage() {
+  const { userPermissions } = useCRM();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +95,15 @@ export default function ContactsPage() {
   const firstIdx = lastIdx - itemsPerPage;
   const currentItems = filtered.slice(firstIdx, lastIdx);
 
+  if (userPermissions.canViewAllContacts === false) {
+    return (
+      <div className="contacts-workspace animate-fade-in" style={{ padding: '40px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 700 }}>Access Denied</h2>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>You do not have permission to view the contacts directory.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="contacts-workspace animate-fade-in" style={{ paddingBottom: '40px' }}>
       
@@ -110,7 +121,15 @@ export default function ContactsPage() {
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Directory of customers and prospects</span>
         </div>
         
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => setShowModal(true)}
+          disabled={userPermissions.canCreateContacts === false}
+          style={{
+            opacity: userPermissions.canCreateContacts === false ? 0.6 : 1,
+            cursor: userPermissions.canCreateContacts === false ? 'not-allowed' : 'pointer'
+          }}
+        >
           <Plus className="w-4 h-4" />
           <span>Save New Contact</span>
         </button>
@@ -228,13 +247,15 @@ export default function ContactsPage() {
                       ) : 'N/A'}
                     </td>
                     <td style={{ textAlign: 'center' }}>
-                      <button 
-                        onClick={() => handleDeleteContact(c.contact_id)}
-                        style={{ background: 'none', cursor: 'pointer', color: '#ef4444' }}
-                        title="Delete Contact"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {userPermissions.canDeleteContacts !== false && (
+                        <button 
+                          onClick={() => handleDeleteContact(c.contact_id)}
+                          style={{ background: 'none', cursor: 'pointer', color: '#ef4444' }}
+                          title="Delete Contact"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
