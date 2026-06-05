@@ -420,7 +420,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   </label>
                   <div style={{ display: 'grid', gap: '8px', marginTop: '6px' }}>
                     <button 
-                      onClick={() => handleAdminGoogleAuth('owner@anigravity.com')}
+                      onClick={() => handleAdminGoogleAuth('hrakeshkumar137@gmail.com')}
                       disabled={loading}
                       style={{
                         padding: '10px 14px',
@@ -431,55 +431,13 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                         fontSize: '13px',
                         textAlign: 'left',
                         cursor: 'pointer',
-                        fontWeight: 500,
+                        fontWeight: 600,
                         transition: 'background-color 0.2s'
                       }}
                       onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'}
                       onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f8fafc'}
                     >
-                      <strong>Owner:</strong> owner@anigravity.com
-                    </button>
-                    
-                    <button 
-                      onClick={() => handleAdminGoogleAuth('admin@anigravity.com')}
-                      disabled={loading}
-                      style={{
-                        padding: '10px 14px',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: 'var(--radius-sm)',
-                        color: 'var(--text-primary)',
-                        fontSize: '13px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontWeight: 500,
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                    >
-                      <strong>Admin:</strong> admin@anigravity.com
-                    </button>
-
-                    <button 
-                      onClick={() => handleAdminGoogleAuth('garv@salesnest.com')}
-                      disabled={loading}
-                      style={{
-                        padding: '10px 14px',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: 'var(--radius-sm)',
-                        color: 'var(--text-primary)',
-                        fontSize: '13px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontWeight: 500,
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                    >
-                      <strong>Developer/Admin:</strong> garv@salesnest.com
+                      <strong>Primary Administrator:</strong> hrakeshkumar137@gmail.com
                     </button>
                   </div>
                 </div>
