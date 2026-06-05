@@ -37,10 +37,28 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       
       // Verify user exists in the directory first
       const db = api.getRawDB();
-      const userExists = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      let userExists = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
       
       if (!userExists) {
-        throw new Error('User email not found in employee directory');
+        if (isAdminEmail(email)) {
+          // Auto-provision admin
+          userExists = {
+            user_id: 'e-' + Math.random().toString(36).substring(2, 9),
+            full_name: email.split('@')[0].toUpperCase(),
+            email: email.toLowerCase(),
+            role: 'Senior Executive',
+            status: 'Active',
+            designation: 'Workspace Administrator',
+            department: 'Executive',
+            date_added: new Date().toISOString(),
+            last_active: new Date().toISOString(),
+            notes: 'Auto-provisioned administrator account.'
+          };
+          db.users.push(userExists);
+          api.saveRawDB(db);
+        } else {
+          throw new Error('User email not found in employee directory');
+        }
       }
       if (userExists.status === 'Suspended') {
         throw new Error('Your account has been suspended. Contact your administrator.');

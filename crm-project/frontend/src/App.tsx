@@ -16,6 +16,7 @@ import SignupPage from './pages/Auth/SignupPage';
 import SuspendedScreen from './pages/Auth/SuspendedScreen';
 import { CRMProvider, useCRM } from './context/CRMContext';
 import { AdminGuard, CRMGuard } from './components/Guards';
+import { isAdminEmail } from './config/adminConfig';
 
 // Admin Page Imports
 import AdminLayout from './pages/Admin/AdminLayout';
@@ -65,8 +66,34 @@ function AppContent() {
       <Route path="/suspended" element={<SuspendedScreen />} />
 
       {/* Employee Login / Signup */}
-      <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <LoginPage onLoginSuccess={setCurrentUser} />} />
-      <Route path="/signup" element={currentUser ? <Navigate to="/" replace /> : <SignupPage onSignupSuccess={setCurrentUser} />} />
+      <Route 
+        path="/login" 
+        element={
+          currentUser ? (
+            isAdminEmail(currentUser.email) ? (
+              <Navigate to="/admin" replace />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          ) : (
+            <LoginPage onLoginSuccess={setCurrentUser} />
+          )
+        } 
+      />
+      <Route 
+        path="/signup" 
+        element={
+          currentUser ? (
+            isAdminEmail(currentUser.email) ? (
+              <Navigate to="/admin" replace />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          ) : (
+            <SignupPage onSignupSuccess={setCurrentUser} />
+          )
+        } 
+      />
 
       {/* Employee CRM Workspace Module Areas */}
       <Route 
