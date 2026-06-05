@@ -8,7 +8,7 @@
   "scripts": {
     "build": "npm run build -w front-end"
   },
-  "devDependencies": {
+  "optionalDependencies": {
     "@rolldown/binding-linux-x64-gnu": "1.0.3"
   }
 }
