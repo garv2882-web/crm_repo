@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../../api';
+import { isAdminEmail } from '../../config/adminConfig';
 import { Shield, User, Mail, Lock, RefreshCw, Briefcase, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface SignupPageProps {
@@ -72,6 +73,19 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
       
       localStorage.setItem('crm_auth_token', res.token);
       localStorage.setItem('crm_auth_user', JSON.stringify(res.user));
+      
+      // Auto-login to Admin Portal if allowlisted email
+      if (isAdminEmail(res.user.email)) {
+        const mockGoogleProfile = {
+          email: res.user.email.toLowerCase(),
+          name: res.user.full_name,
+          picture: `https://api.dicebear.com/7.x/initials/svg?seed=${res.user.email}`
+        };
+        localStorage.setItem('crm_admin_user', JSON.stringify(mockGoogleProfile));
+      } else {
+        // Clear any leftover admin session
+        localStorage.removeItem('crm_admin_user');
+      }
       
       onSignupSuccess(res.user);
       navigate('/');

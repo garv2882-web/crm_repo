@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isAdminEmail } from '../../config/adminConfig';
 import { Shield, AlertCircle } from 'lucide-react';
+import { api } from '../../api';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -31,6 +32,34 @@ export default function AdminLogin() {
 
       // Guard check
       if (isAdminEmail(mockGoogleProfile.email)) {
+        // Auto-provision or log in as normal employee in crm
+        const db = api.getRawDB();
+        let user = db.users.find(u => u.email.toLowerCase() === mockGoogleProfile.email);
+        if (!user) {
+          user = {
+            user_id: 'e-' + Math.random().toString(36).substring(2, 9),
+            full_name: mockGoogleProfile.name,
+            email: mockGoogleProfile.email,
+            role: 'Senior Executive',
+            status: 'Active',
+            designation: 'Workspace Administrator',
+            department: 'Executive',
+            date_added: new Date().toISOString(),
+            last_active: new Date().toISOString(),
+            notes: 'Auto-provisioned administrator account.'
+          };
+          db.users.push(user);
+          api.saveRawDB(db);
+        } else {
+          // ensure their status is Active so they don't get blocked by CRMGuard
+          user.status = 'Active';
+          user.last_active = new Date().toISOString();
+          api.saveRawDB(db);
+        }
+
+        localStorage.setItem('crm_auth_token', 'mock_jwt_token_admin_' + Math.random().toString(36).substring(2, 9));
+        localStorage.setItem('crm_auth_user', JSON.stringify(user));
+
         // Log in to admin portal
         navigate('/admin');
       } else {

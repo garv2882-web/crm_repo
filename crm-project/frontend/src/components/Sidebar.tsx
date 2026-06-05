@@ -10,8 +10,10 @@ import {
   CheckSquare, 
   Settings,
   LogOut,
-  ChevronUp
+  ChevronUp,
+  Shield
 } from 'lucide-react';
+import { isAdminEmail } from '../config/adminConfig';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -79,6 +81,14 @@ export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
             <NavLink to="/settings" className={({ isActive }) => isActive ? 'active' : ''}>
               <Settings className="w-5 h-5" />
               <span>Settings</span>
+            </NavLink>
+          </li>
+        )}
+        {isAdminEmail(currentUser.email) && (
+          <li className="sidebar-item">
+            <NavLink to="/admin" className={({ isActive }) => isActive ? 'active' : ''}>
+              <Shield className="w-5 h-5 text-blue-400" />
+              <span>Admin Portal</span>
             </NavLink>
           </li>
         )}

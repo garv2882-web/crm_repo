@@ -9,7 +9,8 @@ import {
   LogOut, 
   Menu, 
   ChevronDown, 
-  Shield 
+  Shield,
+  Home
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -44,6 +45,9 @@ export default function AdminLayout() {
 
   const handleLogout = () => {
     localStorage.removeItem('crm_admin_user');
+    localStorage.removeItem('crm_auth_token');
+    localStorage.removeItem('crm_auth_user');
+    localStorage.removeItem('crm_current_session_id');
     navigate('/admin/login');
   };
 
@@ -134,6 +138,7 @@ export default function AdminLayout() {
             { to: '/admin/deals', label: 'Deal Monitor', icon: TrendingUp },
             { to: '/admin/activity', label: 'Activity Log', icon: ClipboardList },
             { to: '/admin/settings', label: 'Settings', icon: Settings },
+            { to: '/', end: true, label: 'Go to CRM', icon: Home }
           ].map(item => (
             <li key={item.to} style={{ listStyle: 'none' }}>
               <NavLink 
