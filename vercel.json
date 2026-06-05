@@ -1,5 +1,5 @@
 {
-  "outputDirectory": "crm-project/front end/dist",
+  "outputDirectory": "crm-project/frontend/dist",
   "rewrites": [
     {
       "source": "/(.*)",

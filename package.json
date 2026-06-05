@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "crm-project/front end"
+    "crm-project/frontend"
   ],
   "scripts": {
     "build": "npm run build -w front-end"
