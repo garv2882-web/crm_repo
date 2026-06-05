@@ -48,65 +48,63 @@ function AppContent() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Admin Portal Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/denied" element={<AdminDenied />} />
-        
-        <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-          <Route index element={<AdminOverview />} />
-          <Route path="employees" element={<AdminEmployees />} />
-          <Route path="deals" element={<AdminDealMonitor />} />
-          <Route path="activity" element={<AdminActivityLog />} />
-          <Route path="settings" element={<AdminSettings />} />
-        </Route>
+    <Routes>
+      {/* Admin Portal Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/denied" element={<AdminDenied />} />
+      
+      <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+        <Route index element={<AdminOverview />} />
+        <Route path="employees" element={<AdminEmployees />} />
+        <Route path="deals" element={<AdminDealMonitor />} />
+        <Route path="activity" element={<AdminActivityLog />} />
+        <Route path="settings" element={<AdminSettings />} />
+      </Route>
 
-        {/* Suspended Page Route */}
-        <Route path="/suspended" element={<SuspendedScreen />} />
+      {/* Suspended Page Route */}
+      <Route path="/suspended" element={<SuspendedScreen />} />
 
-        {/* Employee Login / Signup */}
-        <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <LoginPage onLoginSuccess={setCurrentUser} />} />
-        <Route path="/signup" element={currentUser ? <Navigate to="/" replace /> : <SignupPage onSignupSuccess={setCurrentUser} />} />
+      {/* Employee Login / Signup */}
+      <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <LoginPage onLoginSuccess={setCurrentUser} />} />
+      <Route path="/signup" element={currentUser ? <Navigate to="/" replace /> : <SignupPage onSignupSuccess={setCurrentUser} />} />
 
-        {/* Employee CRM Workspace Module Areas */}
-        <Route 
-          path="/*" 
-          element={
-            <CRMGuard>
-              {currentUser ? (
-                <div className="crm-layout">
-                  {/* Collapsible Left Sidebar */}
-                  <Sidebar collapsed={sidebarCollapsed} onLogout={handleLogout} />
+      {/* Employee CRM Workspace Module Areas */}
+      <Route 
+        path="/*" 
+        element={
+          <CRMGuard>
+            {currentUser ? (
+              <div className="crm-layout">
+                {/* Collapsible Left Sidebar */}
+                <Sidebar collapsed={sidebarCollapsed} onLogout={handleLogout} />
 
-                  {/* Main Workspace Frame */}
-                  <main className="crm-main">
-                    {/* Top Navbar */}
-                    <Navbar onToggleSidebar={handleToggleSidebar} user={currentUser} />
+                {/* Main Workspace Frame */}
+                <main className="crm-main">
+                  {/* Top Navbar */}
+                  <Navbar onToggleSidebar={handleToggleSidebar} user={currentUser} />
 
-                    {/* Module Content Area */}
-                    <section className="crm-content">
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/leads" element={<LeadsPage />} />
-                        <Route path="/leads/:id" element={<LeadDetailsPage />} />
-                        <Route path="/companies" element={<CompaniesPage />} />
-                        <Route path="/companies/:id" element={<CompanyDetailsPage />} />
-                        <Route path="/contacts" element={<ContactsPage />} />
-                        <Route path="/deals" element={<DealsPage />} />
-                        <Route path="/tasks" element={<TasksPage />} />
-                        <Route path="/settings" element={<SettingsPage user={currentUser} />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                      </Routes>
-                    </section>
-                  </main>
-                </div>
-              ) : <Navigate to="/login" replace />}
-            </CRMGuard>
-          } 
-        />
-      </Routes>
-    </BrowserRouter>
+                  {/* Module Content Area */}
+                  <section className="crm-content">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/leads" element={<LeadsPage />} />
+                      <Route path="/leads/:id" element={<LeadDetailsPage />} />
+                      <Route path="/companies" element={<CompaniesPage />} />
+                      <Route path="/companies/:id" element={<CompanyDetailsPage />} />
+                      <Route path="/contacts" element={<ContactsPage />} />
+                      <Route path="/deals" element={<DealsPage />} />
+                      <Route path="/tasks" element={<TasksPage />} />
+                      <Route path="/settings" element={<SettingsPage user={currentUser} />} />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </section>
+                </main>
+              </div>
+            ) : <Navigate to="/login" replace />}
+          </CRMGuard>
+        } 
+      />
+    </Routes>
   );
 }
 
