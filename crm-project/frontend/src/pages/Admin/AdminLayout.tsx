@@ -272,7 +272,7 @@ export default function AdminLayout() {
               padding: '4px 10px',
               borderRadius: 'var(--radius-sm)'
             }}>
-              Workspace: Anigravity
+              Workspace: Dexnest
             </span>
           </div>
 

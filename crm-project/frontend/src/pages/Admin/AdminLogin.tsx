@@ -110,7 +110,7 @@ export default function AdminLogin() {
             Admin Portal
           </h2>
           <p style={{ color: 'var(--text-tertiary)', fontSize: '14px', lineHeight: 1.5 }}>
-            Access control restricted to Dexnest Antigravity workspace administrators.
+            Access control restricted to Dexnest workspace administrators.
           </p>
         </div>
 

@@ -332,7 +332,7 @@ const INITIAL_DB: CRMDatabase = {
     { session_id: 'sess_002', user_id: 'e2222222-2222-4222-8222-222222222222', user_name: 'Rahul Sharma', user_email: 'rahul@dexnest.com', login_time: '2026-06-05T09:00:00Z', logout_time: '2026-06-05T09:30:00Z', duration: 1800 }
   ],
   settings: {
-    orgName: 'Dexnest Antigravity',
+    orgName: 'Dexnest',
     timezone: 'Asia/Kolkata',
     dealStages: DEFAULT_DEAL_STAGES,
     departments: ['Sales', 'Marketing', 'Engineering', 'HR', 'Executive', 'Operations'],
