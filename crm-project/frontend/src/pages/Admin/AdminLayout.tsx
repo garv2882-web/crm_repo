@@ -10,7 +10,9 @@ import {
   Menu, 
   ChevronDown, 
   Shield,
-  Home
+  Home,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -21,6 +23,23 @@ export default function AdminLayout() {
   
   const [adminUser, setAdminUser] = useState<{ email: string; name: string } | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('crm_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    localStorage.setItem('crm_theme', theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     const userStr = localStorage.getItem('crm_admin_user');
@@ -257,88 +276,112 @@ export default function AdminLayout() {
             </span>
           </div>
 
-          {/* Profile details */}
-          <div style={{ position: 'relative' }}>
-            <div 
-              onClick={() => setShowDropdown(!showDropdown)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Theme Toggle Button */}
+            <button 
+              onClick={handleToggleTheme} 
+              aria-label="Toggle Theme"
               style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                padding: '8px',
+                borderRadius: 'var(--radius-sm)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                cursor: 'pointer',
-                padding: '6px 12px',
-                borderRadius: 'var(--radius-md)',
+                justifyContent: 'center',
                 transition: 'background-color 0.2s'
               }}
               onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-main)'}
               onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <div style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: 'var(--primary-light)',
-                color: 'var(--primary)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '13px',
-                fontWeight: 600
-              }}>
-                {getInitials(adminUser.name)}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginTop: '-1px' }}>
-                  {adminUser.name}
-                </span>
-                <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '-2px' }}>
-                  {adminUser.email}
-                </span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            </div>
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
 
-            {/* Profile Dropdown */}
-            {showDropdown && (
-              <div style={{
-                position: 'absolute',
-                top: '50px',
-                right: 0,
-                width: '180px',
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius-md)',
-                boxShadow: 'var(--shadow-lg)',
-                padding: '6px',
-                zIndex: 1000,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}>
-                <button 
-                  onClick={handleLogout}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 'var(--radius-sm)',
-                    backgroundColor: 'transparent',
-                    color: '#ef4444',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    textAlign: 'left'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </button>
+            {/* Profile details */}
+            <div style={{ position: 'relative' }}>
+              <div 
+                onClick={() => setShowDropdown(!showDropdown)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-main)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  backgroundColor: 'var(--primary-light)',
+                  color: 'var(--primary)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '13px',
+                  fontWeight: 600
+                }}>
+                  {getInitials(adminUser.name)}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginTop: '-1px' }}>
+                    {adminUser.name}
+                  </span>
+                  <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '-2px' }}>
+                    {adminUser.email}
+                  </span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
               </div>
-            )}
+
+              {/* Profile Dropdown */}
+              {showDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50px',
+                  right: 0,
+                  width: '180px',
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: 'var(--shadow-lg)',
+                  padding: '6px',
+                  zIndex: 1000,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}>
+                  <button 
+                    onClick={handleLogout}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      backgroundColor: 'transparent',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

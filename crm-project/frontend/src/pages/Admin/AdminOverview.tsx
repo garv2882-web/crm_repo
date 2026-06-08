@@ -258,7 +258,7 @@ export default function AdminOverview() {
                     gap: '8px',
                     padding: '6px 12px',
                     borderRadius: '20px',
-                    backgroundColor: emp.isOnline ? 'rgba(16, 185, 129, 0.1)' : '#f8fafc',
+                    backgroundColor: emp.isOnline ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-table-th)',
                     border: `1px solid ${emp.isOnline ? 'rgba(16, 185, 129, 0.2)' : 'var(--border-color)'}`,
                     fontSize: '12px',
                     fontWeight: 500,
