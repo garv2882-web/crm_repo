@@ -77,9 +77,9 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            _subject: "SalesNest CRM - Login Verification Code",
+            _subject: "Dexnest CRM - Login Verification Code",
             "Verification Code": otp,
-            message: `Your SalesNest CRM verification code is ${otp}. Enter this code on the login screen to authenticate.`
+            message: `Your Dexnest CRM verification code is ${otp}. Enter this code on the login screen to authenticate.`
           })
         });
       } catch (err) {
@@ -200,9 +200,9 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         {/* Brand Header */}
         <div className="auth-header" style={{ marginBottom: '20px' }}>
           <div className="auth-logo">
-            <Shield className="w-8 h-8 text-blue-600" />
+            <Shield className="w-8 h-8" style={{ color: 'var(--primary)' }} />
           </div>
-          <h2>SalesNest CRM</h2>
+          <h2>Dexnest CRM</h2>
           <p>Secure Enterprise Sign-In Portal</p>
         </div>
 
@@ -352,7 +352,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
               <div className="auth-footer" style={{ marginTop: '24px' }}>
                 <span>Don't have an account? <Link to="/signup">Sign Up</Link></span>
                 <div className="demo-credentials" style={{ marginTop: '12px' }}>
-                  <strong>Demo Admin:</strong> <span>garv@salesnest.com</span>
+                  <strong>Demo Admin:</strong> <span>garv@dexnest.com</span>
                 </div>
               </div>
             )}
@@ -373,7 +373,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   justifyContent: 'center',
                   gap: '12px',
                   padding: '14px',
-                  backgroundColor: 'white',
+                  backgroundColor: 'var(--bg-card)',
                   color: '#1e293b',
                   fontSize: '15px',
                   fontWeight: 600,
@@ -424,7 +424,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                       disabled={loading}
                       style={{
                         padding: '10px 14px',
-                        backgroundColor: '#f8fafc',
+                        backgroundColor: 'var(--bg-table-th)',
                         border: '1px solid var(--border-color)',
                         borderRadius: 'var(--radius-sm)',
                         color: 'var(--text-primary)',
@@ -434,8 +434,8 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                         fontWeight: 600,
                         transition: 'background-color 0.2s'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-table-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--bg-table-th)'}
                     >
                       <strong>Primary Administrator:</strong> hrakeshkumar137@gmail.com
                     </button>

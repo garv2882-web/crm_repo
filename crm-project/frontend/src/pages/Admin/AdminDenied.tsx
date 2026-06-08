@@ -67,7 +67,7 @@ export default function AdminDenied() {
               boxSizing: 'border-box'
             }}
           >
-            Return to SalesNest CRM
+            Return to Dexnest CRM
           </Link>
           
           <Link 

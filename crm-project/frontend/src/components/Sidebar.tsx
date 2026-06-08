@@ -35,8 +35,8 @@ export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
   return (
     <aside className={`crm-sidebar ${collapsed ? 'collapsed' : ''}`} id="crm-sidebar-menu" style={{ position: 'relative' }}>
       <div className="sidebar-logo">
-        <div className="logo-icon">S</div>
-        <span className="logo-text">SalesNest</span>
+        <div className="logo-icon">D</div>
+        <span className="logo-text">Dexnest</span>
       </div>
       
       <ul className="sidebar-menu">

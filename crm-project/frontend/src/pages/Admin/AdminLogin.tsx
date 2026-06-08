@@ -110,7 +110,7 @@ export default function AdminLogin() {
             Admin Portal
           </h2>
           <p style={{ color: 'var(--text-tertiary)', fontSize: '14px', lineHeight: 1.5 }}>
-            Access control restricted to SalesNest Anigravity workspace administrators.
+            Access control restricted to Dexnest Antigravity workspace administrators.
           </p>
         </div>
 
@@ -211,7 +211,7 @@ export default function AdminLogin() {
                 </button>
 
                 <button 
-                  onClick={() => handleMockAuthenticate('garv@salesnest.com')}
+                  onClick={() => handleMockAuthenticate('garv@dexnest.com')}
                   disabled={loading}
                   style={{
                     padding: '10px 14px',
@@ -227,7 +227,7 @@ export default function AdminLogin() {
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
                 >
-                  <strong>Developer/Admin:</strong> garv@salesnest.com
+                  <strong>Developer/Admin:</strong> garv@dexnest.com
                 </button>
               </div>
             </div>

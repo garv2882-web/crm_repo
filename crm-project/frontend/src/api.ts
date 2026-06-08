@@ -1,4 +1,4 @@
-// SalesNest CRM Client-Side Storage API Engine
+// Dexnest CRM Client-Side Storage API Engine
 // Fully compatible with existing API signatures but backed by localStorage
 
 // Auth Interfaces
@@ -275,10 +275,10 @@ const DEFAULT_DEAL_STAGES: DealStage[] = [
 
 const INITIAL_DB: CRMDatabase = {
   users: [
-    { user_id: 'e1111111-1111-4111-8111-111111111111', full_name: 'Aman Verma', email: 'aman@salesnest.com', role: 'Senior Executive', status: 'Active', designation: 'Sales Director', department: 'Executive', date_added: '2024-01-10T10:00:00Z', last_active: '2026-06-05T10:00:00Z', notes: 'Co-founder and manager.' },
-    { user_id: 'e2222222-2222-4222-8222-222222222222', full_name: 'Rahul Sharma', email: 'rahul@salesnest.com', role: 'Sales Rep — Standard', status: 'Active', designation: 'Account Executive', department: 'Sales', date_added: '2024-02-15T10:00:00Z', last_active: '2026-06-05T09:30:00Z', notes: 'Focuses on enterprise accounts.' },
-    { user_id: 'e3333333-3333-4333-8333-333333333333', full_name: 'Priya Singh', email: 'priya@salesnest.com', role: 'Sales Rep — View Only', status: 'Active', designation: 'Sales Analyst', department: 'Marketing', date_added: '2024-03-20T10:00:00Z', last_active: '2026-06-04T17:00:00Z', notes: 'Intern performing view-only research.' },
-    { user_id: 'e4444444-4444-4444-8444-444444444444', full_name: 'Garv Ranjan', email: 'garv@salesnest.com', role: 'Senior Executive', status: 'Active', designation: 'Head of Sales', department: 'Executive', date_added: '2024-01-01T10:00:00Z', last_active: '2026-06-05T10:15:00Z', notes: 'Primary CRM Admin.' }
+    { user_id: 'e1111111-1111-4111-8111-111111111111', full_name: 'Aman Verma', email: 'aman@dexnest.com', role: 'Senior Executive', status: 'Active', designation: 'Sales Director', department: 'Executive', date_added: '2024-01-10T10:00:00Z', last_active: '2026-06-05T10:00:00Z', notes: 'Co-founder and manager.' },
+    { user_id: 'e2222222-2222-4222-8222-222222222222', full_name: 'Rahul Sharma', email: 'rahul@dexnest.com', role: 'Sales Rep — Standard', status: 'Active', designation: 'Account Executive', department: 'Sales', date_added: '2024-02-15T10:00:00Z', last_active: '2026-06-05T09:30:00Z', notes: 'Focuses on enterprise accounts.' },
+    { user_id: 'e3333333-3333-4333-8333-333333333333', full_name: 'Priya Singh', email: 'priya@dexnest.com', role: 'Sales Rep — View Only', status: 'Active', designation: 'Sales Analyst', department: 'Marketing', date_added: '2024-03-20T10:00:00Z', last_active: '2026-06-04T17:00:00Z', notes: 'Intern performing view-only research.' },
+    { user_id: 'e4444444-4444-4444-8444-444444444444', full_name: 'Garv Ranjan', email: 'garv@dexnest.com', role: 'Senior Executive', status: 'Active', designation: 'Head of Sales', department: 'Executive', date_added: '2024-01-01T10:00:00Z', last_active: '2026-06-05T10:15:00Z', notes: 'Primary CRM Admin.' }
   ],
   companies: [
     { company_id: 'a1111111-1111-4111-8111-111111111111', company_name: 'TechNova', company_code: 'TN001', industry: 'IT', website: 'https://technova.com', country: 'India', state: 'Karnataka', city: 'Bangalore', annual_revenue: 120000000, notes: '', created_at: '2024-05-01T10:00:00Z', updated_at: '2024-05-01T10:00:00Z' },
@@ -323,16 +323,16 @@ const INITIAL_DB: CRMDatabase = {
     { activity_id: 'act_0000003', action_type: 'convert_lead', text: '<span>Rahul Sharma</span> converted <span>ERP Migration</span> into a Deal', created_at: '2024-05-19T10:00:00Z' }
   ],
   activityLog: [
-    { log_id: 'log_001', event_type: 'lead_created', actor_name: 'Aman Verma', actor_email: 'aman@salesnest.com', affected_record: 'CRM Software Proposal', timestamp: '2024-05-20T10:00:00Z', detail_string: 'Lead created with high priority.' },
-    { log_id: 'log_002', event_type: 'lead_edited', actor_name: 'Rahul Sharma', actor_email: 'rahul@salesnest.com', affected_record: 'ERP Migration', timestamp: '2024-05-19T09:15:00Z', detail_string: 'Qualified the lead for ERP proposal.' },
-    { log_id: 'log_003', event_type: 'deal_created', actor_name: 'Rahul Sharma', actor_email: 'rahul@salesnest.com', affected_record: 'ERP Migration Deal', timestamp: '2024-05-19T10:00:00Z', detail_string: 'Converted lead ERP Migration into a Deal.' }
+    { log_id: 'log_001', event_type: 'lead_created', actor_name: 'Aman Verma', actor_email: 'aman@dexnest.com', affected_record: 'CRM Software Proposal', timestamp: '2024-05-20T10:00:00Z', detail_string: 'Lead created with high priority.' },
+    { log_id: 'log_002', event_type: 'lead_edited', actor_name: 'Rahul Sharma', actor_email: 'rahul@dexnest.com', affected_record: 'ERP Migration', timestamp: '2024-05-19T09:15:00Z', detail_string: 'Qualified the lead for ERP proposal.' },
+    { log_id: 'log_003', event_type: 'deal_created', actor_name: 'Rahul Sharma', actor_email: 'rahul@dexnest.com', affected_record: 'ERP Migration Deal', timestamp: '2024-05-19T10:00:00Z', detail_string: 'Converted lead ERP Migration into a Deal.' }
   ],
   sessions: [
-    { session_id: 'sess_001', user_id: 'e1111111-1111-4111-8111-111111111111', user_name: 'Aman Verma', user_email: 'aman@salesnest.com', login_time: '2026-06-05T08:00:00Z', logout_time: '2026-06-05T10:00:00Z', duration: 7200 },
-    { session_id: 'sess_002', user_id: 'e2222222-2222-4222-8222-222222222222', user_name: 'Rahul Sharma', user_email: 'rahul@salesnest.com', login_time: '2026-06-05T09:00:00Z', logout_time: '2026-06-05T09:30:00Z', duration: 1800 }
+    { session_id: 'sess_001', user_id: 'e1111111-1111-4111-8111-111111111111', user_name: 'Aman Verma', user_email: 'aman@dexnest.com', login_time: '2026-06-05T08:00:00Z', logout_time: '2026-06-05T10:00:00Z', duration: 7200 },
+    { session_id: 'sess_002', user_id: 'e2222222-2222-4222-8222-222222222222', user_name: 'Rahul Sharma', user_email: 'rahul@dexnest.com', login_time: '2026-06-05T09:00:00Z', logout_time: '2026-06-05T09:30:00Z', duration: 1800 }
   ],
   settings: {
-    orgName: 'SalesNest Anigravity',
+    orgName: 'Dexnest Antigravity',
     timezone: 'Asia/Kolkata',
     dealStages: DEFAULT_DEAL_STAGES,
     departments: ['Sales', 'Marketing', 'Engineering', 'HR', 'Executive', 'Operations'],
@@ -358,22 +358,22 @@ export const apiEvents = {
 
 // Database helper functions
 function getDB(): CRMDatabase {
-  const data = localStorage.getItem('salesnest_crm_db');
+  const data = localStorage.getItem('dexnest_crm_db');
   if (!data) {
-    localStorage.setItem('salesnest_crm_db', JSON.stringify(INITIAL_DB));
+    localStorage.setItem('dexnest_crm_db', JSON.stringify(INITIAL_DB));
     return INITIAL_DB;
   }
   try {
     return JSON.parse(data);
   } catch (e) {
     console.error('Failed to parse database, resetting...', e);
-    localStorage.setItem('salesnest_crm_db', JSON.stringify(INITIAL_DB));
+    localStorage.setItem('dexnest_crm_db', JSON.stringify(INITIAL_DB));
     return INITIAL_DB;
   }
 }
 
 function saveDB(db: CRMDatabase) {
-  localStorage.setItem('salesnest_crm_db', JSON.stringify(db));
+  localStorage.setItem('dexnest_crm_db', JSON.stringify(db));
   apiEvents.emit();
 }
 
@@ -737,7 +737,7 @@ export const api = {
 
     db.companies.push(newComp);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'company_created',
@@ -765,7 +765,7 @@ export const api = {
 
     const updated = db.companies[idx];
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'company_edited',
@@ -787,7 +787,7 @@ export const api = {
 
     db.companies = db.companies.filter(c => c.company_id !== id);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'company_deleted',
@@ -843,7 +843,7 @@ export const api = {
 
     db.contacts.push(newContact);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'contact_created',
@@ -870,7 +870,7 @@ export const api = {
 
     const updated = db.contacts[idx];
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'contact_edited',
@@ -892,7 +892,7 @@ export const api = {
 
     db.contacts = db.contacts.filter(c => c.contact_id !== id);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'contact_deleted',
@@ -963,7 +963,7 @@ export const api = {
 
   async createLead(data: Partial<Lead>): Promise<Lead> {
     const db = getDB();
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
 
     const newLead: Lead = {
       lead_id: uuidv4(),
@@ -1026,7 +1026,7 @@ export const api = {
 
     const updated = db.leads[idx];
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     
     // Status update log
     if (data.lead_status && data.lead_status !== oldStatus) {
@@ -1059,7 +1059,7 @@ export const api = {
 
     db.leads = db.leads.filter(l => l.lead_id !== id);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'lead_deleted',
@@ -1101,7 +1101,7 @@ export const api = {
 
     db.deals.push(dealData);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     
     // Dashboard activity
     db.activities.push({
@@ -1174,7 +1174,7 @@ export const api = {
 
   async createDeal(data: Partial<Deal>): Promise<Deal> {
     const db = getDB();
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
 
     const newDeal: Deal = {
       deal_id: uuidv4(),
@@ -1227,7 +1227,7 @@ export const api = {
 
     const updated = db.deals[idx];
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     
     // Audit logs
     let detail = `Updated deal properties.`;
@@ -1270,7 +1270,7 @@ export const api = {
 
     db.deals = db.deals.filter(d => d.deal_id !== id);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'deal_deleted',
@@ -1313,7 +1313,7 @@ export const api = {
 
   async createTask(data: Partial<Task>): Promise<Task> {
     const db = getDB();
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
 
     const newTask: Task = {
       task_id: 'task_' + uuidv4().substring(0, 8),
@@ -1368,7 +1368,7 @@ export const api = {
 
     const updated = db.tasks[idx];
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     
     // Status update log
     if (data.status && data.status !== oldStatus) {
@@ -1403,7 +1403,7 @@ export const api = {
 
     db.tasks = db.tasks.filter(t => t.task_id !== id);
 
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@salesnest.com"}');
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
     db.activityLog.push({
       log_id: 'log_' + uuidv4(),
       event_type: 'task_deleted',
@@ -1475,3 +1475,4 @@ export const api = {
     saveDB(db);
   }
 };
+

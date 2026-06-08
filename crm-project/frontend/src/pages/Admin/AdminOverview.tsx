@@ -78,7 +78,7 @@ export default function AdminOverview() {
           Operational Overview
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>
-          At-a-glance administrative vitals and metrics for SalesNest CRM.
+          At-a-glance administrative vitals and metrics for Dexnest CRM.
         </p>
       </div>
 
@@ -87,7 +87,7 @@ export default function AdminOverview() {
         
         {/* Pipeline Health Card */}
         <div style={{
-          backgroundColor: 'white',
+          backgroundColor: 'var(--bg-card)',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
@@ -112,7 +112,7 @@ export default function AdminOverview() {
                   <div style={{ width: '120px', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                     {stage.name}
                   </div>
-                  <div style={{ flex: 1, height: '28px', backgroundColor: '#f1f5f9', borderRadius: 'var(--radius-sm)', overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ flex: 1, height: '28px', backgroundColor: 'var(--bg-table-hover)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', position: 'relative' }}>
                     <div style={{
                       width: `${pct}%`,
                       height: '100%',
@@ -147,7 +147,7 @@ export default function AdminOverview() {
           
           {/* Task Pulse Card */}
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-card)',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-sm)',
@@ -189,7 +189,7 @@ export default function AdminOverview() {
 
           {/* Contacts Summary Card */}
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-card)',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-sm)',
@@ -236,7 +236,7 @@ export default function AdminOverview() {
 
           {/* Logged-In Employees Chips Row */}
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-card)',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-sm)',
@@ -290,7 +290,7 @@ export default function AdminOverview() {
 
       {/* Row 2: Recent Activity strip */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--bg-card)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-sm)',

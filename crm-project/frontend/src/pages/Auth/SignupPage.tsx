@@ -54,9 +54,9 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            _subject: "SalesNest CRM - Signup Verification Code",
+            _subject: "Dexnest CRM - Signup Verification Code",
             "Verification Code": otp,
-            message: `Your SalesNest CRM signup verification code is ${otp}. Enter this code on the registration page to activate your account.`
+            message: `Your Dexnest CRM signup verification code is ${otp}. Enter this code on the registration page to activate your account.`
           })
         });
       } catch (err) {
@@ -127,7 +127,7 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
         {/* Brand Header */}
         <div className="auth-header">
           <div className="auth-logo">
-            <Shield className="w-8 h-8 text-blue-600" />
+            <Shield className="w-8 h-8" style={{ color: 'var(--primary)' }} />
           </div>
           <h2>Create Account</h2>
           <p>Register a passwordless employee profile</p>

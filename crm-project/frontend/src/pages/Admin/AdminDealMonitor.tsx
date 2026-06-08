@@ -139,7 +139,7 @@ export default function AdminDealMonitor() {
         
         {/* Left Panel: Filter Controls */}
         <aside style={{
-          backgroundColor: 'white',
+          backgroundColor: 'var(--bg-card)',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-sm)',
@@ -209,7 +209,7 @@ export default function AdminDealMonitor() {
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '13px',
-                backgroundColor: 'white'
+                backgroundColor: 'var(--bg-card)'
               }}
             >
               <option value="All">All Stages</option>
@@ -233,7 +233,7 @@ export default function AdminDealMonitor() {
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '13px',
-                backgroundColor: 'white'
+                backgroundColor: 'var(--bg-card)'
               }}
             >
               <option value="All">All Owners</option>
@@ -334,7 +334,7 @@ export default function AdminDealMonitor() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {filteredDeals.length === 0 ? (
               <div style={{
-                backgroundColor: 'white',
+                backgroundColor: 'var(--bg-card)',
                 borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-color)',
                 padding: '48px',
@@ -350,7 +350,7 @@ export default function AdminDealMonitor() {
                   <div 
                     key={deal.deal_id}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: 'var(--bg-card)',
                       borderRadius: 'var(--radius-lg)',
                       border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}`,
                       boxShadow: isSelected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
@@ -418,7 +418,7 @@ export default function AdminDealMonitor() {
                       <div style={{
                         padding: '24px',
                         borderTop: '1px solid var(--border-color)',
-                        backgroundColor: '#f8fafc',
+                        backgroundColor: 'var(--bg-table-th)',
                         display: 'grid',
                         gridTemplateColumns: '1fr 1fr',
                         gap: '24px'
@@ -444,7 +444,7 @@ export default function AdminDealMonitor() {
                                 border: '1px solid var(--border-color)',
                                 borderRadius: 'var(--radius-md)',
                                 fontSize: '13px',
-                                backgroundColor: 'white'
+                                backgroundColor: 'var(--bg-card)'
                               }}
                             >
                               {users.map(u => (
@@ -455,7 +455,7 @@ export default function AdminDealMonitor() {
 
                           {/* Deal Metadata Details */}
                           <div style={{
-                            backgroundColor: 'white',
+                            backgroundColor: 'var(--bg-card)',
                             borderRadius: 'var(--radius-md)',
                             border: '1px solid var(--border-color)',
                             padding: '14px',
@@ -499,7 +499,7 @@ export default function AdminDealMonitor() {
                             </label>
                             <div style={{
                               padding: '10px 14px',
-                              backgroundColor: 'white',
+                              backgroundColor: 'var(--bg-card)',
                               border: '1px solid var(--border-color)',
                               borderRadius: 'var(--radius-md)',
                               fontSize: '12.5px',

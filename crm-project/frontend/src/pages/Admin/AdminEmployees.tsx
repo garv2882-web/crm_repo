@@ -310,7 +310,7 @@ export default function AdminEmployees() {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        backgroundColor: 'white',
+        backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-md)',
         padding: '8px 16px',
@@ -330,7 +330,7 @@ export default function AdminEmployees() {
 
       {/* Employee Table Directory */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--bg-card)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-sm)',
@@ -338,7 +338,7 @@ export default function AdminEmployees() {
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: '#f8fafc' }}>
+            <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-table-th)' }}>
               <th 
                 onClick={() => handleSort('name')}
                 style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}
@@ -433,7 +433,7 @@ export default function AdminEmployees() {
         }}>
           <div 
             style={{
-              backgroundColor: 'white',
+              backgroundColor: 'var(--bg-card)',
               borderRadius: 'var(--radius-lg)',
               maxWidth: '520px',
               width: '100%',
@@ -452,7 +452,7 @@ export default function AdminEmployees() {
                 padding: '6px',
                 cursor: 'pointer',
                 borderRadius: '50%',
-                backgroundColor: '#f1f5f9'
+                backgroundColor: 'var(--bg-table-hover)'
               }}
             >
               <X className="w-4 h-4 text-slate-500" />
@@ -526,7 +526,7 @@ export default function AdminEmployees() {
                       <select 
                         value={newDepartment}
                         onChange={e => setNewDepartment(e.target.value)}
-                        style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'white' }}
+                        style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'var(--bg-card)' }}
                       >
                         <option value="">Select Department</option>
                         {settings.departments.map(d => (
@@ -551,7 +551,7 @@ export default function AdminEmployees() {
                     <select 
                       value={newRole}
                       onChange={e => setNewRole(e.target.value)}
-                      style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'white' }}
+                      style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'var(--bg-card)' }}
                     >
                       {settings.roleTemplates.map(t => (
                         <option key={t.name} value={t.name}>{t.name}</option>
@@ -612,7 +612,7 @@ export default function AdminEmployees() {
 
                 {/* Copiable Link block */}
                 <div style={{
-                  backgroundColor: '#f8fafc',
+                  backgroundColor: 'var(--bg-table-th)',
                   border: '1px solid var(--border-color)',
                   borderRadius: 'var(--radius-md)',
                   padding: '14px',
@@ -640,7 +640,7 @@ export default function AdminEmployees() {
                     }}
                     style={{
                       padding: '6px 10px',
-                      backgroundColor: 'white',
+                      backgroundColor: 'var(--bg-card)',
                       border: '1px solid var(--border-color)',
                       borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer',
@@ -659,12 +659,12 @@ export default function AdminEmployees() {
                 {/* Dispatch links */}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <a 
-                    href={`mailto:${createdInvite.email}?subject=Welcome to SalesNest CRM&body=Hi, %0D%0A%0D%0AYou have been invited to join the SalesNest CRM system as a Workspace member. %0D%0A%0D%0APlease use the link below to complete your registration and log in: %0D%0A${encodeURIComponent(createdInvite.link)}`}
+                    href={`mailto:${createdInvite.email}?subject=Welcome to Dexnest CRM&body=Hi, %0D%0A%0D%0AYou have been invited to join the Dexnest CRM system as a Workspace member. %0D%0A%0D%0APlease use the link below to complete your registration and log in: %0D%0A${encodeURIComponent(createdInvite.link)}`}
                     style={{
                       flex: 1,
                       padding: '12px 0',
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
+                      backgroundColor: 'var(--primary)',
+                      color: 'var(--bg-sidebar)',
                       fontWeight: 600,
                       borderRadius: 'var(--radius-md)',
                       fontSize: '13px',
@@ -710,7 +710,7 @@ export default function AdminEmployees() {
           right: 0,
           width: '560px',
           height: '100vh',
-          backgroundColor: 'white',
+          backgroundColor: 'var(--bg-card)',
           borderLeft: '1px solid var(--border-color)',
           boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.08)',
           zIndex: 1000,
@@ -756,7 +756,7 @@ export default function AdminEmployees() {
                 padding: '6px',
                 cursor: 'pointer',
                 borderRadius: '50%',
-                backgroundColor: '#f1f5f9'
+                backgroundColor: 'var(--bg-table-hover)'
               }}
             >
               <X className="w-4 h-4 text-slate-500" />
@@ -766,7 +766,7 @@ export default function AdminEmployees() {
           {/* Drawer Tabs Header */}
           <div style={{
             display: 'flex',
-            backgroundColor: '#f8fafc',
+            backgroundColor: 'var(--bg-table-th)',
             borderBottom: '1px solid var(--border-color)',
             padding: '0 12px'
           }}>
@@ -851,7 +851,7 @@ export default function AdminEmployees() {
                     <select 
                       value={editDepartment}
                       onChange={e => setEditDepartment(e.target.value)}
-                      style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'white' }}
+                      style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'var(--bg-card)' }}
                     >
                       <option value="">Select Department</option>
                       {settings.departments.map(d => (
@@ -866,7 +866,7 @@ export default function AdminEmployees() {
                   <select 
                     value={editRole}
                     onChange={e => setEditRole(e.target.value)}
-                    style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'white' }}
+                    style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px', backgroundColor: 'var(--bg-card)' }}
                   >
                     {settings.roleTemplates.map(t => (
                       <option key={t.name} value={t.name}>{t.name}</option>
@@ -941,13 +941,13 @@ export default function AdminEmployees() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {/* General KPIs */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                    <div style={{ padding: '16px', backgroundColor: '#f8fafc', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ padding: '16px', backgroundColor: 'var(--bg-table-th)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                       <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>Deals Pipeline</span>
                       <h4 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: '4px 0 0 0' }}>{metrics.dealsTotal}</h4>
                       <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Value: INR {new Intl.NumberFormat('en-IN').format(metrics.dealsValue)}</span>
                     </div>
 
-                    <div style={{ padding: '16px', backgroundColor: '#f8fafc', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ padding: '16px', backgroundColor: 'var(--bg-table-th)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                       <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>Task Completion</span>
                       <h4 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: '4px 0 0 0' }}>
                         {metrics.completedTasks} / {metrics.tasksTotal}
@@ -979,7 +979,7 @@ export default function AdminEmployees() {
                         <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>No activities logged for this employee.</span>
                       ) : (
                         metrics.recentActions.map(log => (
-                          <div key={log.log_id} style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '12px' }}>
+                          <div key={log.log_id} style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '10px', backgroundColor: 'var(--bg-table-th)', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '12px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                               <strong style={{ color: '#2563eb' }}>{log.event_type.replace('_', ' ').toUpperCase()}</strong>
                               <span style={{ color: 'var(--text-tertiary)', fontSize: '10px' }}>{formatDate(log.timestamp)}</span>
@@ -1085,7 +1085,7 @@ export default function AdminEmployees() {
                               width: '18px',
                               height: '18px',
                               borderRadius: '50%',
-                              backgroundColor: 'white',
+                              backgroundColor: 'var(--bg-card)',
                               position: 'absolute',
                               top: '3px',
                               left: activeValue ? '23px' : '3px',
@@ -1120,7 +1120,7 @@ export default function AdminEmployees() {
                     <div style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
                         <thead>
-                          <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
+                          <tr style={{ backgroundColor: 'var(--bg-table-th)', borderBottom: '1px solid var(--border-color)' }}>
                             <th style={{ padding: '8px 12px', fontWeight: 600 }}>Login Time</th>
                             <th style={{ padding: '8px 12px', fontWeight: 600 }}>Logout Time</th>
                             <th style={{ padding: '8px 12px', fontWeight: 600 }}>Duration</th>

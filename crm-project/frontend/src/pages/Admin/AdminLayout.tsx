@@ -65,13 +65,13 @@ export default function AdminLayout() {
       width: '100vw',
       overflow: 'hidden',
       fontFamily: 'var(--font-sans)',
-      backgroundColor: '#f1f5f9' // Light slate background for body
+      backgroundColor: 'var(--bg-main)' // Dynamic background
     }}>
       
       {/* Dark Sidebar */}
       <aside style={{
         width: collapsed ? '72px' : '260px',
-        backgroundColor: 'hsl(222, 47%, 6%)', // Darkest shade of palette
+        backgroundColor: 'var(--bg-sidebar)', // Dynamic sidebar
         color: 'white',
         display: 'flex',
         flexDirection: 'column',
@@ -95,15 +95,15 @@ export default function AdminLayout() {
           <div style={{
             width: '32px',
             height: '32px',
-            backgroundColor: '#3b82f6',
+            backgroundColor: 'var(--primary)',
             borderRadius: 'var(--radius-md)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white',
+            color: 'var(--bg-sidebar)',
             fontWeight: 800,
             fontSize: '16px',
-            boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)',
+            boxShadow: '0 4px 10px var(--primary-light)',
             flexShrink: 0
           }}>
             <Shield className="w-4 h-4" />
@@ -111,9 +111,9 @@ export default function AdminLayout() {
           {!collapsed && (
             <div style={{ display: 'flex', flexDirection: 'column' }} className="animate-fade-in">
               <span style={{ fontWeight: 700, fontSize: '15px', letterSpacing: '-0.02em', color: '#f8fafc' }}>
-                SalesNest
+                Dexnest
               </span>
-              <span style={{ fontSize: '10px', fontWeight: 600, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '-2px' }}>
+              <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '-2px' }}>
                 Admin Portal
               </span>
             </div>
@@ -149,9 +149,9 @@ export default function AdminLayout() {
                   alignItems: 'center',
                   padding: '12px 14px',
                   borderRadius: 'var(--radius-md)',
-                  color: isActive ? 'white' : 'hsl(215, 20%, 65%)',
-                  backgroundColor: isActive ? '#3b82f6' : 'transparent',
-                  fontWeight: 500,
+                  color: isActive ? 'var(--bg-sidebar)' : 'hsl(215, 20%, 65%)',
+                  backgroundColor: isActive ? 'var(--primary)' : 'transparent',
+                  fontWeight: isActive ? 700 : 500,
                   fontSize: '14px',
                   gap: '16px',
                   textDecoration: 'none',
@@ -191,14 +191,14 @@ export default function AdminLayout() {
             <span style={{
               display: 'inline-block',
               padding: '4px 8px',
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-              color: '#60a5fa',
+              backgroundColor: 'var(--primary-light)',
+              color: 'var(--primary)',
               borderRadius: '12px',
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              Admin — Anigravity
+              Admin — Dexnest
             </span>
           </div>
         )}
@@ -216,7 +216,7 @@ export default function AdminLayout() {
         {/* Top Navbar */}
         <header style={{
           height: '64px',
-          backgroundColor: '#ffffff', // Clean white background for contrast
+          backgroundColor: 'var(--bg-card)', // Clean dynamic card background
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
@@ -276,8 +276,8 @@ export default function AdminLayout() {
               <div style={{
                 width: '32px',
                 height: '32px',
-                backgroundColor: 'hsl(222, 47%, 11%)',
-                color: 'white',
+                backgroundColor: 'var(--primary-light)',
+                color: 'var(--primary)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -305,7 +305,7 @@ export default function AdminLayout() {
                 top: '50px',
                 right: 0,
                 width: '180px',
-                backgroundColor: 'white',
+                backgroundColor: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-lg)',

@@ -1,13 +1,15 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Menu, Search, Bell, HelpCircle } from 'lucide-react';
+import { Menu, Search, Bell, HelpCircle, Sun, Moon } from 'lucide-react';
 import { type User } from '../api';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
   user: User;
+  theme: string;
+  onToggleTheme: () => void;
 }
 
-export default function Navbar({ onToggleSidebar, user }: NavbarProps) {
+export default function Navbar({ onToggleSidebar, user, theme, onToggleTheme }: NavbarProps) {
   const location = useLocation();
   const path = location.pathname;
 
@@ -79,6 +81,10 @@ export default function Navbar({ onToggleSidebar, user }: NavbarProps) {
         
         <button className="navbar-action-btn" aria-label="Help">
           <HelpCircle className="w-5 h-5" />
+        </button>
+        
+        <button className="navbar-action-btn" onClick={onToggleTheme} aria-label="Toggle Theme">
+          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
         
         <div>

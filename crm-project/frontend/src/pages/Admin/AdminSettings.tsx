@@ -202,14 +202,14 @@ export default function AdminSettings() {
           
           {/* Org Info Settings Card */}
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-card)',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-sm)',
             overflow: 'hidden'
           }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Building2 className="w-5 h-5 text-blue-600" />
+              <Building2 className="w-5 h-5" style={{ color: 'var(--primary)' }} />
               <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                 Organization Profile
               </h2>
@@ -257,7 +257,7 @@ export default function AdminSettings() {
                     border: '1px solid var(--border-color)',
                     borderRadius: 'var(--radius-md)',
                     fontSize: '13px',
-                    backgroundColor: 'white'
+                    backgroundColor: 'var(--bg-card)'
                   }}
                 >
                   <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
@@ -289,14 +289,14 @@ export default function AdminSettings() {
 
           {/* Department Configuration Card */}
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-card)',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-sm)',
             overflow: 'hidden'
           }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <FolderOpen className="w-5 h-5 text-blue-600" />
+              <FolderOpen className="w-5 h-5" style={{ color: 'var(--primary)' }} />
               <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                 CRM Departments
               </h2>
@@ -359,7 +359,7 @@ export default function AdminSettings() {
                         justifyContent: 'space-between',
                         borderBottom: index < (settings.departments || []).length - 1 ? '1px solid var(--border-color)' : 'none',
                         fontSize: '13px',
-                        backgroundColor: 'white'
+                        backgroundColor: 'var(--bg-card)'
                       }}
                     >
                       {isEditing ? (
@@ -427,14 +427,14 @@ export default function AdminSettings() {
           
           {/* Deal Stage Configuration Card */}
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-card)',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-sm)',
             overflow: 'hidden'
           }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Settings className="w-5 h-5 text-blue-600" />
+              <Settings className="w-5 h-5" style={{ color: 'var(--primary)' }} />
               <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                 Deal Pipeline Stages
               </h2>
@@ -516,7 +516,7 @@ export default function AdminSettings() {
                         justifyContent: 'space-between',
                         borderBottom: idx < (settings.dealStages || []).length - 1 ? '1px solid var(--border-color)' : 'none',
                         fontSize: '13px',
-                        backgroundColor: 'white'
+                        backgroundColor: 'var(--bg-card)'
                       }}
                     >
                       {/* Name area */}
@@ -636,7 +636,7 @@ export default function AdminSettings() {
                 color: '#60a5fa',
                 wordBreak: 'break-all'
               }}>
-                VITE_ADMIN_EMAILS=owner@anigravity.com,admin@anigravity.com,garv@salesnest.com
+                VITE_ADMIN_EMAILS=owner@anigravity.com,admin@anigravity.com,garv@dexnest.com
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', color: 'hsl(215, 20%, 65%)' }}>

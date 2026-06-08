@@ -94,7 +94,7 @@ export default function SettingsPage({ user }: SettingsPageProps) {
           <div className="card-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <Database className="w-5 h-5 text-blue-600" />
+                <Database className="w-5 h-5" style={{ color: 'var(--primary)' }} />
                 <div>
                   <span style={{ display: 'block', fontWeight: 600, fontSize: '14px' }}>PostgreSQL Instance</span>
                   <span style={{ display: 'block', fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '2px' }}>
@@ -126,7 +126,7 @@ export default function SettingsPage({ user }: SettingsPageProps) {
           </div>
           <div className="card-body">
             <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-              SalesNest CRM lets you dynamically add custom fields to leads, deals, and companies. 
+              Dexnest CRM lets you dynamically add custom fields to leads, deals, and companies. 
               These custom fields are stored as JSON attributes in the PostgreSQL database for maximum schema flexibility.
             </p>
             <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>

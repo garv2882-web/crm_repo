@@ -1,5 +1,5 @@
 /*
- * SalesNest CRM Shared Design System (Presentation Layer)
+ * Dexnest CRM Shared Design System (Presentation Layer)
  * HubSpot & Linear inspired premium style.
  */
 
@@ -10,15 +10,20 @@
    ========================================== */
 :root {
   /* HSL Tailored Brand Colors */
-  --primary: hsl(221, 83%, 53%);          /* Indigo Blue #2563eb */
-  --primary-hover: hsl(224, 76%, 48%);
-  --primary-light: hsl(221, 100%, 96%);   /* Soft Blue bg */
+  --primary: hsl(71, 100%, 36%);          /* Dexian Lime accent for Light Mode */
+  --primary-hover: hsl(71, 100%, 30%);
+  --primary-light: hsla(71, 100%, 45%, 0.08);   /* Soft Lime Green bg */
   
   --bg-main: hsl(210, 40%, 98%);          /* Slate 50 #f8fafc */
   --bg-card: hsl(0, 0%, 100%);
-  --bg-sidebar: hsl(222, 47%, 11%);       /* Deep Slate #0b1329 */
-  --bg-sidebar-hover: hsl(217, 33%, 17%);
-  --bg-sidebar-active: hsl(221, 83%, 53%);
+  --bg-sidebar: hsl(220, 20%, 10%);       /* Very Dark Slate */
+  --bg-sidebar-hover: hsl(220, 20%, 15%);
+  --bg-sidebar-active: hsl(71, 100%, 36%);
+
+  --bg-card-header: hsl(210, 40%, 99%);
+  --bg-table-th: hsl(210, 40%, 97%);
+  --bg-table-hover: hsl(210, 40%, 96%);
+  --bg-modal-footer: hsl(210, 40%, 99%);
   
   /* Neutral Palette */
   --text-primary: hsl(215, 25%, 27%);      /* Slate 800 */
@@ -27,11 +32,11 @@
   --text-light: hsl(210, 40%, 96%);        /* Slate 100 */
   
   --border-color: hsl(214, 32%, 91%);      /* Slate 200 */
-  --border-focus: hsl(221, 83%, 60%);
+  --border-focus: var(--primary);
   
   /* Status Color Matrix */
-  --status-new-bg: hsl(210, 100%, 96%);
-  --status-new-text: hsl(221, 83%, 53%);
+  --status-new-bg: hsla(71, 100%, 45%, 0.08);
+  --status-new-text: hsl(71, 100%, 36%);
   --status-contacted-bg: hsl(35, 100%, 96%);
   --status-contacted-text: hsl(35, 92%, 35%);
   --status-qualified-bg: hsl(150, 80%, 95%);
@@ -42,8 +47,8 @@
   --status-disqualified-text: hsl(0, 72%, 40%);
 
   /* Deal Status Badges */
-  --status-open-bg: hsl(210, 100%, 96%);
-  --status-open-text: hsl(221, 83%, 53%);
+  --status-open-bg: hsla(71, 100%, 45%, 0.08);
+  --status-open-text: hsl(71, 100%, 36%);
   --status-won-bg: hsl(150, 80%, 95%);
   --status-won-text: hsl(150, 84%, 26%);
   --status-lost-bg: hsl(0, 100%, 96%);
@@ -79,7 +84,7 @@
   --shadow-inset: inset 0 2px 4px 0 rgba(15, 23, 42, 0.05);
 
   /* Metrics Card Accents */
-  --accent-total: #2563eb;
+  --accent-total: var(--primary);
   --accent-new: #06b6d4;
   --accent-qualified: #10b981;
   --accent-contacted: #f59e0b;
@@ -572,7 +577,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: hsl(210, 40%, 99%);
+  background-color: var(--bg-card-header);
 }
 
 .card-title {
@@ -676,7 +681,7 @@ a {
 }
 
 .crm-table th {
-  background-color: hsl(210, 40%, 97%);
+  background-color: var(--bg-table-th);
   padding: 14px 20px;
   color: var(--text-secondary);
   font-weight: 600;
@@ -694,12 +699,12 @@ a {
   font-size: 13.5px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
-  background-color: white;
+  background-color: var(--bg-card);
   transition: background-color 0.15s ease;
 }
 
 .crm-table tbody tr:hover td {
-  background-color: hsl(210, 40%, 96%);
+  background-color: var(--bg-table-hover);
 }
 
 .crm-table tbody tr {
@@ -712,7 +717,7 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background-color: white;
+  background-color: var(--bg-card);
   border-top: 1px solid var(--border-color);
 }
 
@@ -726,7 +731,7 @@ a {
   height: 32px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
-  background-color: white;
+  background-color: var(--bg-card);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -777,7 +782,7 @@ a {
 }
 
 .modal-container {
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 720px;
@@ -841,7 +846,7 @@ a {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  background-color: hsl(210, 40%, 99%);
+  background-color: var(--bg-modal-footer);
 }
 
 #modal-create-lead-form {
@@ -888,7 +893,8 @@ a {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
-  background-color: white;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   transition: all 0.2s ease;
 }
 
@@ -1166,7 +1172,8 @@ textarea.form-control {
   width: 100%;
   height: 38px;
   padding: 0 16px 0 38px;
-  background-color: #fff;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -1182,7 +1189,8 @@ textarea.form-control {
 .filter-dropdown {
   height: 38px;
   padding: 0 36px 0 14px;
-  background-color: #fff;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -1216,7 +1224,7 @@ textarea.form-control {
 }
 
 .details-card {
-  background-color: white;
+  background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -1229,7 +1237,7 @@ textarea.form-control {
   font-weight: 700;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
-  background-color: #f8fafc;
+  background-color: var(--bg-card-header);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1529,7 +1537,7 @@ textarea.form-control {
   height: 42px;
   padding: 0 14px 0 42px;
   border: 1px solid var(--border-color);
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: var(--radius-md);
   font-size: 13.5px;
   color: var(--text-primary);
@@ -1591,4 +1599,124 @@ textarea.form-control {
   padding: 1px 4px;
   border-radius: 4px;
   border: 1px solid hsl(221, 100%, 90%);
+}
+
+/* ==========================================
+   DARK MODE OVERRIDES & BRAND COLORING
+   ========================================== */
+body.dark {
+  --bg-main: #111112;            /* Grayscale very dark background */
+  --bg-card: #18181a;           /* Card background matching screenshot */
+  --bg-sidebar: #09090b;         /* Solid black sidebar */
+  --bg-sidebar-hover: #1b1b1e;
+  --bg-sidebar-active: var(--primary);
+  
+  --bg-card-header: #141416;
+  --bg-table-th: #141416;
+  --bg-table-hover: #202023;
+  --bg-modal-footer: #141416;
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;    /* Slate gray secondary text */
+  --text-tertiary: #71717a;     /* Darker muted gray */
+  --text-light: #ffffff;
+  
+  --border-color: #202022;      /* Thin dark border */
+  --border-focus: var(--primary);
+  
+  --primary: #a3e635;           /* Refined premium lime green (Tailwind lime-400) */
+  --primary-hover: #84cc16;
+  --primary-light: rgba(163, 230, 53, 0.15);
+
+  --accent-total: var(--primary);
+
+  /* Flat layout radius overrides */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Flatten shadows for premium look */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+
+  /* Status Colors Adjustments for Dark Mode */
+  --status-new-bg: rgba(163, 230, 53, 0.1);
+  --status-new-text: #a3e635;
+  
+  --status-contacted-bg: hsla(38, 100%, 50%, 0.1);
+  --status-contacted-text: hsl(38, 100%, 60%);
+  
+  --status-qualified-bg: hsla(150, 80%, 50%, 0.1);
+  --status-qualified-text: hsl(150, 80%, 65%);
+  
+  --status-converted-bg: hsla(265, 80%, 60%, 0.15);
+  --status-converted-text: hsl(265, 80%, 75%);
+  
+  --status-disqualified-bg: hsla(0, 100%, 60%, 0.1);
+  --status-disqualified-text: hsl(0, 100%, 70%);
+
+  --status-open-bg: rgba(163, 230, 53, 0.1);
+  --status-open-text: #a3e635;
+  --status-won-bg: hsla(150, 80%, 50%, 0.1);
+  --status-won-text: hsl(150, 80%, 65%);
+  --status-lost-bg: hsla(0, 100%, 60%, 0.1);
+  --status-lost-text: hsl(0, 100%, 70%);
+  --status-cancelled-bg: hsla(215, 16%, 60%, 0.1);
+  --status-cancelled-text: hsl(215, 16%, 70%);
+
+  --priority-high-bg: hsla(0, 100%, 60%, 0.1);
+  --priority-high-text: hsl(0, 100%, 70%);
+  --priority-medium-bg: hsla(38, 100%, 50%, 0.1);
+  --priority-medium-text: hsl(38, 100%, 60%);
+  --priority-low-bg: hsla(150, 80%, 50%, 0.1);
+  --priority-low-text: hsl(150, 80%, 65%);
+}
+
+body.dark select {
+  color-scheme: dark;
+}
+
+body.dark .auth-container {
+  background: radial-gradient(circle at 10% 20%, #09090b 0%, #050505 90%);
+}
+
+body.dark .auth-card {
+  background: rgba(24, 28, 36, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .auth-logo {
+  background: #18181a;
+  border-color: #202022;
+}
+
+body.dark .demo-credentials {
+  background-color: rgba(163, 230, 53, 0.05);
+  border: 1px solid rgba(163, 230, 53, 0.15);
+  color: var(--primary);
+}
+
+body.dark .demo-credentials span {
+  background-color: #18181a;
+  border: 1px solid #202022;
+  color: white;
+}
+
+/* Primary buttons and brand logos text contrast overrides */
+body.dark .btn-primary {
+  color: #0c0c0e !important;
+  font-weight: 600;
+}
+
+body.dark .btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(163, 230, 53, 0.2) !important;
+}
+
+body.dark .logo-icon {
+  color: #0c0c0e !important;
+  box-shadow: 0 4px 10px rgba(163, 230, 53, 0.2) !important;
 }

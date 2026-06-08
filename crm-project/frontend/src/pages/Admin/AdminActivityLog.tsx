@@ -134,7 +134,7 @@ export default function AdminActivityLog() {
 
       {/* Filter Toolbar Card */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--bg-card)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-sm)',
@@ -200,7 +200,7 @@ export default function AdminActivityLog() {
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '13px',
-                backgroundColor: 'white'
+                backgroundColor: 'var(--bg-card)'
               }}
             >
               <option value="All">All Event Types</option>
@@ -225,7 +225,7 @@ export default function AdminActivityLog() {
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '13px',
-                backgroundColor: 'white'
+                backgroundColor: 'var(--bg-card)'
               }}
             >
               <option value="All">All Employees</option>
@@ -282,7 +282,7 @@ export default function AdminActivityLog() {
 
       {/* Audit Logs Table Card */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--bg-card)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-sm)',
@@ -291,7 +291,7 @@ export default function AdminActivityLog() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: '#f8fafc' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-table-th)' }}>
                 <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-secondary)', width: '180px' }}>Date & Time</th>
                 <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-secondary)', width: '180px' }}>Event Log Type</th>
                 <th style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-secondary)', width: '220px' }}>Actor Profile</th>
@@ -362,7 +362,7 @@ export default function AdminActivityLog() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: '#f8fafc'
+          backgroundColor: 'var(--bg-table-th)'
         }}>
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             Showing {firstIdx + 1} to {Math.min(lastIdx, filteredLogs.length)} of {filteredLogs.length} audit entries
@@ -376,7 +376,7 @@ export default function AdminActivityLog() {
                 padding: '6px 12px',
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'white',
+                backgroundColor: 'var(--bg-card)',
                 cursor: 'pointer',
                 opacity: currentPage === 1 ? 0.5 : 1
               }}
@@ -394,7 +394,7 @@ export default function AdminActivityLog() {
                 padding: '6px 12px',
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'white',
+                backgroundColor: 'var(--bg-card)',
                 cursor: 'pointer',
                 opacity: currentPage === totalPages ? 0.5 : 1
               }}

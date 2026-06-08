@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
@@ -35,6 +35,23 @@ function AppContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem('crm_sidebar_collapsed') === 'true';
   });
+
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('crm_theme') || 'dark'; // default to dark for Dexnest
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    localStorage.setItem('crm_theme', theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   const handleToggleSidebar = () => {
     setSidebarCollapsed(prev => {
@@ -108,7 +125,12 @@ function AppContent() {
                 {/* Main Workspace Frame */}
                 <main className="crm-main">
                   {/* Top Navbar */}
-                  <Navbar onToggleSidebar={handleToggleSidebar} user={currentUser} />
+                  <Navbar 
+                    onToggleSidebar={handleToggleSidebar} 
+                    user={currentUser} 
+                    theme={theme}
+                    onToggleTheme={handleToggleTheme}
+                  />
 
                   {/* Module Content Area */}
                   <section className="crm-content">
