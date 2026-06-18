@@ -7,11 +7,13 @@ const { Pool } = pg;
 
 const connectionString = process.env.DATABASE_URL;
 
+const rejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true';
+
 const pool = connectionString
   ? new Pool({
       connectionString,
       ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized
       }
     })
   : new Pool({

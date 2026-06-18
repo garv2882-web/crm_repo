@@ -4,7 +4,11 @@ import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'salesnest-super-secret-key-123';
+const JWT_SECRET = process.env.JWT_SECRET || 'salesnest-super-secret-key-dev-fallback';
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'salesnest-super-secret-key-dev-fallback')) {
+  console.error('❌ CRITICAL ERROR: JWT_SECRET environment variable is missing or insecure in production!');
+  process.exit(1);
+}
 
 // POST /api/auth/register
 router.post('/register', async (req, res, next) => {

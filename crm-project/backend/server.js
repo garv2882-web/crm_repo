@@ -14,11 +14,72 @@ import {
 
 dotenv.config();
 
+// Assert JWT_SECRET configuration
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ CRITICAL: JWT_SECRET environment variable is not defined!');
+    process.exit(1);
+  } else {
+    console.warn('⚠️ WARNING: JWT_SECRET environment variable is missing. Falling back for development only.');
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Custom CORS policy whitelisting
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 app.use(express.json());
+
+// Custom lightweight in-memory rate limiter middleware for authentication
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const MAX_LIMIT = 30; // Max 30 attempts per 15 minutes per IP
+
+const authRateLimiter = (req, res, next) => {
+  const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const now = Date.now();
+  
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, firstRequestTime: now });
+    return next();
+  }
+  
+  const clientData = rateLimitMap.get(ip);
+  if (now - clientData.firstRequestTime > RATE_LIMIT_WINDOW) {
+    clientData.count = 1;
+    clientData.firstRequestTime = now;
+    return next();
+  }
+  
+  clientData.count++;
+  if (clientData.count > MAX_LIMIT) {
+    return res.status(429).json({ 
+      error: 'Too Many Requests', 
+      details: 'Rate limit exceeded for authentication requests. Please try again after 15 minutes.' 
+    });
+  }
+  next();
+};
+
+app.use('/api/auth/login', authRateLimiter);
+app.use('/api/auth/register', authRateLimiter);
 
 // Database Initialization DDL & Seed Runner
 async function initDb() {
@@ -327,7 +388,11 @@ import tasksRouter from './routes/tasks.js';
 import activitiesRouter from './routes/activities.js';
 
 // JWT authentication middleware
-const JWT_SECRET = process.env.JWT_SECRET || 'salesnest-super-secret-key-123';
+const JWT_SECRET = process.env.JWT_SECRET || 'salesnest-super-secret-key-dev-fallback';
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'salesnest-super-secret-key-dev-fallback')) {
+  console.error('❌ CRITICAL ERROR: JWT_SECRET environment variable is missing or insecure in production!');
+  process.exit(1);
+}
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
