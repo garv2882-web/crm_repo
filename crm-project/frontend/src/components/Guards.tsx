@@ -35,8 +35,34 @@ export const AdminGuard: React.FC<GuardProps> = ({ children }) => {
 
 // Main CRM Employee Route Guard
 export const CRMGuard: React.FC<GuardProps> = ({ children }) => {
-  const { currentUser, users } = useCRM();
+  const { currentUser, authLoading, users } = useCRM();
   const location = useLocation();
+
+  if (authLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        backgroundColor: 'hsl(222, 47%, 6%)',
+        color: 'white',
+        fontFamily: 'var(--font-sans)',
+        fontSize: '15px'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            border: '2px solid rgba(255, 255, 255, 0.2)',
+            borderTopColor: 'var(--primary)',
+            borderRadius: '50%',
+          }} className="animate-spin"></div>
+          <span>Verifying secure session...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     // Redirect to employee login

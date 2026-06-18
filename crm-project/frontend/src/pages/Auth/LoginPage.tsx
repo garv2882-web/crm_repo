@@ -35,33 +35,10 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       setError('');
       setLoading(true);
       
-      // Verify user exists in the directory first
-      const db = api.getRawDB();
-      let userExists = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-      
-      if (!userExists) {
-        if (isAdminEmail(email)) {
-          // Auto-provision admin
-          userExists = {
-            user_id: 'e-' + Math.random().toString(36).substring(2, 9),
-            full_name: email.split('@')[0].toUpperCase(),
-            email: email.toLowerCase(),
-            role: 'Senior Executive',
-            status: 'Active',
-            designation: 'Workspace Administrator',
-            department: 'Executive',
-            date_added: new Date().toISOString(),
-            last_active: new Date().toISOString(),
-            notes: 'Auto-provisioned administrator account.'
-          };
-          db.users.push(userExists);
-          api.saveRawDB(db);
-        } else {
-          throw new Error('User email not found in employee directory');
-        }
-      }
-      if (userExists.status === 'Suspended') {
-        throw new Error('Your account has been suspended. Contact your administrator.');
+      // Verify user exists in the directory first via backend
+      const checkRes = await api.checkEmail(email);
+      if (!checkRes.exists) {
+        throw new Error('User email not found in employee directory');
       }
 
       // Generate a mock 6-digit OTP
@@ -112,8 +89,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       setLoading(true);
       const res = await api.login({ email });
       
-      localStorage.setItem('crm_auth_user', JSON.stringify(res.user));
-      
       // Auto-login to Admin Portal if allowlisted email
       if (isAdminEmail(res.user.email)) {
         const mockGoogleProfile = {
@@ -139,13 +114,12 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   };
 
   // --- ADMIN FLOW ---
-  const handleAdminGoogleAuth = (selectedEmail: string) => {
+  const handleAdminGoogleAuth = async (selectedEmail: string) => {
     if (!selectedEmail) return;
     setLoading(true);
     setError('');
     
-    setTimeout(() => {
-      setLoading(false);
+    try {
       const mockGoogleProfile = {
         email: selectedEmail.trim().toLowerCase(),
         name: selectedEmail.split('@')[0].toUpperCase(),
@@ -157,40 +131,20 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
       // Guard check
       if (isAdminEmail(mockGoogleProfile.email)) {
-        // Auto-provision or log in as normal employee in crm
-        const db = api.getRawDB();
-        let user = db.users.find(u => u.email.toLowerCase() === mockGoogleProfile.email);
-        if (!user) {
-          user = {
-            user_id: 'e-' + Math.random().toString(36).substring(2, 9),
-            full_name: mockGoogleProfile.name,
-            email: mockGoogleProfile.email,
-            role: 'Senior Executive',
-            status: 'Active',
-            designation: 'Workspace Administrator',
-            department: 'Executive',
-            date_added: new Date().toISOString(),
-            last_active: new Date().toISOString(),
-            notes: 'Auto-provisioned administrator account.'
-          };
-          db.users.push(user);
-          api.saveRawDB(db);
-        } else {
-          user.status = 'Active';
-          user.last_active = new Date().toISOString();
-          api.saveRawDB(db);
-        }
-
-        api.setToken('mock_jwt_token_admin_' + Math.random().toString(36).substring(2, 9));
-        localStorage.setItem('crm_auth_user', JSON.stringify(user));
-
-        onLoginSuccess(user);
+        // Run real login on the backend to set HttpOnly auth cookie
+        const res = await api.login({ email: mockGoogleProfile.email });
+        
+        onLoginSuccess(res.user);
         navigate('/admin');
       } else {
         // Kick to access denied
         navigate('/admin/denied');
       }
-    }, 800);
+    } catch (err: any) {
+      setError(err.message || 'Admin authentication failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

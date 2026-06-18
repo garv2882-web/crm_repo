@@ -9,7 +9,12 @@ import {
   SEED_CONTACTS, 
   SEED_LEADS, 
   SEED_DEALS, 
-  SEED_ACTIVITIES 
+  SEED_ACTIVITIES,
+  SEED_CAMPAIGNS,
+  SEED_SUPPORT_CASES,
+  SEED_KB_ARTICLES,
+  SEED_SOCIAL_ENGAGEMENTS,
+  SEED_EMAIL_MESSAGES
 } from './seedData.js';
 
 dotenv.config();
@@ -219,7 +224,12 @@ async function initDb() {
     // 2. Run alter scripts for backwards-compatibility or partial schemas
     await client.query(`
       ALTER TABLE users 
-      ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+      ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS designation VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS department VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS last_active TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS notes TEXT,
+      ADD COLUMN IF NOT EXISTS custom_permissions JSONB;
     `);
 
     const defaultHash = bcrypt.hashSync('password123', 10);
@@ -269,6 +279,135 @@ async function initDb() {
         text TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    // Create settings table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        org_name VARCHAR(255) DEFAULT 'Dexnest',
+        timezone VARCHAR(100) DEFAULT 'Asia/Kolkata',
+        deal_stages JSONB,
+        departments JSONB,
+        role_templates JSONB
+      );
+    `);
+
+    // Create sessions table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        session_id VARCHAR(255) PRIMARY KEY,
+        user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+        user_name VARCHAR(255),
+        user_email VARCHAR(255),
+        login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        logout_time TIMESTAMP,
+        duration INTEGER
+      );
+    `);
+
+    // Create activity_log table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS activity_log (
+        log_id VARCHAR(255) PRIMARY KEY,
+        event_type VARCHAR(100) NOT NULL,
+        actor_name VARCHAR(255),
+        actor_email VARCHAR(255),
+        affected_record VARCHAR(255),
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        detail_string TEXT
+      );
+    `);
+
+    // 5. Create Campaigns table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS campaigns (
+        campaign_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        campaign_name VARCHAR(255) NOT NULL,
+        campaign_type VARCHAR(100),
+        status VARCHAR(100),
+        budget DECIMAL(15,2),
+        actual_cost DECIMAL(15,2),
+        expected_revenue DECIMAL(15,2),
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 6. Create KB Articles table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS kb_articles (
+        article_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(255) NOT NULL,
+        content TEXT,
+        category VARCHAR(100),
+        status VARCHAR(50) DEFAULT 'Draft',
+        created_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 7. Create Support Cases table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS support_cases (
+        case_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        case_number VARCHAR(50) UNIQUE NOT NULL,
+        subject VARCHAR(255) NOT NULL,
+        company_id UUID REFERENCES companies(company_id) ON DELETE SET NULL,
+        assigned_to UUID REFERENCES users(user_id) ON DELETE SET NULL,
+        priority VARCHAR(50) DEFAULT 'Medium',
+        status VARCHAR(50) DEFAULT 'New',
+        description TEXT,
+        solution_id UUID,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 8. Create Support Tasks checklist table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS support_tasks (
+        task_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        case_id UUID REFERENCES support_cases(case_id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        is_completed BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 9. Create Social Engagements timeline logs
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS social_engagements (
+        engagement_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        lead_id UUID REFERENCES leads(lead_id) ON DELETE CASCADE,
+        platform VARCHAR(50) NOT NULL,
+        direction VARCHAR(50) NOT NULL,
+        content TEXT,
+        sender_handle VARCHAR(100),
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 10. Create Email Messages timeline logs
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS email_messages (
+        email_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        lead_id UUID REFERENCES leads(lead_id) ON DELETE CASCADE,
+        subject VARCHAR(255),
+        body TEXT,
+        direction VARCHAR(50) NOT NULL,
+        sender VARCHAR(255),
+        recipient VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'Sent',
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 11. Alter table schemas for relationships
+    await client.query(`
+      ALTER TABLE leads 
+      ADD COLUMN IF NOT EXISTS campaign_id UUID REFERENCES campaigns(campaign_id) ON DELETE SET NULL;
     `);
 
     console.log('✅ Database tables initialized/altered.');
@@ -362,6 +501,167 @@ async function initDb() {
       }
     }
 
+    // Seed Campaigns
+    const campaignsCount = await client.query('SELECT COUNT(*) FROM campaigns');
+    if (parseInt(campaignsCount.rows[0].count) === 0) {
+      console.log('🌱 Seeding campaigns...');
+      for (const c of SEED_CAMPAIGNS) {
+        await client.query(
+          `INSERT INTO campaigns (campaign_id, campaign_name, campaign_type, status, budget, actual_cost, expected_revenue, description) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [c.campaign_id, c.campaign_name, c.campaign_type, c.status, c.budget, c.actual_cost, c.expected_revenue, c.description]
+        );
+      }
+    }
+
+    // Seed KB Articles
+    const kbArticlesCount = await client.query('SELECT COUNT(*) FROM kb_articles');
+    if (parseInt(kbArticlesCount.rows[0].count) === 0) {
+      console.log('🌱 Seeding kb_articles...');
+      for (const a of SEED_KB_ARTICLES) {
+        await client.query(
+          `INSERT INTO kb_articles (article_id, title, content, category, status, created_by) 
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [a.article_id, a.title, a.content, a.category, a.status, a.created_by]
+        );
+      }
+    }
+
+    // Seed Support Cases
+    const supportCasesCount = await client.query('SELECT COUNT(*) FROM support_cases');
+    if (parseInt(supportCasesCount.rows[0].count) === 0) {
+      console.log('🌱 Seeding support_cases...');
+      for (const s of SEED_SUPPORT_CASES) {
+        await client.query(
+          `INSERT INTO support_cases (case_id, case_number, subject, company_id, assigned_to, priority, status, description, solution_id) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [s.case_id, s.case_number, s.subject, s.company_id, s.assigned_to, s.priority, s.status, s.description, s.solution_id]
+        );
+        
+        // Add default tasks
+        await client.query(
+          `INSERT INTO support_tasks (case_id, title, is_completed) VALUES 
+           ($1, \'Validate replication error details\', true),
+           ($1, \'Check database locks log\', false),
+           ($1, \'Review index metrics and fragmentation\', false)`,
+          [s.case_id]
+        );
+      }
+    }
+
+    // Seed Social Engagements
+    const socialCount = await client.query('SELECT COUNT(*) FROM social_engagements');
+    if (parseInt(socialCount.rows[0].count) === 0) {
+      console.log('🌱 Seeding social_engagements...');
+      for (const s of SEED_SOCIAL_ENGAGEMENTS) {
+        await client.query(
+          `INSERT INTO social_engagements (engagement_id, lead_id, platform, direction, content, sender_handle) 
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [s.engagement_id, s.lead_id, s.platform, s.direction, s.content, s.sender_handle]
+        );
+      }
+    }
+
+    // Seed Email Messages
+    const emailsCount = await client.query('SELECT COUNT(*) FROM email_messages');
+    if (parseInt(emailsCount.rows[0].count) === 0) {
+      console.log('🌱 Seeding email_messages...');
+      for (const e of SEED_EMAIL_MESSAGES) {
+        await client.query(
+          `INSERT INTO email_messages (email_id, lead_id, subject, body, direction, sender, recipient, status) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [e.email_id, e.lead_id, e.subject, e.body, e.direction, e.sender, e.recipient, e.status]
+        );
+      }
+    }
+
+    // Seed Settings
+    const settingsCount = await client.query('SELECT COUNT(*) FROM settings');
+    if (parseInt(settingsCount.rows[0].count) === 0) {
+      console.log('🌱 Seeding settings...');
+      const defaultStages = [
+        { id: 'Qualification', name: 'Qualification' },
+        { id: 'Discovery', name: 'Discovery' },
+        { id: 'Proposal', name: 'Proposal' },
+        { id: 'Negotiation', name: 'Negotiation' },
+        { id: 'Contract', name: 'Contract' },
+        { id: 'Closed Won', name: 'Closed Won' },
+        { id: 'Closed Lost', name: 'Closed Lost' }
+      ];
+      const defaultDepts = ['Sales', 'Marketing', 'Engineering', 'HR', 'Executive', 'Operations'];
+      const defaultTemplates = [
+        {
+          name: 'Sales Rep — View Only',
+          permissions: {
+            canViewAllDeals: true,
+            canCreateDeals: false,
+            canEditOwnDeals: false,
+            canEditAllDeals: false,
+            canDeleteDeals: false,
+            canChangeDealStage: false,
+            canViewAllContacts: true,
+            canCreateContacts: false,
+            canEditContacts: false,
+            canDeleteContacts: false,
+            canExportContacts: false,
+            canViewAllTasks: true,
+            canCreateTasks: false,
+            canReassignTasks: false,
+            canDeleteTasks: false,
+            canAccessIntegrationsPage: false
+          }
+        },
+        {
+          name: 'Sales Rep — Standard',
+          permissions: {
+            canViewAllDeals: true,
+            canCreateDeals: true,
+            canEditOwnDeals: true,
+            canEditAllDeals: false,
+            canDeleteDeals: false,
+            canChangeDealStage: true,
+            canViewAllContacts: true,
+            canCreateContacts: true,
+            canEditContacts: true,
+            canDeleteContacts: false,
+            canExportContacts: false,
+            canViewAllTasks: true,
+            canCreateTasks: true,
+            canReassignTasks: false,
+            canDeleteTasks: false,
+            canAccessIntegrationsPage: false
+          }
+        },
+        {
+          name: 'Senior Executive',
+          permissions: {
+            canViewAllDeals: true,
+            canCreateDeals: true,
+            canEditOwnDeals: true,
+            canEditAllDeals: true,
+            canDeleteDeals: true,
+            canChangeDealStage: true,
+            canViewAllContacts: true,
+            canCreateContacts: true,
+            canEditContacts: true,
+            canDeleteContacts: true,
+            canExportContacts: true,
+            canViewAllTasks: true,
+            canCreateTasks: true,
+            canReassignTasks: true,
+            canDeleteTasks: true,
+            canAccessIntegrationsPage: true
+          }
+        }
+      ];
+
+      await client.query(
+        `INSERT INTO settings (org_name, timezone, deal_stages, departments, role_templates)
+         VALUES ('Dexnest', 'Asia/Kolkata', $1, $2, $3)`,
+        [JSON.stringify(defaultStages), JSON.stringify(defaultDepts), JSON.stringify(defaultTemplates)]
+      );
+    }
+
     console.log('✅ Database seeding process complete.');
 
   } catch (err) {
@@ -386,6 +686,14 @@ import leadsRouter from './routes/leads.js';
 import dealsRouter from './routes/deals.js';
 import tasksRouter from './routes/tasks.js';
 import activitiesRouter from './routes/activities.js';
+import campaignsRouter from './routes/campaigns.js';
+import supportCasesRouter from './routes/supportCases.js';
+import kbArticlesRouter from './routes/kbArticles.js';
+import socialRouter from './routes/social.js';
+import emailsRouter from './routes/emails.js';
+import settingsRouter from './routes/settings.js';
+import sessionsRouter from './routes/sessions.js';
+import activityLogRouter from './routes/activityLog.js';
 
 // JWT authentication middleware
 const JWT_SECRET = process.env.JWT_SECRET || 'salesnest-super-secret-key-dev-fallback';
@@ -393,13 +701,37 @@ if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process
   console.error('❌ CRITICAL ERROR: JWT_SECRET environment variable is missing or insecure in production!');
   process.exit(1);
 }
+
+const parseCookies = (cookieHeader) => {
+  const list = {};
+  if (!cookieHeader) return list;
+  cookieHeader.split(';').forEach((cookie) => {
+    const parts = cookie.split('=');
+    if (parts.length >= 2) {
+      const name = parts[0].trim();
+      const value = parts.slice(1).join('=').trim();
+      list[name] = decodeURIComponent(value);
+    }
+  });
+  return list;
+};
+
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const cookies = parseCookies(req.headers.cookie);
+  let token = cookies.crm_auth_token;
+
+  if (!token) {
+    // Fallback to Auth header for standard client support
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+
+  if (!token) {
     return res.status(401).json({ error: 'Access denied. Authenticated token required.' });
   }
 
-  const token = authHeader.split(' ')[1];
   try {
     const verified = jwt.verify(token, JWT_SECRET);
     req.user = verified;
@@ -420,6 +752,14 @@ app.use('/api/leads', verifyToken, leadsRouter);
 app.use('/api/deals', verifyToken, dealsRouter);
 app.use('/api/tasks', verifyToken, tasksRouter);
 app.use('/api/activities', verifyToken, activitiesRouter);
+app.use('/api/campaigns', verifyToken, campaignsRouter);
+app.use('/api/support-cases', verifyToken, supportCasesRouter);
+app.use('/api/kb-articles', verifyToken, kbArticlesRouter);
+app.use('/api/social-engagements', verifyToken, socialRouter);
+app.use('/api/email-messages', verifyToken, emailsRouter);
+app.use('/api/settings', verifyToken, settingsRouter);
+app.use('/api/sessions', verifyToken, sessionsRouter);
+app.use('/api/activity-log', verifyToken, activityLogRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

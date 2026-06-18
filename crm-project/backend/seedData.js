@@ -64,3 +64,30 @@ export const SEED_ACTIVITIES = [
   { activity_id: 'act_0000002', action_type: 'status_update', text: '<span>Rahul Sharma</span> qualified lead <span>ERP Migration</span>', created_at: '2024-05-19T09:15:00Z' },
   { activity_id: 'act_0000003', action_type: 'convert_lead', text: '<span>Rahul Sharma</span> converted <span>ERP Migration</span> into a Deal', created_at: '2024-05-19T10:00:00Z' }
 ];
+
+export const SEED_CAMPAIGNS = [
+  { campaign_id: 'c1111111-1111-4111-8111-111111111111', campaign_name: 'Q2 Tech Outbound', campaign_type: 'Email', status: 'Active', budget: 50000, actual_cost: 42000, expected_revenue: 150000, description: 'Direct outbound emailing to procurement heads.' },
+  { campaign_id: 'c2222222-2222-4222-8222-222222222222', campaign_name: 'Partner Networks', campaign_type: 'Referral', status: 'Active', budget: 20000, actual_cost: 15000, expected_revenue: 80000, description: 'Lead generation via consulting partners.' },
+  { campaign_id: 'c3333333-3333-4333-8333-333333333333', campaign_name: 'Inbound Search', campaign_type: 'SEO', status: 'Active', budget: 30000, actual_cost: 30000, expected_revenue: 90000, description: 'Google search optimization for CRM keywords.' },
+  { campaign_id: 'c4444444-4444-4444-8444-444444444444', campaign_name: 'Design Showcase', campaign_type: 'Social', status: 'Active', budget: 15000, actual_cost: 12000, expected_revenue: 40000, description: 'Dribbble and Behance interactive mockups.' }
+];
+
+export const SEED_SUPPORT_CASES = [
+  { case_id: 'ea111111-ea11-4111-8111-111111111111', case_number: 'CAS-00101', subject: 'Replication latency in Delhi center', company_id: 'a2222222-2222-4222-8222-222222222222', assigned_to: 'e2222222-2222-4222-8222-222222222222', priority: 'High', status: 'In Progress', description: 'Data replication from primary node is taking up to 5 seconds. Needs DB optimization.', solution_id: 'da111111-da11-4111-8111-111111111111' },
+  { case_id: 'ea222222-ea22-4222-8222-222222222222', case_number: 'CAS-00102', subject: 'Billing portal invoice export error', company_id: 'a1111111-1111-4111-8111-111111111111', assigned_to: 'e1111111-1111-4111-8111-111111111111', priority: 'Medium', status: 'Resolved', description: 'Unable to download consolidated Q1 invoice PDF. Threw a 500 error page.', solution_id: 'da222222-da22-4222-8222-222222222222' }
+];
+
+export const SEED_KB_ARTICLES = [
+  { article_id: 'da111111-da11-4111-8111-111111111111', title: 'Resolving Database Replication Latency', content: 'Latency is typically caused by index fragmentation or unoptimized network interfaces. Re-indexing the target tables and ensuring the cluster network mtu is set to 9000 solves 95% of issues.', category: 'Database', status: 'Published', created_by: 'e1111111-1111-4111-8111-111111111111' },
+  { article_id: 'da222222-da22-4222-8222-222222222222', title: 'Invoice Export Failures', content: 'If consolidated exports timeout, clear your local browser cache or trigger the export by specifying individual month parameters to reduce memory overhead.', category: 'Billing', status: 'Published', created_by: 'e1111111-1111-4111-8111-111111111111' }
+];
+
+export const SEED_SOCIAL_ENGAGEMENTS = [
+  { engagement_id: 'de111111-de11-4111-8111-111111111111', lead_id: 'f0000001-0000-4000-8000-000000000001', platform: 'LinkedIn', direction: 'Inbound', content: 'Loved the presentation slides. Can we align on pricing next week?', sender_handle: '@aman_technova' },
+  { engagement_id: 'de222222-de22-4222-8222-222222222222', lead_id: 'f0000001-0000-4000-8000-000000000001', platform: 'LinkedIn', direction: 'Outbound', content: 'Absolutely, I will send a calendar invite.', sender_handle: '@aman_dexnest' }
+];
+
+export const SEED_EMAIL_MESSAGES = [
+  { email_id: 'ee111111-ee11-4111-8111-111111111111', lead_id: 'f0000001-0000-4000-8000-000000000001', subject: 'Re: CRM Software Proposal', body: 'Aman, we reviewed the proposal details internally. Can you confirm if support SLA is included in standard fees?', direction: 'Inbound', sender: 'aman@technova.com', recipient: 'aman@salesnest.com', status: 'Received' },
+  { email_id: 'ee222222-ee22-4222-8222-222222222222', lead_id: 'f0000001-0000-4000-8000-000000000001', subject: 'Re: CRM Software Proposal', body: 'Yes, 24/7 technical chat support and basic SLA of 4 hours response is included in the base proposal.', direction: 'Outbound', sender: 'aman@salesnest.com', recipient: 'aman@technova.com', status: 'Opened' }
+];

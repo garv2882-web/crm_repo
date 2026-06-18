@@ -31,14 +31,18 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
       setError('');
       setLoading(true);
       
-      // Verify email isn't already taken, and exists in directory if not admin
-      const db = api.getRawDB();
-      const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (existing && existing.status !== 'Pending') {
-        throw new Error('Email is already registered and active. Please sign in instead.');
-      }
-      if (!existing && !isAdminEmail(email)) {
-        throw new Error('Your email address was not found in the employee directory. Please contact your CRM Admin to invite you first.');
+      // Verify email isn't already taken, and exists in directory if not admin via backend check
+      try {
+        const checkRes = await api.checkEmail(email);
+        if (checkRes.exists && checkRes.status !== 'Pending') {
+          throw new Error('Email is already registered and active. Please sign in instead.');
+        }
+      } catch (err: any) {
+        if (err.message.includes('not found') && !isAdminEmail(email)) {
+          throw new Error('Your email address was not found in the employee directory. Please contact your CRM Admin to invite you first.');
+        } else if (err.message.includes('suspended') || err.message.includes('registered')) {
+          throw err;
+        }
       }
 
       // Generate a mock 6-digit OTP
@@ -92,8 +96,6 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
         email,
         role
       });
-      
-      localStorage.setItem('crm_auth_user', JSON.stringify(res.user));
       
       // Auto-login to Admin Portal if allowlisted email
       if (isAdminEmail(res.user.email)) {

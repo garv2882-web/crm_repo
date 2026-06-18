@@ -14,12 +14,11 @@ export default function AdminLogin() {
     setShowMockSelect(true);
   };
 
-  const handleMockAuthenticate = (selectedEmail: string) => {
+  const handleMockAuthenticate = async (selectedEmail: string) => {
     if (!selectedEmail) return;
     setLoading(true);
     
-    setTimeout(() => {
-      setLoading(false);
+    try {
       // Simulate Google returning authenticated user profile
       const mockGoogleProfile = {
         email: selectedEmail.trim().toLowerCase(),
@@ -32,41 +31,20 @@ export default function AdminLogin() {
 
       // Guard check
       if (isAdminEmail(mockGoogleProfile.email)) {
-        // Auto-provision or log in as normal employee in crm
-        const db = api.getRawDB();
-        let user = db.users.find(u => u.email.toLowerCase() === mockGoogleProfile.email);
-        if (!user) {
-          user = {
-            user_id: 'e-' + Math.random().toString(36).substring(2, 9),
-            full_name: mockGoogleProfile.name,
-            email: mockGoogleProfile.email,
-            role: 'Senior Executive',
-            status: 'Active',
-            designation: 'Workspace Administrator',
-            department: 'Executive',
-            date_added: new Date().toISOString(),
-            last_active: new Date().toISOString(),
-            notes: 'Auto-provisioned administrator account.'
-          };
-          db.users.push(user);
-          api.saveRawDB(db);
-        } else {
-          // ensure their status is Active so they don't get blocked by CRMGuard
-          user.status = 'Active';
-          user.last_active = new Date().toISOString();
-          api.saveRawDB(db);
-        }
-
-        api.setToken('mock_jwt_token_admin_' + Math.random().toString(36).substring(2, 9));
-        localStorage.setItem('crm_auth_user', JSON.stringify(user));
-
+        // Perform backend login to set HttpOnly token cookie
+        await api.login({ email: mockGoogleProfile.email });
+        
         // Log in to admin portal
         navigate('/admin');
       } else {
         // Kick to access denied
         navigate('/admin/denied');
       }
-    }, 800);
+    } catch (err: any) {
+      console.error('Admin authentication failed:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

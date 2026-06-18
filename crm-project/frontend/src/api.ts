@@ -1,8 +1,7 @@
 // Dexnest CRM Client-Side Storage API Engine
-// Fully compatible with existing API signatures but backed by localStorage
+// Transitioned to real async REST backend API calls with HttpOnly session cookies
 
 // Auth Interfaces
-import { isAdminEmail } from './config/adminConfig';
 export interface LoginRequest {
   email: string;
   password?: string;
@@ -258,8 +257,8 @@ export interface CRMDatabase {
   leads: Lead[];
   deals: Deal[];
   tasks: Task[];
-  activities: Activity[]; // dashboard display activity
-  activityLog: ActivityLogEntry[]; // admin audit log
+  activities: Activity[];
+  activityLog: ActivityLogEntry[];
   sessions: SessionHistory[];
   settings: CRMSettings;
   campaigns: Campaign[];
@@ -268,172 +267,6 @@ export interface CRMDatabase {
   socialEngagements: SocialEngagement[];
   emailMessages: EmailMessage[];
 }
-
-// Default role permissions templates
-const DEFAULT_ROLE_TEMPLATES: RoleTemplate[] = [
-  {
-    name: 'Sales Rep — View Only',
-    permissions: {
-      canViewAllDeals: true,
-      canCreateDeals: false,
-      canEditOwnDeals: false,
-      canEditAllDeals: false,
-      canDeleteDeals: false,
-      canChangeDealStage: false,
-      canViewAllContacts: true,
-      canCreateContacts: false,
-      canEditContacts: false,
-      canDeleteContacts: false,
-      canExportContacts: false,
-      canViewAllTasks: true,
-      canCreateTasks: false,
-      canReassignTasks: false,
-      canDeleteTasks: false,
-      canAccessIntegrationsPage: false,
-    }
-  },
-  {
-    name: 'Sales Rep — Standard',
-    permissions: {
-      canViewAllDeals: true,
-      canCreateDeals: true,
-      canEditOwnDeals: true,
-      canEditAllDeals: false,
-      canDeleteDeals: false,
-      canChangeDealStage: true,
-      canViewAllContacts: true,
-      canCreateContacts: true,
-      canEditContacts: true,
-      canDeleteContacts: false,
-      canExportContacts: false,
-      canViewAllTasks: true,
-      canCreateTasks: true,
-      canReassignTasks: false,
-      canDeleteTasks: false,
-      canAccessIntegrationsPage: false,
-    }
-  },
-  {
-    name: 'Senior Executive',
-    permissions: {
-      canViewAllDeals: true,
-      canCreateDeals: true,
-      canEditOwnDeals: true,
-      canEditAllDeals: true,
-      canDeleteDeals: true,
-      canChangeDealStage: true,
-      canViewAllContacts: true,
-      canCreateContacts: true,
-      canEditContacts: true,
-      canDeleteContacts: true,
-      canExportContacts: true,
-      canViewAllTasks: true,
-      canCreateTasks: true,
-      canReassignTasks: true,
-      canDeleteTasks: true,
-      canAccessIntegrationsPage: true,
-    }
-  }
-];
-
-const DEFAULT_DEAL_STAGES: DealStage[] = [
-  { id: 'Qualification', name: 'Qualification' },
-  { id: 'Discovery', name: 'Discovery' },
-  { id: 'Proposal', name: 'Proposal' },
-  { id: 'Negotiation', name: 'Negotiation' },
-  { id: 'Contract', name: 'Contract' },
-  { id: 'Closed Won', name: 'Closed Won' },
-  { id: 'Closed Lost', name: 'Closed Lost' }
-];
-
-const INITIAL_DB: CRMDatabase = {
-  users: [
-    { user_id: 'e1111111-1111-4111-8111-111111111111', full_name: 'Aman Verma', email: 'aman@dexnest.com', role: 'Senior Executive', status: 'Active', designation: 'Sales Director', department: 'Executive', date_added: '2024-01-10T10:00:00Z', last_active: '2026-06-05T10:00:00Z', notes: 'Co-founder and manager.' },
-    { user_id: 'e2222222-2222-4222-8222-222222222222', full_name: 'Rahul Sharma', email: 'rahul@dexnest.com', role: 'Sales Rep — Standard', status: 'Active', designation: 'Account Executive', department: 'Sales', date_added: '2024-02-15T10:00:00Z', last_active: '2026-06-05T09:30:00Z', notes: 'Focuses on enterprise accounts.' },
-    { user_id: 'e3333333-3333-4333-8333-333333333333', full_name: 'Priya Singh', email: 'priya@dexnest.com', role: 'Sales Rep — View Only', status: 'Active', designation: 'Sales Analyst', department: 'Marketing', date_added: '2024-03-20T10:00:00Z', last_active: '2026-06-04T17:00:00Z', notes: 'Intern performing view-only research.' },
-    { user_id: 'e4444444-4444-4444-8444-444444444444', full_name: 'Garv Ranjan', email: 'garv@dexnest.com', role: 'Senior Executive', status: 'Active', designation: 'Head of Sales', department: 'Executive', date_added: '2024-01-01T10:00:00Z', last_active: '2026-06-05T10:15:00Z', notes: 'Primary CRM Admin.' }
-  ],
-  companies: [
-    { company_id: 'a1111111-1111-4111-8111-111111111111', company_name: 'TechNova', company_code: 'TN001', industry: 'IT', website: 'https://technova.com', country: 'India', state: 'Karnataka', city: 'Bangalore', annual_revenue: 120000000, notes: '', created_at: '2024-05-01T10:00:00Z', updated_at: '2024-05-01T10:00:00Z' },
-    { company_id: 'a2222222-2222-4222-8222-222222222222', company_name: 'SoftSol Pvt Ltd', company_code: 'SS002', industry: 'Consulting', website: 'https://softsol.com', country: 'India', state: 'Delhi NCR', city: 'Noida', annual_revenue: 85000000, notes: '', created_at: '2024-05-02T10:00:00Z', updated_at: '2024-05-02T10:00:00Z' },
-    { company_id: 'a3333333-3333-4333-8333-333333333333', company_name: 'Byte Systems', company_code: 'BS003', industry: 'Software', website: 'https://bytesystems.io', country: 'India', state: 'Maharashtra', city: 'Pune', annual_revenue: 45000000, notes: '', created_at: '2024-05-03T10:00:00Z', updated_at: '2024-05-03T10:00:00Z' },
-    { company_id: 'a4444444-4444-4444-8444-444444444444', company_name: 'NextGen Tech', company_code: 'NG004', industry: 'Infrastructure', website: 'https://nextgen.io', country: 'India', state: 'Maharashtra', city: 'Mumbai', annual_revenue: 180000000, notes: '', created_at: '2024-05-04T10:00:00Z', updated_at: '2024-05-04T10:00:00Z' },
-    { company_id: 'a5555555-5555-4555-8555-555555555555', company_name: 'Creative Minds', company_code: 'CM005', industry: 'Design Agency', website: 'https://creativeminds.design', country: 'India', state: 'Delhi', city: 'Delhi', annual_revenue: 15000000, notes: '', created_at: '2024-05-05T10:00:00Z', updated_at: '2024-05-05T10:00:00Z' },
-    { company_id: 'a6666666-6666-4666-8666-666666666666', company_name: 'Appify Solutions', company_code: 'AS006', industry: 'Mobile Apps', website: 'https://appify.com', country: 'India', state: 'Telangana', city: 'Hyderabad', annual_revenue: 30000000, notes: '', created_at: '2024-05-06T10:00:00Z', updated_at: '2024-05-06T10:00:00Z' },
-    { company_id: 'a7777777-7777-4777-8777-777777777777', company_name: 'DataWiz', company_code: 'DW007', industry: 'BI & Analytics', website: 'https://datawiz.ai', country: 'India', state: 'Karnataka', city: 'Bangalore', annual_revenue: 55000000, notes: '', created_at: '2024-05-07T10:00:00Z', updated_at: '2024-05-07T10:00:00Z' },
-    { company_id: 'a8888888-8888-4888-8888-888888888888', company_name: 'SecureX', company_code: 'SX008', industry: 'Cybersecurity', website: 'https://securex.co', country: 'India', state: 'Tamil Nadu', city: 'Chennai', annual_revenue: 95000000, notes: '', created_at: '2024-05-08T10:00:00Z', updated_at: '2024-05-08T10:00:00Z' }
-  ],
-  contacts: [
-    { contact_id: 'b1111111-1111-4111-8111-111111111111', company_id: 'a1111111-1111-4111-8111-111111111111', first_name: 'Aman', last_name: 'Verma', email: 'aman@technova.com', mobile_number: '+91 98765 43210', linkedin_profile: 'https://linkedin.com/in/amanverma', job_title: 'Procurement Head', department: 'Purchasing', notes: '', created_at: '2024-05-01T10:10:00Z' },
-    { contact_id: 'b2222222-2222-4222-8222-222222222222', company_id: 'a2222222-2222-4222-8222-222222222222', first_name: 'Vikash', last_name: 'Sharma', email: 'vikash@softsol.com', mobile_number: '+91 98765 43211', linkedin_profile: 'https://linkedin.com/in/vikashsharma', job_title: 'CTO', department: 'Technology', notes: '', created_at: '2024-05-02T10:10:00Z' },
-    { contact_id: 'b3333333-3333-4333-8333-333333333333', company_id: 'a3333333-3333-4333-8333-333333333333', first_name: 'Shreya', last_name: 'Sen', email: 'shreya@bytesystems.io', mobile_number: '+91 98765 43212', linkedin_profile: 'https://linkedin.com/in/shreyasen', job_title: 'Director of IT', department: 'IT', notes: '', created_at: '2024-05-03T10:10:00Z' },
-    { contact_id: 'b4444444-4444-4444-8444-444444444444', company_id: 'a4444444-4444-4444-8444-444444444444', first_name: 'Vikram', last_name: 'Malhotra', email: 'vikram@nextgen.io', mobile_number: '+91 98765 43213', linkedin_profile: 'https://linkedin.com/in/vikrammalhotra', job_title: 'VP Operations', department: 'Operations', notes: '', created_at: '2024-05-04T10:10:00Z' },
-    { contact_id: 'b5555555-5555-4555-8555-555555555555', company_id: 'a5555555-5555-4555-8555-555555555555', first_name: 'Sneha', last_name: 'Reddy', email: 'sneha@creativeminds.design', mobile_number: '+91 98765 43214', linkedin_profile: 'https://linkedin.com/in/snehareddy', job_title: 'Creative Director', department: 'Design', notes: '', created_at: '2024-05-05T10:10:00Z' },
-    { contact_id: 'b6666666-6666-4666-8666-666666666666', company_id: 'a6666666-6666-4666-8666-666666666666', first_name: 'Kunal', last_name: 'Gupta', email: 'kunal@appify.com', mobile_number: '+91 98765 43215', linkedin_profile: 'https://linkedin.com/in/kunalgupta', job_title: 'Founder & CEO', department: 'Executive', notes: '', created_at: '2024-05-06T10:10:00Z' },
-    { contact_id: 'b7777777-7777-4777-8777-777777777777', company_id: 'a7777777-7777-4777-8777-777777777777', first_name: 'Riya', last_name: 'Kapoor', email: 'riya@datawiz.ai', mobile_number: '+91 98765 43216', linkedin_profile: 'https://linkedin.com/in/riyakapoor', job_title: 'Analytics Manager', department: 'Data Science', notes: '', created_at: '2024-05-07T10:10:00Z' },
-    { contact_id: 'b8888888-8888-4888-8888-888888888888', company_id: 'a8888888-8888-4888-8888-888888888888', first_name: 'Amit', last_name: 'Patel', email: 'amit@securex.co', mobile_number: '+91 98765 43217', linkedin_profile: 'https://linkedin.com/in/amitpatel', job_title: 'CISO', department: 'Security', notes: '', created_at: '2024-05-08T10:10:00Z' }
-  ],
-  leads: [
-    { lead_id: 'f0000001-0000-4000-8000-000000000001', company_id: 'a1111111-1111-4111-8111-111111111111', primary_contact_id: 'b1111111-1111-4111-8111-111111111111', assigned_to: 'e1111111-1111-4111-8111-111111111111', created_by: 'e4444444-4444-4444-8444-444444444444', lead_title: 'CRM Software Proposal', lead_source: 'LinkedIn', lead_status: 'New', priority: 'High', estimated_revenue: 500000, conversion_probability: 45, campaign_name: 'Q2 Tech Outbound', campaign_id: 'c1111111-1111-4111-8111-111111111111', tags: ['CRM', 'Software'], notes: 'Initial interest shown in custom workflow extensions. Requested proposal for 50 licenses.', created_at: '2024-05-20T10:00:00Z', updated_at: '2024-05-20T10:00:00Z' },
-    { lead_id: 'f0000002-0000-4000-8000-000000000002', company_id: 'a2222222-2222-4222-8222-222222222222', primary_contact_id: 'b2222222-2222-4222-8222-222222222222', assigned_to: 'e2222222-2222-4222-8222-222222222222', created_by: 'e1111111-1111-4111-8111-111111111111', lead_title: 'ERP Migration', lead_source: 'Referral', lead_status: 'Qualified', priority: 'Medium', estimated_revenue: 1200000, conversion_probability: 70, campaign_name: 'Partner Networks', campaign_id: 'c2222222-2222-4222-8222-222222222222', tags: ['ERP', 'Migration'], notes: 'Budget is approved. Looking to transition from legacy SAP to cloud platform.', created_at: '2024-05-18T14:30:00Z', updated_at: '2024-05-19T09:15:00Z' },
-    { lead_id: 'f0000003-0000-4000-8000-000000000003', company_id: 'a3333333-3333-4333-8333-333333333333', primary_contact_id: 'b3333333-3333-4333-8333-333333333333', assigned_to: 'e3333333-3333-4333-8333-333333333333', created_by: 'e2222222-2222-4222-8222-222222222222', lead_title: 'Cloud Setup', lead_source: 'Website', lead_status: 'Contacted', priority: 'Low', estimated_revenue: 250000, conversion_probability: 30, campaign_name: 'Inbound Search', campaign_id: 'c3333333-3333-4333-8333-333333333333', tags: ['Cloud', 'AWS'], notes: 'Scheduled discovery call. They want basic pricing for database replication.', created_at: '2024-05-17T11:15:00Z', updated_at: '2024-05-17T11:20:00Z' },
-    { lead_id: 'f0000004-0000-4000-8000-000000000004', company_id: 'a4444444-4444-4444-8444-444444444444', primary_contact_id: 'b4444444-4444-4444-8444-444444444444', assigned_to: 'e1111111-1111-4111-8111-111111111111', created_by: 'e4444444-4444-4444-8444-444444444444', lead_title: 'IT Infrastructure', lead_source: 'LinkedIn', lead_status: 'New', priority: 'High', estimated_revenue: 875000, conversion_probability: 50, campaign_name: 'Q2 Tech Outbound', campaign_id: 'c1111111-1111-4111-8111-111111111111', tags: ['Infrastructure'], notes: 'C-level team is expanding and requires dedicated bare metal hosting nodes.', created_at: '2024-05-16T16:00:00Z', updated_at: '2024-05-16T16:00:00Z' },
-    { lead_id: 'f0000005-0000-4000-8000-000000000005', company_id: 'a5555555-5555-4555-8555-555555555555', primary_contact_id: 'b5555555-5555-4555-8555-555555555555', assigned_to: 'e2222222-2222-4222-8222-222222222222', created_by: 'e3333333-3333-4333-8333-333333333333', lead_title: 'Website Redesign', lead_source: 'Website', lead_status: 'Qualified', priority: 'Medium', estimated_revenue: 320000, conversion_probability: 65, campaign_name: 'Design Showcase', campaign_id: 'c4444444-4444-4444-8444-444444444444', tags: ['Redesign'], notes: 'Needs interactive mockups, full design system, and react code integration. Budget ready.', created_at: '2024-05-15T09:45:00Z', updated_at: '2024-05-16T10:30:00Z' }
-  ],
-  deals: [
-    { deal_id: 'f0000001-0000-4000-8000-000000000001', lead_id: 'f0000002-0000-4000-8000-000000000002', company_id: 'a2222222-2222-4222-8222-222222222222', contact_id: 'b2222222-2222-4222-8222-222222222222', deal_name: 'ERP Migration Deal', deal_owner: 'e2222222-2222-4222-8222-222222222222', deal_stage: 'Proposal', deal_status: 'Open', sales_pipeline: 'Enterprise', priority: 'High', probability_percentage: 70, deal_value: 1200000, currency: 'INR', created_at: '2024-05-19T10:00:00Z' },
-    { deal_id: 'f0000002-0000-4000-8000-000000000002', lead_id: 'f0000005-0000-4000-8000-000000000005', company_id: 'a5555555-5555-4555-8555-555555555555', contact_id: 'b5555555-5555-4555-8555-555555555555', deal_name: 'Creative Minds Web Redesign', deal_owner: 'e2222222-2222-4222-8222-222222222222', deal_stage: 'Negotiation', deal_status: 'Open', sales_pipeline: 'SMB', priority: 'Medium', probability_percentage: 80, deal_value: 320000, currency: 'INR', created_at: '2024-05-16T11:00:00Z' }
-  ],
-  tasks: [
-    { task_id: 'task_001', assigned_to: 'e1111111-1111-4111-8111-111111111111', lead_id: '', deal_id: '', company_id: '', title: 'Follow up with TechNova', description: 'Discuss customization choices for CRM licenses.', due_date: '2026-06-07', priority: 'High', status: 'Pending', created_at: '2026-06-05T10:00:00Z' },
-    { task_id: 'task_002', assigned_to: 'e2222222-2222-4222-8222-222222222222', lead_id: '', deal_id: '', company_id: '', title: 'Prepare contract draft for SoftSol', due_date: '2026-06-06', priority: 'Medium', status: 'Pending', description: 'Prepare Standard SLA templates.', created_at: '2026-06-05T09:00:00Z' },
-    { task_id: 'task_003', assigned_to: 'e3333333-3333-4333-8333-333333333333', lead_id: '', deal_id: '', company_id: '', title: 'Initial introduction call with Cloud Setup', due_date: '2026-06-04', priority: 'Low', status: 'Pending', description: 'Intro call.', created_at: '2026-06-04T10:00:00Z' },
-    { task_id: 'task_004', assigned_to: 'e1111111-1111-4111-8111-111111111111', lead_id: '', deal_id: '', company_id: '', title: 'SOC2 Compliance Checklist', due_date: '2026-06-10', priority: 'High', status: 'Completed', description: 'SOC2 audit.', created_at: '2026-06-05T08:00:00Z' }
-  ],
-  activities: [
-    { activity_id: 'act_0000001', action_type: 'create_lead', text: '<span>Aman Verma</span> created lead <span>CRM Software Proposal</span> for TechNova', created_at: '2024-05-20T10:00:00Z' },
-    { activity_id: 'act_0000002', action_type: 'status_update', text: '<span>Rahul Sharma</span> qualified lead <span>ERP Migration</span>', created_at: '2024-05-19T09:15:00Z' },
-    { activity_id: 'act_0000003', action_type: 'convert_lead', text: '<span>Rahul Sharma</span> converted <span>ERP Migration</span> into a Deal', created_at: '2024-05-19T10:00:00Z' }
-  ],
-  activityLog: [
-    { log_id: 'log_001', event_type: 'lead_created', actor_name: 'Aman Verma', actor_email: 'aman@dexnest.com', affected_record: 'CRM Software Proposal', timestamp: '2024-05-20T10:00:00Z', detail_string: 'Lead created with high priority.' },
-    { log_id: 'log_002', event_type: 'lead_edited', actor_name: 'Rahul Sharma', actor_email: 'rahul@dexnest.com', affected_record: 'ERP Migration', timestamp: '2024-05-19T09:15:00Z', detail_string: 'Qualified the lead for ERP proposal.' },
-    { log_id: 'log_003', event_type: 'deal_created', actor_name: 'Rahul Sharma', actor_email: 'rahul@dexnest.com', affected_record: 'ERP Migration Deal', timestamp: '2024-05-19T10:00:00Z', detail_string: 'Converted lead ERP Migration into a Deal.' }
-  ],
-  sessions: [
-    { session_id: 'sess_001', user_id: 'e1111111-1111-4111-8111-111111111111', user_name: 'Aman Verma', user_email: 'aman@dexnest.com', login_time: '2026-06-05T08:00:00Z', logout_time: '2026-06-05T10:00:00Z', duration: 7200 },
-    { session_id: 'sess_002', user_id: 'e2222222-2222-4222-8222-222222222222', user_name: 'Rahul Sharma', user_email: 'rahul@dexnest.com', login_time: '2026-06-05T09:00:00Z', logout_time: '2026-06-05T09:30:00Z', duration: 1800 }
-  ],
-  settings: {
-    orgName: 'Dexnest',
-    timezone: 'Asia/Kolkata',
-    dealStages: DEFAULT_DEAL_STAGES,
-    departments: ['Sales', 'Marketing', 'Engineering', 'HR', 'Executive', 'Operations'],
-    roleTemplates: DEFAULT_ROLE_TEMPLATES
-  },
-  campaigns: [
-    { campaign_id: 'c1111111-1111-4111-8111-111111111111', campaign_name: 'Q2 Tech Outbound', campaign_type: 'Email', status: 'Active', budget: 50000, actual_cost: 42000, expected_revenue: 150000, description: 'Direct outbound emailing to procurement heads.', created_at: '2024-05-01T10:00:00Z', updated_at: '2024-05-01T10:00:00Z' },
-    { campaign_id: 'c2222222-2222-4222-8222-222222222222', campaign_name: 'Partner Networks', campaign_type: 'Referral', status: 'Active', budget: 20000, actual_cost: 15000, expected_revenue: 80000, description: 'Lead generation via consulting partners.', created_at: '2024-05-02T10:00:00Z', updated_at: '2024-05-02T10:00:00Z' },
-    { campaign_id: 'c3333333-3333-4333-8333-333333333333', campaign_name: 'Inbound Search', campaign_type: 'SEO', status: 'Active', budget: 30000, actual_cost: 30000, expected_revenue: 90000, description: 'Google search optimization for CRM keywords.', created_at: '2024-05-03T10:00:00Z', updated_at: '2024-05-03T10:00:00Z' },
-    { campaign_id: 'c4444444-4444-4444-8444-444444444444', campaign_name: 'Design Showcase', campaign_type: 'Social', status: 'Active', budget: 15000, actual_cost: 12000, expected_revenue: 40000, description: 'Dribbble and Behance interactive mockups.', created_at: '2024-05-04T10:00:00Z', updated_at: '2024-05-04T10:00:00Z' }
-  ],
-  supportCases: [
-    { case_id: 's1111111-1111-4111-8111-111111111111', case_number: 'CAS-00101', subject: 'Replication latency in Delhi center', company_id: 'a2222222-2222-4222-8222-222222222222', assigned_to: 'e2222222-2222-4222-8222-222222222222', priority: 'High', status: 'In Progress', description: 'Data replication from primary node is taking up to 5 seconds. Needs DB optimization.', solution_id: 'sol11111-1111-4111-8111-111111111111', created_at: '2026-06-05T09:00:00Z', updated_at: '2026-06-05T10:00:00Z' },
-    { case_id: 's2222222-2222-4222-8222-222222222222', case_number: 'CAS-00102', subject: 'Billing portal invoice export error', company_id: 'a1111111-1111-4111-8111-111111111111', assigned_to: 'e1111111-1111-4111-8111-111111111111', priority: 'Medium', status: 'Resolved', description: 'Unable to download consolidated Q1 invoice PDF. Threw a 500 error page.', solution_id: 'sol22222-2222-4222-8222-222222222222', created_at: '2026-06-04T11:00:00Z', updated_at: '2026-06-04T14:00:00Z' }
-  ],
-  kbArticles: [
-    { article_id: 'sol11111-1111-4111-8111-111111111111', title: 'Resolving Database Replication Latency', content: 'Latency is typically caused by index fragmentation or unoptimized network interfaces. Re-indexing the target tables and ensuring the cluster network mtu is set to 9000 solves 95% of issues.', category: 'Database', status: 'Published', created_by: 'e1111111-1111-4111-8111-111111111111', created_at: '2026-06-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
-    { article_id: 'sol22222-2222-4222-8222-222222222222', title: 'Invoice Export Failures', content: 'If consolidated exports timeout, clear your local browser cache or trigger the export by specifying individual month parameters to reduce memory overhead.', category: 'Billing', status: 'Published', created_by: 'e1111111-1111-4111-8111-111111111111', created_at: '2026-06-02T10:00:00Z', updated_at: '2026-06-02T10:00:00Z' }
-  ],
-  socialEngagements: [
-    { engagement_id: 'soc11111-1111-4111-8111-111111111111', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', platform: 'LinkedIn', channel_type: 'Social', direction: 'Inbound', content: 'Loved the presentation slides. Can we align on pricing next week?', sender_handle: '@aman_technova', timestamp: '2026-06-05T09:30:00Z' },
-    { engagement_id: 'soc22222-2222-4222-8222-222222222222', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', platform: 'LinkedIn', channel_type: 'Social', direction: 'Outbound', content: 'Absolutely, I will send a calendar invite.', sender_handle: '@aman_dexnest', timestamp: '2026-06-05T10:15:00Z' }
-  ],
-  emailMessages: [
-    { email_id: 'em111111-1111-4111-8111-111111111111', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', channel_type: 'Email', subject: 'Re: CRM Software Proposal', body: 'Aman, we reviewed the proposal details internally. Can you confirm if support SLA is included in standard fees?', direction: 'Inbound', sender: 'aman@technova.com', recipient: 'aman@dexnest.com', status: 'Received', timestamp: '2026-06-05T08:15:00Z' },
-    { email_id: 'em222222-2222-4222-8222-222222222222', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', channel_type: 'Email', subject: 'Re: CRM Software Proposal', body: 'Yes, 24/7 technical chat support and basic SLA of 4 hours response is included in the base proposal.', direction: 'Outbound', sender: 'aman@dexnest.com', recipient: 'aman@technova.com', status: 'Opened', timestamp: '2026-06-05T09:00:00Z' }
-  ]
-};
 
 // State change emitter pub/sub
 type Listener = () => void;
@@ -451,1398 +284,559 @@ export const apiEvents = {
   }
 };
 
-// Database helper functions
-function getDB(): CRMDatabase {
-  const data = localStorage.getItem('dexnest_crm_db');
-  if (!data) {
-    localStorage.setItem('dexnest_crm_db', JSON.stringify(INITIAL_DB));
-    return INITIAL_DB;
+// REST Request helper
+const request = async (url: string, options: RequestInit = {}) => {
+  options.credentials = 'include';
+  options.headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+  
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP error! Status: ${res.status}`);
   }
-  try {
-    return JSON.parse(data);
-  } catch (e) {
-    console.error('Failed to parse database, resetting...', e);
-    localStorage.setItem('dexnest_crm_db', JSON.stringify(INITIAL_DB));
-    return INITIAL_DB;
-  }
-}
+  return res.json();
+};
 
-function saveDB(db: CRMDatabase) {
-  localStorage.setItem('dexnest_crm_db', JSON.stringify(db));
-  apiEvents.emit();
-}
-
-// Generate UUID simple helper
-function uuidv4(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
-let activeToken = '';
-
-// REST Client Helper Methods
 export const api = {
+  // Token dummies to prevent compilation errors
   getToken(): string {
-    return activeToken;
+    return '';
   },
+  setToken(_token: string) {},
 
-  setToken(token: string) {
-    activeToken = token;
-  },
-
-  // Database access for Context initialization
+  // Fallbacks to keep Context structure compatibility
   getRawDB(): CRMDatabase {
-    return getDB();
+    return {
+      users: [],
+      companies: [],
+      contacts: [],
+      leads: [],
+      deals: [],
+      tasks: [],
+      activities: [],
+      activityLog: [],
+      sessions: [],
+      settings: {
+        orgName: 'Dexnest',
+        timezone: 'Asia/Kolkata',
+        dealStages: [],
+        departments: [],
+        roleTemplates: []
+      },
+      campaigns: [],
+      supportCases: [],
+      kbArticles: [],
+      socialEngagements: [],
+      emailMessages: []
+    };
   },
-
-  saveRawDB(db: CRMDatabase) {
-    saveDB(db);
-  },
+  saveRawDB(_db: any) {},
 
   // Auth
+  async checkEmail(email: string): Promise<{ exists: boolean; status?: string; user?: User }> {
+    return request(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+  },
+
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const db = getDB();
-    const user = db.users.find(u => u.email.toLowerCase() === data.email.toLowerCase());
+    const res = await request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
     
-    if (!user) {
-      throw new Error('User not found in employee directory');
-    }
-    
-    if (user.status === 'Suspended') {
-      throw new Error('Your account has been suspended. Contact your administrator.');
-    }
+    // Log user login session on backend
+    const session_id = 'sess_' + Math.random().toString(36).substring(2, 9);
+    await request('/api/sessions', {
+      method: 'POST',
+      body: JSON.stringify({
+        session_id,
+        user_id: res.user.user_id,
+        user_name: res.user.full_name,
+        user_email: res.user.email,
+        login_time: new Date().toISOString()
+      })
+    }).catch(err => console.error(err));
 
-    // Set token & login user
-    const token = 'mock_jwt_token_' + uuidv4();
-    activeToken = token;
-    localStorage.setItem('crm_auth_user', JSON.stringify(user));
-
-    // Session tracking
-    const session_id = 'sess_' + uuidv4();
-    const loginSession: SessionHistory = {
-      session_id,
-      user_id: user.user_id,
-      user_name: user.full_name,
-      user_email: user.email,
-      login_time: new Date().toISOString()
-    };
-    db.sessions.push(loginSession);
     localStorage.setItem('crm_current_session_id', session_id);
 
-    // Audit logs
-    const log_id = 'log_' + uuidv4();
-    const logEntry: ActivityLogEntry = {
-      log_id,
-      event_type: 'user_login',
-      actor_name: user.full_name,
-      actor_email: user.email,
-      affected_record: `User Session: ${user.full_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Logged in from IP mock. Session ID: ${session_id}`
-    };
-    db.activityLog.push(logEntry);
+    // Log activity
+    await request('/api/activity-log', {
+      method: 'POST',
+      body: JSON.stringify({
+        log_id: 'log_' + Math.random().toString(36).substring(2, 9),
+        event_type: 'user_login',
+        actor_name: res.user.full_name,
+        actor_email: res.user.email,
+        affected_record: `User Session: ${res.user.full_name}`,
+        timestamp: new Date().toISOString(),
+        detail_string: `Logged in from IP client. Session ID: ${session_id}`
+      })
+    }).catch(err => console.error(err));
 
-    // Update last active
-    user.last_active = new Date().toISOString();
-    
-    saveDB(db);
-
-    return { token, user };
+    apiEvents.emit();
+    return { token: 'managed_via_http_only_cookie', user: res.user };
   },
 
   async signup(data: RegisterRequest): Promise<AuthResponse> {
-    const db = getDB();
-    const exists = db.users.find(u => u.email.toLowerCase() === data.email.toLowerCase());
-    
-    if (!exists) {
-      // Allow signup ONLY if they are an admin
-      if (isAdminEmail(data.email)) {
-        const newAdmin: User = {
-          user_id: uuidv4(),
-          full_name: data.full_name,
-          email: data.email,
-          role: 'Senior Executive',
-          status: 'Active',
-          designation: 'Workspace Administrator',
-          department: 'Executive',
-          date_added: new Date().toISOString(),
-          last_active: new Date().toISOString(),
-          notes: 'Auto-provisioned administrator account.'
-        };
-        db.users.push(newAdmin);
-        
-        const token = 'mock_jwt_token_' + uuidv4();
-        activeToken = token;
-        localStorage.setItem('crm_auth_user', JSON.stringify(newAdmin));
+    const res = await request('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
 
-        db.sessions.push({
-          session_id: 'sess_' + uuidv4(),
-          user_id: newAdmin.user_id,
-          user_name: newAdmin.full_name,
-          user_email: newAdmin.email,
-          login_time: new Date().toISOString()
-        });
-        
-        db.activityLog.push({
-          log_id: 'log_' + uuidv4(),
-          event_type: 'user_signup',
-          actor_name: newAdmin.full_name,
-          actor_email: newAdmin.email,
-          affected_record: `User Account: ${newAdmin.full_name}`,
-          timestamp: new Date().toISOString(),
-          detail_string: 'Admin account self-registered.'
-        });
-        
-        saveDB(db);
-        return { token, user: newAdmin };
-      } else {
-        throw new Error('Your email address was not found in the employee directory. Please contact your CRM Admin.');
-      }
-    }
-
-    if (exists.status === 'Pending') {
-      exists.status = 'Active';
-      exists.full_name = data.full_name;
-      exists.last_active = new Date().toISOString();
-      
-      const token = 'mock_jwt_token_' + uuidv4();
-      activeToken = token;
-      localStorage.setItem('crm_auth_user', JSON.stringify(exists));
-
-      const session_id = 'sess_' + uuidv4();
-      const loginSession: SessionHistory = {
+    const session_id = 'sess_' + Math.random().toString(36).substring(2, 9);
+    await request('/api/sessions', {
+      method: 'POST',
+      body: JSON.stringify({
         session_id,
-        user_id: exists.user_id,
-        user_name: exists.full_name,
-        user_email: exists.email,
+        user_id: res.user.user_id,
+        user_name: res.user.full_name,
+        user_email: res.user.email,
         login_time: new Date().toISOString()
-      };
-      db.sessions.push(loginSession);
-      localStorage.setItem('crm_current_session_id', session_id);
+      })
+    }).catch(err => console.error(err));
 
-      const log_id = 'log_' + uuidv4();
-      db.activityLog.push({
-        log_id,
-        event_type: 'user_login',
-        actor_name: exists.full_name,
-        actor_email: exists.email,
-        affected_record: `User Session: ${exists.full_name}`,
+    localStorage.setItem('crm_current_session_id', session_id);
+
+    await request('/api/activity-log', {
+      method: 'POST',
+      body: JSON.stringify({
+        log_id: 'log_' + Math.random().toString(36).substring(2, 9),
+        event_type: 'user_signup',
+        actor_name: res.user.full_name,
+        actor_email: res.user.email,
+        affected_record: `User Account: ${res.user.full_name}`,
         timestamp: new Date().toISOString(),
-        detail_string: 'Pending employee completed onboarding login.'
-      });
+        detail_string: 'Employee completed onboarding signup.'
+      })
+    }).catch(err => console.error(err));
 
-      saveDB(db);
-      return { token, user: exists };
-    }
-    
-    throw new Error('This email is already registered. Please sign in instead.');
+    apiEvents.emit();
+    return { token: 'managed_via_http_only_cookie', user: res.user };
   },
 
   async logout(): Promise<void> {
-    const db = getDB();
-    const userStr = localStorage.getItem('crm_auth_user');
     const sessionId = localStorage.getItem('crm_current_session_id');
+    const user = await this.getCurrentUser().then(r => r.user).catch(() => null);
 
-    if (userStr && sessionId) {
-      try {
-        const user = JSON.parse(userStr);
-        const session = db.sessions.find(s => s.session_id === sessionId);
-        if (session) {
-          session.logout_time = new Date().toISOString();
-          const start = new Date(session.login_time).getTime();
-          const end = new Date(session.logout_time).getTime();
-          session.duration = Math.round((end - start) / 1000);
-        }
+    if (sessionId && user) {
+      const logout_time = new Date().toISOString();
+      await request(`/api/sessions/${sessionId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ logout_time })
+      }).catch(err => console.error(err));
 
-        db.activityLog.push({
-          log_id: 'log_' + uuidv4(),
+      await request('/api/activity-log', {
+        method: 'POST',
+        body: JSON.stringify({
+          log_id: 'log_' + Math.random().toString(36).substring(2, 9),
           event_type: 'user_logout',
           actor_name: user.full_name,
           actor_email: user.email,
           affected_record: `User Session: ${user.full_name}`,
-          timestamp: new Date().toISOString(),
-          detail_string: `Session ended. Duration: ${session?.duration || 0} seconds.`
-        });
-      } catch (e) {
-        console.error(e);
-      }
+          timestamp: logout_time,
+          detail_string: `Session ended.`
+        })
+      }).catch(err => console.error(err));
     }
 
-    activeToken = '';
-    localStorage.removeItem('crm_auth_user');
+    await request('/api/auth/logout', { method: 'POST' });
     localStorage.removeItem('crm_current_session_id');
     localStorage.removeItem('crm_admin_user');
-
-    saveDB(db);
+    apiEvents.emit();
   },
 
   async getCurrentUser(): Promise<{ user: User }> {
-    const userStr = localStorage.getItem('crm_auth_user');
-    if (!userStr) throw new Error('Unauthenticated');
-    
-    // Verify user is still Active in DB
-    const db = getDB();
-    const parsed = JSON.parse(userStr);
-    const user = db.users.find(u => u.user_id === parsed.user_id);
-    if (!user) throw new Error('User account not found');
-    if (user.status === 'Suspended') throw new Error('Account suspended');
-    
-    return { user };
+    const res = await request('/api/auth/me');
+    return { user: res.user };
   },
 
   // Users / Employees
   async getUsers(): Promise<User[]> {
-    const db = getDB();
-    return db.users;
+    return request('/api/users');
   },
 
   async getEmployee(id: string): Promise<User> {
-    const db = getDB();
-    const emp = db.users.find(u => u.user_id === id);
-    if (!emp) throw new Error('Employee not found');
-    return emp;
+    return request(`/api/users/${id}`);
   },
 
   async createEmployee(data: Partial<User>): Promise<User> {
-    const db = getDB();
-    if (!data.email) throw new Error('Email is required');
-    const exists = db.users.find(u => u.email.toLowerCase() === data.email?.toLowerCase());
-    if (exists) throw new Error('Email is already registered');
-
-    const newEmp: User = {
-      user_id: uuidv4(),
-      full_name: data.full_name || 'Unnamed Employee',
-      email: data.email,
-      role: data.role || 'Sales Rep — Standard',
-      status: 'Pending', // Pending until they log in
-      designation: data.designation || 'Sales Executive',
-      department: data.department || 'Sales',
-      date_added: new Date().toISOString(),
-      last_active: '',
-      notes: data.notes || '',
-      custom_permissions: data.custom_permissions || {}
-    };
-
-    db.users.push(newEmp);
-
-    // Logging action
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Admin","email":"admin@anigravity.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'employee_added',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Employee: ${newEmp.full_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Added employee email: ${newEmp.email} with role template: ${newEmp.role}`
+    const res = await request('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
+    
+    // Log activity
+    await request('/api/activity-log', {
+      method: 'POST',
+      body: JSON.stringify({
+        log_id: 'log_' + Math.random().toString(36).substring(2, 9),
+        event_type: 'employee_added',
+        actor_name: 'Admin',
+        actor_email: 'admin@dexnest.com',
+        affected_record: `Employee: ${res.full_name}`,
+        timestamp: new Date().toISOString(),
+        detail_string: `Added employee email: ${res.email} with role: ${res.role}`
+      })
+    }).catch(err => console.error(err));
 
-    saveDB(db);
-    return newEmp;
+    apiEvents.emit();
+    return res;
   },
 
   async updateEmployee(id: string, data: Partial<User>): Promise<User> {
-    const db = getDB();
-    const index = db.users.findIndex(u => u.user_id === id);
-    if (index === -1) throw new Error('Employee not found');
-
-    const oldRole = db.users[index].role;
-    const oldStatus = db.users[index].status;
-    db.users[index] = {
-      ...db.users[index],
-      ...data,
-      custom_permissions: data.custom_permissions !== undefined 
-        ? data.custom_permissions 
-        : db.users[index].custom_permissions
-    };
-
-    const updated = db.users[index];
-
-    // Log if role, status, etc changed
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Admin","email":"admin@anigravity.com"}');
-    let detail = `Updated employee properties: ${Object.keys(data).join(', ')}`;
-    if (data.role && data.role !== oldRole) {
-      detail += `. Role changed from ${oldRole} to ${data.role}.`;
-    }
-    if (data.status && data.status !== oldStatus) {
-      detail += `. Status changed from ${oldStatus} to ${data.status}.`;
-    }
-
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'employee_edited',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Employee: ${updated.full_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: detail
+    const res = await request(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
 
-    saveDB(db);
-    return updated;
+    await request('/api/activity-log', {
+      method: 'POST',
+      body: JSON.stringify({
+        log_id: 'log_' + Math.random().toString(36).substring(2, 9),
+        event_type: 'employee_edited',
+        actor_name: 'Admin',
+        actor_email: 'admin@dexnest.com',
+        affected_record: `Employee: ${res.full_name}`,
+        timestamp: new Date().toISOString(),
+        detail_string: `Updated employee fields.`
+      })
+    }).catch(err => console.error(err));
+
+    apiEvents.emit();
+    return res;
   },
 
   async deleteEmployee(id: string): Promise<void> {
-    const db = getDB();
-    const emp = db.users.find(u => u.user_id === id);
-    if (!emp) throw new Error('Employee not found');
-
-    db.users = db.users.filter(u => u.user_id !== id);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Admin","email":"admin@anigravity.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'employee_deleted',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Employee: ${emp.full_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Removed employee account. Email was: ${emp.email}`
-    });
-
-    saveDB(db);
+    await request(`/api/users/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
   // Companies
   async getCompanies(): Promise<Company[]> {
-    const db = getDB();
-    return db.companies;
+    return request('/api/companies');
   },
 
   async getCompany(id: string): Promise<Company & { contacts: Contact[]; leads: Lead[] }> {
-    const db = getDB();
-    const company = db.companies.find(c => c.company_id === id);
-    if (!company) throw new Error('Company not found');
-
-    const contacts = db.contacts.filter(c => c.company_id === id);
-    const leads = db.leads.filter(l => l.company_id === id);
-
-    return { ...company, contacts, leads };
+    return request(`/api/companies/${id}`);
   },
 
   async createCompany(data: Partial<Company>): Promise<Company> {
-    const db = getDB();
-    const newComp: Company = {
-      company_id: uuidv4(),
-      company_name: data.company_name || 'Unnamed Company',
-      company_code: data.company_code || 'COMP' + Math.floor(Math.random() * 1000),
-      industry: data.industry || 'Other',
-      website: data.website || '',
-      country: data.country || 'India',
-      state: data.state || '',
-      city: data.city || '',
-      annual_revenue: Number(data.annual_revenue) || 0,
-      notes: data.notes || '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    db.companies.push(newComp);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'company_created',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Company: ${newComp.company_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Created company with code ${newComp.company_code}`
+    const res = await request('/api/companies', {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return newComp;
+    apiEvents.emit();
+    return res;
   },
 
   async updateCompany(id: string, data: Partial<Company>): Promise<Company> {
-    const db = getDB();
-    const idx = db.companies.findIndex(c => c.company_id === id);
-    if (idx === -1) throw new Error('Company not found');
-
-    db.companies[idx] = {
-      ...db.companies[idx],
-      ...data,
-      updated_at: new Date().toISOString()
-    };
-
-    const updated = db.companies[idx];
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'company_edited',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Company: ${updated.company_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Updated company details.`
+    const res = await request(`/api/companies/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return updated;
+    apiEvents.emit();
+    return res;
   },
 
   async deleteCompany(id: string): Promise<void> {
-    const db = getDB();
-    const company = db.companies.find(c => c.company_id === id);
-    if (!company) throw new Error('Company not found');
-
-    db.companies = db.companies.filter(c => c.company_id !== id);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'company_deleted',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Company: ${company.company_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Deleted company and broke relationships.`
-    });
-
-    saveDB(db);
+    await request(`/api/companies/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
   // Contacts
   async getContacts(): Promise<Contact[]> {
-    const db = getDB();
-    return db.contacts.map(contact => {
-      const company = db.companies.find(c => c.company_id === contact.company_id);
-      return {
-        ...contact,
-        company_name: company ? company.company_name : ''
-      };
-    });
+    return request('/api/contacts');
   },
 
   async getContact(id: string): Promise<Contact> {
-    const db = getDB();
-    const contact = db.contacts.find(c => c.contact_id === id);
-    if (!contact) throw new Error('Contact not found');
-
-    const company = db.companies.find(c => c.company_id === contact.company_id);
-    return {
-      ...contact,
-      company_name: company ? company.company_name : ''
-    };
+    return request(`/api/contacts/${id}`);
   },
 
   async createContact(data: Partial<Contact>): Promise<Contact> {
-    const db = getDB();
-    const newContact: Contact = {
-      contact_id: uuidv4(),
-      company_id: data.company_id || '',
-      first_name: data.first_name || '',
-      last_name: data.last_name || '',
-      email: data.email || '',
-      mobile_number: data.mobile_number || '',
-      linkedin_profile: data.linkedin_profile || '',
-      job_title: data.job_title || '',
-      department: data.department || '',
-      notes: data.notes || '',
-      created_at: new Date().toISOString()
-    };
-
-    db.contacts.push(newContact);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'contact_created',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Contact: ${newContact.first_name} ${newContact.last_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Created contact linked with company ID ${newContact.company_id}`
+    const res = await request('/api/contacts', {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return newContact;
+    apiEvents.emit();
+    return res;
   },
 
   async updateContact(id: string, data: Partial<Contact>): Promise<Contact> {
-    const db = getDB();
-    const idx = db.contacts.findIndex(c => c.contact_id === id);
-    if (idx === -1) throw new Error('Contact not found');
-
-    db.contacts[idx] = {
-      ...db.contacts[idx],
-      ...data
-    };
-
-    const updated = db.contacts[idx];
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'contact_edited',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Contact: ${updated.first_name} ${updated.last_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Edited contact details.`
+    const res = await request(`/api/contacts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return updated;
+    apiEvents.emit();
+    return res;
   },
 
   async deleteContact(id: string): Promise<void> {
-    const db = getDB();
-    const contact = db.contacts.find(c => c.contact_id === id);
-    if (!contact) throw new Error('Contact not found');
-
-    db.contacts = db.contacts.filter(c => c.contact_id !== id);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'contact_deleted',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Contact: ${contact.first_name} ${contact.last_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Deleted contact.`
-    });
-
-    saveDB(db);
+    await request(`/api/contacts/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
   // Leads
   async getLeads(): Promise<Lead[]> {
-    const db = getDB();
-    return db.leads.map(lead => {
-      const company = db.companies.find(c => c.company_id === lead.company_id);
-      const assigned = db.users.find(u => u.user_id === lead.assigned_to);
-      const creator = db.users.find(u => u.user_id === lead.created_by);
-      const contact = db.contacts.find(c => c.contact_id === lead.primary_contact_id);
-
-      return {
-        ...lead,
-        company_name: company?.company_name || '',
-        company_code: company?.company_code || '',
-        company_industry: company?.industry || '',
-        company_website: company?.website || '',
-        contact_first_name: contact?.first_name || '',
-        contact_last_name: contact?.last_name || '',
-        contact_email: contact?.email || '',
-        contact_mobile: contact?.mobile_number || '',
-        assigned_user_name: assigned?.full_name || '',
-        creator_name: creator?.full_name || ''
-      };
-    });
+    return request('/api/leads');
   },
 
   async getLead(id: string): Promise<Lead & { tasks: Task[]; deals: Deal[] }> {
-    const db = getDB();
-    const lead = db.leads.find(l => l.lead_id === id);
-    if (!lead) throw new Error('Lead not found');
-
-    const company = db.companies.find(c => c.company_id === lead.company_id);
-    const assigned = db.users.find(u => u.user_id === lead.assigned_to);
-    const creator = db.users.find(u => u.user_id === lead.created_by);
-    const contact = db.contacts.find(c => c.contact_id === lead.primary_contact_id);
-
-    const fullLead = {
-      ...lead,
-      company_name: company?.company_name || '',
-      company_code: company?.company_code || '',
-      company_industry: company?.industry || '',
-      company_website: company?.website || '',
-      contact_first_name: contact?.first_name || '',
-      contact_last_name: contact?.last_name || '',
-      contact_email: contact?.email || '',
-      contact_mobile: contact?.mobile_number || '',
-      assigned_user_name: assigned?.full_name || '',
-      creator_name: creator?.full_name || ''
-    };
-
-    const tasks = db.tasks.filter(t => t.lead_id === id);
-    const deals = db.deals.filter(d => d.lead_id === id);
-
-    return { ...fullLead, tasks, deals };
+    return request(`/api/leads/${id}`);
   },
 
   async createLead(data: Partial<Lead>): Promise<Lead> {
-    const db = getDB();
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
-
-    let resolvedCampaignName = data.campaign_name || '';
-    if (data.campaign_id) {
-      const camp = (db.campaigns || []).find(c => c.campaign_id === data.campaign_id);
-      if (camp) {
-        resolvedCampaignName = camp.campaign_name;
-      }
-    }
-
-    const newLead: Lead = {
-      lead_id: uuidv4(),
-      company_id: data.company_id || '',
-      primary_contact_id: data.primary_contact_id || '',
-      assigned_to: data.assigned_to || actor.user_id,
-      created_by: actor.user_id,
-      lead_title: data.lead_title || 'Unnamed Lead',
-      lead_source: data.lead_source || 'Website',
-      lead_status: data.lead_status || 'New',
-      priority: data.priority || 'Medium',
-      estimated_revenue: Number(data.estimated_revenue) || 0,
-      conversion_probability: Number(data.conversion_probability) || 50,
-      campaign_name: resolvedCampaignName,
-      campaign_id: data.campaign_id || '',
-      tags: data.tags || [],
-      notes: data.notes || '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    db.leads.push(newLead);
-
-    // Activity log entry (dashboard)
-    const company = db.companies.find(c => c.company_id === newLead.company_id);
-    const text = `<span>${actor.full_name}</span> created lead <span>${newLead.lead_title}</span>${company ? ` for ${company.company_name}` : ''}`;
-    db.activities.push({
-      activity_id: 'act_' + uuidv4(),
-      action_type: 'create_lead',
-      text,
-      created_at: new Date().toISOString()
+    const res = await request('/api/leads', {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
-
-    // Admin audit
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'lead_created',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Lead: ${newLead.lead_title}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Created lead with estimated revenue: INR ${newLead.estimated_revenue}`
-    });
-
-    saveDB(db);
-    return newLead;
+    apiEvents.emit();
+    return res;
   },
 
   async updateLead(id: string, data: Partial<Lead>): Promise<Lead> {
-    const db = getDB();
-    const idx = db.leads.findIndex(l => l.lead_id === id);
-    if (idx === -1) throw new Error('Lead not found');
-
-    const oldStatus = db.leads[idx].lead_status;
-
-    db.leads[idx] = {
-      ...db.leads[idx],
-      ...data,
-      updated_at: new Date().toISOString()
-    };
-
-    const updated = db.leads[idx];
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    
-    // Status update log
-    if (data.lead_status && data.lead_status !== oldStatus) {
-      db.activities.push({
-        activity_id: 'act_' + uuidv4(),
-        action_type: 'status_update',
-        text: `<span>${actor.full_name}</span> updated lead <span>${updated.lead_title}</span> status to ${updated.lead_status}`,
-        created_at: new Date().toISOString()
-      });
-    }
-
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'lead_edited',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Lead: ${updated.lead_title}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Updated lead details. Status: ${updated.lead_status}`
+    const res = await request(`/api/leads/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return updated;
+    apiEvents.emit();
+    return res;
   },
 
   async deleteLead(id: string): Promise<void> {
-    const db = getDB();
-    const lead = db.leads.find(l => l.lead_id === id);
-    if (!lead) throw new Error('Lead not found');
-
-    db.leads = db.leads.filter(l => l.lead_id !== id);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'lead_deleted',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Lead: ${lead.lead_title}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Deleted lead record.`
-    });
-
-    saveDB(db);
+    await request(`/api/leads/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
   async convertLeadToDeal(id: string): Promise<Deal> {
-    const db = getDB();
-    const lead = db.leads.find(l => l.lead_id === id);
-    if (!lead) throw new Error('Lead not found');
-
-    // Update lead status
-    lead.lead_status = 'Converted';
-    lead.updated_at = new Date().toISOString();
-
-    const dealData: Deal = {
-      deal_id: uuidv4(),
-      lead_id: id,
-      company_id: lead.company_id,
-      contact_id: lead.primary_contact_id,
-      deal_name: lead.lead_title + ' Deal',
-      deal_owner: lead.assigned_to,
-      deal_stage: 'Qualification',
-      deal_status: 'Open',
-      priority: lead.priority,
-      probability_percentage: lead.conversion_probability,
-      deal_value: Number(lead.estimated_revenue),
-      currency: 'INR',
-      sales_pipeline: 'Standard',
-      created_at: new Date().toISOString()
-    };
-
-    db.deals.push(dealData);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    
-    // Dashboard activity
-    db.activities.push({
-      activity_id: 'act_' + uuidv4(),
-      action_type: 'convert_lead',
-      text: `<span>${actor.full_name}</span> converted lead <span>${lead.lead_title}</span> into a Deal`,
-      created_at: new Date().toISOString()
-    });
-
-    // Admin audit
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'deal_created',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Deal: ${dealData.deal_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Converted from lead ${lead.lead_title}. Value: INR ${dealData.deal_value}`
-    });
-
-    saveDB(db);
-    return dealData;
+    const res = await request(`/api/leads/${id}/convert`, { method: 'POST' });
+    apiEvents.emit();
+    return res;
   },
 
   // Deals
   async getDeals(): Promise<Deal[]> {
-    const db = getDB();
-    return db.deals.map(deal => {
-      const company = db.companies.find(c => c.company_id === deal.company_id);
-      const contact = db.contacts.find(c => c.contact_id === deal.contact_id);
-      const owner = db.users.find(u => u.user_id === deal.deal_owner);
-      const lead = db.leads.find(l => l.lead_id === deal.lead_id);
-
-      return {
-        ...deal,
-        company_name: company?.company_name || '',
-        company_code: company?.company_code || '',
-        contact_first_name: contact?.first_name || '',
-        contact_last_name: contact?.last_name || '',
-        deal_owner_name: owner?.full_name || '',
-        lead_title: lead?.lead_title || ''
-      };
-    });
+    return request('/api/deals');
   },
 
-  async getDeal(id: string): Promise<Deal & { tasks: Task[] }> {
-    const db = getDB();
-    const deal = db.deals.find(d => d.deal_id === id);
-    if (!deal) throw new Error('Deal not found');
-
-    const company = db.companies.find(c => c.company_id === deal.company_id);
-    const contact = db.contacts.find(c => c.contact_id === deal.contact_id);
-    const owner = db.users.find(u => u.user_id === deal.deal_owner);
-    const lead = db.leads.find(l => l.lead_id === deal.lead_id);
-
-    const fullDeal = {
-      ...deal,
-      company_name: company?.company_name || '',
-      company_code: company?.company_code || '',
-      contact_first_name: contact?.first_name || '',
-      contact_last_name: contact?.last_name || '',
-      deal_owner_name: owner?.full_name || '',
-      lead_title: lead?.lead_title || ''
-    };
-
-    const tasks = db.tasks.filter(t => t.deal_id === id);
-
-    return { ...fullDeal, tasks };
+  async getDeal(id: string): Promise<Deal> {
+    return request(`/api/deals/${id}`);
   },
 
   async createDeal(data: Partial<Deal>): Promise<Deal> {
-    const db = getDB();
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
-
-    const newDeal: Deal = {
-      deal_id: uuidv4(),
-      lead_id: data.lead_id || '',
-      company_id: data.company_id || '',
-      contact_id: data.contact_id || '',
-      deal_owner: data.deal_owner || actor.user_id,
-      deal_name: data.deal_name || 'Unnamed Deal',
-      deal_stage: data.deal_stage || 'Qualification',
-      deal_status: data.deal_status || 'Open',
-      priority: data.priority || 'Medium',
-      probability_percentage: Number(data.probability_percentage) || 50,
-      deal_value: Number(data.deal_value) || 0,
-      currency: data.currency || 'INR',
-      sales_pipeline: data.sales_pipeline || 'Standard',
-      expected_closing_date: data.expected_closing_date,
-      notes: data.notes || '',
-      admin_notes: data.admin_notes || '',
-      created_at: new Date().toISOString()
-    };
-
-    db.deals.push(newDeal);
-
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'deal_created',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Deal: ${newDeal.deal_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Created deal directly. Value: INR ${newDeal.deal_value}`
+    const res = await request('/api/deals', {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return newDeal;
+    apiEvents.emit();
+    return res;
   },
 
   async updateDeal(id: string, data: Partial<Deal>): Promise<Deal> {
-    const db = getDB();
-    const idx = db.deals.findIndex(d => d.deal_id === id);
-    if (idx === -1) throw new Error('Deal not found');
-
-    const oldStage = db.deals[idx].deal_stage;
-    const oldOwner = db.deals[idx].deal_owner;
-
-    db.deals[idx] = {
-      ...db.deals[idx],
-      ...data
-    };
-
-    const updated = db.deals[idx];
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    
-    // Audit logs
-    let detail = `Updated deal properties.`;
-    if (data.deal_stage && data.deal_stage !== oldStage) {
-      detail += ` Stage changed from ${oldStage} to ${data.deal_stage}.`;
-      
-      // Save dashboard display activity
-      db.activities.push({
-        activity_id: 'act_' + uuidv4(),
-        action_type: 'stage_update',
-        text: `<span>${actor.full_name}</span> moved deal <span>${updated.deal_name}</span> to stage <span>${updated.deal_stage}</span>`,
-        created_at: new Date().toISOString()
-      });
-    }
-
-    if (data.deal_owner && data.deal_owner !== oldOwner) {
-      const prevOwnerObj = db.users.find(u => u.user_id === oldOwner);
-      const newOwnerObj = db.users.find(u => u.user_id === data.deal_owner);
-      detail += ` Reassigned owner from ${prevOwnerObj?.full_name || oldOwner} to ${newOwnerObj?.full_name || data.deal_owner}.`;
-    }
-
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'deal_edited',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Deal: ${updated.deal_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: detail
+    const res = await request(`/api/deals/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return updated;
+    apiEvents.emit();
+    return res;
   },
 
   async deleteDeal(id: string): Promise<void> {
-    const db = getDB();
-    const deal = db.deals.find(d => d.deal_id === id);
-    if (!deal) throw new Error('Deal not found');
-
-    db.deals = db.deals.filter(d => d.deal_id !== id);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'deal_deleted',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Deal: ${deal.deal_name}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Deleted deal record.`
-    });
-
-    saveDB(db);
+    await request(`/api/deals/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
   // Tasks
-  async getTasks(filters?: { lead_id?: string; deal_id?: string; company_id?: string }): Promise<Task[]> {
-    const db = getDB();
-    let tasks = db.tasks.map(task => {
-      const assigned = db.users.find(u => u.user_id === task.assigned_to);
-      const lead = db.leads.find(l => l.lead_id === task.lead_id);
-      const deal = db.deals.find(d => d.deal_id === task.deal_id);
-      const company = db.companies.find(c => c.company_id === task.company_id);
+  async getTasks(): Promise<Task[]> {
+    return request('/api/tasks');
+  },
 
-      return {
-        ...task,
-        assigned_user_name: assigned?.full_name || '',
-        lead_title: lead?.lead_title || '',
-        deal_name: deal?.deal_name || '',
-        company_name: company?.company_name || ''
-      };
-    });
-
-    if (filters) {
-      if (filters.lead_id) tasks = tasks.filter(t => t.lead_id === filters.lead_id);
-      if (filters.deal_id) tasks = tasks.filter(t => t.deal_id === filters.deal_id);
-      if (filters.company_id) tasks = tasks.filter(t => t.company_id === filters.company_id);
-    }
-
-    return tasks;
+  async getTask(id: string): Promise<Task> {
+    return request(`/api/tasks/${id}`);
   },
 
   async createTask(data: Partial<Task>): Promise<Task> {
-    const db = getDB();
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
-
-    const newTask: Task = {
-      task_id: 'task_' + uuidv4().substring(0, 8),
-      assigned_to: data.assigned_to || actor.user_id,
-      lead_id: data.lead_id || '',
-      deal_id: data.deal_id || '',
-      company_id: data.company_id || '',
-      title: data.title || 'Unnamed Task',
-      description: data.description || '',
-      due_date: data.due_date || new Date().toISOString().split('T')[0],
-      priority: data.priority || 'Medium',
-      status: data.status || 'Pending',
-      created_at: new Date().toISOString()
-    };
-
-    db.tasks.push(newTask);
-
-    // Dashboard activity
-    db.activities.push({
-      activity_id: 'act_' + uuidv4(),
-      action_type: 'create_task',
-      text: `<span>${actor.full_name}</span> created task <span>${newTask.title}</span>`,
-      created_at: new Date().toISOString()
+    const res = await request('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
-
-    // Admin audit
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'task_created',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Task: ${newTask.title}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Created task. Due: ${newTask.due_date}, Priority: ${newTask.priority}`
-    });
-
-    saveDB(db);
-    return newTask;
+    apiEvents.emit();
+    return res;
   },
 
   async updateTask(id: string, data: Partial<Task>): Promise<Task> {
-    const db = getDB();
-    const idx = db.tasks.findIndex(t => t.task_id === id);
-    if (idx === -1) throw new Error('Task not found');
-
-    const oldStatus = db.tasks[idx].status;
-
-    db.tasks[idx] = {
-      ...db.tasks[idx],
-      ...data
-    };
-
-    const updated = db.tasks[idx];
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    
-    // Status update log
-    if (data.status && data.status !== oldStatus) {
-      if (data.status === 'Completed') {
-        db.activities.push({
-          activity_id: 'act_' + uuidv4(),
-          action_type: 'complete_task',
-          text: `<span>${actor.full_name}</span> completed task <span>${updated.title}</span>`,
-          created_at: new Date().toISOString()
-        });
-      }
-    }
-
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'task_edited',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Task: ${updated.title}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Updated task. Status: ${updated.status}`
+    const res = await request(`/api/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
-    return updated;
+    apiEvents.emit();
+    return res;
   },
 
   async deleteTask(id: string): Promise<void> {
-    const db = getDB();
-    const task = db.tasks.find(t => t.task_id === id);
-    if (!task) throw new Error('Task not found');
-
-    db.tasks = db.tasks.filter(t => t.task_id !== id);
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'task_deleted',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: `Task: ${task.title}`,
-      timestamp: new Date().toISOString(),
-      detail_string: `Deleted task record.`
-    });
-
-    saveDB(db);
+    await request(`/api/tasks/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
   // Activities
   async getActivities(): Promise<Activity[]> {
-    const db = getDB();
-    // Return sorted by created_at desc
-    return [...db.activities].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return request('/api/activities');
   },
 
-  async createActivity(text: string, actionType?: string): Promise<Activity> {
-    const db = getDB();
-    const newAct: Activity = {
-      activity_id: 'act_' + uuidv4(),
-      action_type: actionType || 'custom',
-      text,
-      created_at: new Date().toISOString()
-    };
-    db.activities.push(newAct);
-    saveDB(db);
-    return newAct;
+  // Settings
+  async getSettings(): Promise<CRMSettings> {
+    return request('/api/settings');
   },
 
-  // Admin Logs
-  getActivityLog(): ActivityLogEntry[] {
-    const db = getDB();
-    return [...db.activityLog].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  },
-
-  getSessions(): SessionHistory[] {
-    const db = getDB();
-    return [...db.sessions].sort((a, b) => new Date(b.login_time).getTime() - new Date(a.login_time).getTime());
-  },
-
-  // Settings Configurations
-  getSettings(): CRMSettings {
-    const db = getDB();
-    return db.settings;
-  },
-
-  updateSettings(settings: Partial<CRMSettings>) {
-    const db = getDB();
-    db.settings = {
-      ...db.settings,
-      ...settings
-    };
-
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Admin","email":"admin@anigravity.com"}');
-    db.activityLog.push({
-      log_id: 'log_' + uuidv4(),
-      event_type: 'settings_changed',
-      actor_name: actor.full_name,
-      actor_email: actor.email,
-      affected_record: 'System Settings',
-      timestamp: new Date().toISOString(),
-      detail_string: `Updated configurations: ${Object.keys(settings).join(', ')}`
+  async updateSettings(data: Partial<CRMSettings>): Promise<CRMSettings> {
+    const res = await request('/api/settings', {
+      method: 'PUT',
+      body: JSON.stringify(data)
     });
-
-    saveDB(db);
+    apiEvents.emit();
+    return res;
   },
 
-  // Campaigns CRUD
+  // Sessions
+  async getSessions(): Promise<SessionHistory[]> {
+    return request('/api/sessions');
+  },
+
+  // Activity Log
+  async getActivityLog(): Promise<ActivityLogEntry[]> {
+    return request('/api/activity-log');
+  },
+
+  // Campaigns
   async getCampaigns(): Promise<Campaign[]> {
-    const db = getDB();
-    return db.campaigns || [];
+    return request('/api/campaigns');
   },
 
   async getCampaign(id: string): Promise<Campaign> {
-    const db = getDB();
-    const camp = (db.campaigns || []).find(c => c.campaign_id === id);
-    if (!camp) throw new Error('Campaign not found');
-    return camp;
+    return request(`/api/campaigns/${id}`);
   },
 
   async createCampaign(data: Partial<Campaign>): Promise<Campaign> {
-    const db = getDB();
-    if (!db.campaigns) db.campaigns = [];
-    const newCamp: Campaign = {
-      campaign_id: uuidv4(),
-      campaign_name: data.campaign_name || 'Unnamed Campaign',
-      campaign_type: data.campaign_type || 'Email',
-      status: data.status || 'Planning',
-      budget: Number(data.budget) || 0,
-      actual_cost: Number(data.actual_cost) || 0,
-      expected_revenue: Number(data.expected_revenue) || 0,
-      description: data.description || '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    db.campaigns.push(newCamp);
-    saveDB(db);
-    return newCamp;
+    const res = await request('/api/campaigns', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
   async updateCampaign(id: string, data: Partial<Campaign>): Promise<Campaign> {
-    const db = getDB();
-    if (!db.campaigns) db.campaigns = [];
-    const idx = db.campaigns.findIndex(c => c.campaign_id === id);
-    if (idx === -1) throw new Error('Campaign not found');
-    db.campaigns[idx] = {
-      ...db.campaigns[idx],
-      ...data,
-      updated_at: new Date().toISOString()
-    };
-    const updated = db.campaigns[idx];
-    saveDB(db);
-    return updated;
+    const res = await request(`/api/campaigns/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
   async deleteCampaign(id: string): Promise<void> {
-    const db = getDB();
-    if (!db.campaigns) db.campaigns = [];
-    db.campaigns = db.campaigns.filter(c => c.campaign_id !== id);
-    saveDB(db);
+    await request(`/api/campaigns/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
-  // Support Cases CRUD
+  // Support Cases
   async getSupportCases(): Promise<SupportCase[]> {
-    const db = getDB();
-    return (db.supportCases || []).map(kase => {
-      const company = db.companies.find(c => c.company_id === kase.company_id);
-      const rep = db.users.find(u => u.user_id === kase.assigned_to);
-      return {
-        ...kase,
-        company_name: company?.company_name || '',
-        assigned_user_name: rep?.full_name || ''
-      };
-    });
+    return request('/api/support-cases');
   },
 
   async getSupportCase(id: string): Promise<SupportCase> {
-    const db = getDB();
-    const kase = (db.supportCases || []).find(c => c.case_id === id);
-    if (!kase) throw new Error('Support Case not found');
-    const company = db.companies.find(c => c.company_id === kase.company_id);
-    const rep = db.users.find(u => u.user_id === kase.assigned_to);
-    return {
-      ...kase,
-      company_name: company?.company_name || '',
-      assigned_user_name: rep?.full_name || ''
-    };
+    return request(`/api/support-cases/${id}`);
   },
 
   async createSupportCase(data: Partial<SupportCase>): Promise<SupportCase> {
-    const db = getDB();
-    if (!db.supportCases) db.supportCases = [];
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e2222222-2222-4222-8222-222222222222"}');
-    
-    const count = (db.supportCases || []).length + 101;
-    const case_number = `CAS-${String(count).padStart(5, '0')}`;
-
-    const newCase: SupportCase = {
-      case_id: uuidv4(),
-      case_number,
-      subject: data.subject || 'New Support Case',
-      company_id: data.company_id || '',
-      assigned_to: data.assigned_to || actor.user_id,
-      priority: data.priority || 'Medium',
-      status: data.status || 'New',
-      description: data.description || '',
-      solution_id: data.solution_id || undefined,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    db.supportCases.push(newCase);
-    saveDB(db);
-    return newCase;
+    const res = await request('/api/support-cases', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
   async updateSupportCase(id: string, data: Partial<SupportCase>): Promise<SupportCase> {
-    const db = getDB();
-    if (!db.supportCases) db.supportCases = [];
-    const idx = db.supportCases.findIndex(c => c.case_id === id);
-    if (idx === -1) throw new Error('Support Case not found');
-    db.supportCases[idx] = {
-      ...db.supportCases[idx],
-      ...data,
-      updated_at: new Date().toISOString()
-    };
-    const updated = db.supportCases[idx];
-    saveDB(db);
-    return updated;
+    const res = await request(`/api/support-cases/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
   async deleteSupportCase(id: string): Promise<void> {
-    const db = getDB();
-    if (!db.supportCases) db.supportCases = [];
-    db.supportCases = db.supportCases.filter(c => c.case_id !== id);
-    saveDB(db);
+    await request(`/api/support-cases/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
-  // Knowledge Base Articles CRUD
+  // Knowledge Base Articles
   async getKBArticles(): Promise<KBArticle[]> {
-    const db = getDB();
-    return (db.kbArticles || []).map(art => {
-      const creator = db.users.find(u => u.user_id === art.created_by);
-      return {
-        ...art,
-        creator_name: creator?.full_name || ''
-      };
-    });
+    return request('/api/kb-articles');
   },
 
   async getKBArticle(id: string): Promise<KBArticle> {
-    const db = getDB();
-    const art = (db.kbArticles || []).find(a => a.article_id === id);
-    if (!art) throw new Error('Article not found');
-    const creator = db.users.find(u => u.user_id === art.created_by);
-    return {
-      ...art,
-      creator_name: creator?.full_name || ''
-    };
+    return request(`/api/kb-articles/${id}`);
   },
 
   async createKBArticle(data: Partial<KBArticle>): Promise<KBArticle> {
-    const db = getDB();
-    if (!db.kbArticles) db.kbArticles = [];
-    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
-    const newArt: KBArticle = {
-      article_id: uuidv4(),
-      title: data.title || 'Untitled Article',
-      content: data.content || '',
-      category: data.category || 'General',
-      status: data.status || 'Draft',
-      created_by: actor.user_id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    db.kbArticles.push(newArt);
-    saveDB(db);
-    return newArt;
+    const res = await request('/api/kb-articles', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
   async updateKBArticle(id: string, data: Partial<KBArticle>): Promise<KBArticle> {
-    const db = getDB();
-    if (!db.kbArticles) db.kbArticles = [];
-    const idx = db.kbArticles.findIndex(a => a.article_id === id);
-    if (idx === -1) throw new Error('Article not found');
-    db.kbArticles[idx] = {
-      ...db.kbArticles[idx],
-      ...data,
-      updated_at: new Date().toISOString()
-    };
-    const updated = db.kbArticles[idx];
-    saveDB(db);
-    return updated;
+    const res = await request(`/api/kb-articles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
   async deleteKBArticle(id: string): Promise<void> {
-    const db = getDB();
-    if (!db.kbArticles) db.kbArticles = [];
-    db.kbArticles = db.kbArticles.filter(a => a.article_id !== id);
-    saveDB(db);
+    await request(`/api/kb-articles/${id}`, { method: 'DELETE' });
+    apiEvents.emit();
   },
 
-  // Social Engagements CRUD
+  // Social Engagements
   async getSocialEngagements(filters?: { lead_id?: string; contact_id?: string }): Promise<SocialEngagement[]> {
-    const db = getDB();
-    let logs = db.socialEngagements || [];
-    if (filters) {
-      if (filters.lead_id) logs = logs.filter(l => l.lead_id === filters.lead_id);
-      if (filters.contact_id) logs = logs.filter(l => l.contact_id === filters.contact_id);
+    let url = '/api/social-engagements';
+    if (filters && filters.lead_id) {
+      url += `?lead_id=${encodeURIComponent(filters.lead_id)}`;
     }
-    return logs;
+    return request(url);
   },
 
   async createSocialEngagement(data: Partial<SocialEngagement>): Promise<SocialEngagement> {
-    const db = getDB();
-    if (!db.socialEngagements) db.socialEngagements = [];
-    const newLog: SocialEngagement = {
-      engagement_id: uuidv4(),
-      lead_id: data.lead_id || undefined,
-      contact_id: data.contact_id || undefined,
-      platform: data.platform || 'LinkedIn',
-      channel_type: 'Social',
-      direction: data.direction || 'Outbound',
-      content: data.content || '',
-      sender_handle: data.sender_handle || '',
-      timestamp: new Date().toISOString()
-    };
-    db.socialEngagements.push(newLog);
-    saveDB(db);
-    return newLog;
+    const res = await request('/api/social-engagements', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   },
 
-  // Email Messages CRUD
+  // Email Messages
   async getEmailMessages(filters?: { lead_id?: string; contact_id?: string }): Promise<EmailMessage[]> {
-    const db = getDB();
-    let emails = db.emailMessages || [];
-    if (filters) {
-      if (filters.lead_id) emails = emails.filter(e => e.lead_id === filters.lead_id);
-      if (filters.contact_id) emails = emails.filter(e => e.contact_id === filters.contact_id);
+    let url = '/api/email-messages';
+    if (filters && filters.lead_id) {
+      url += `?lead_id=${encodeURIComponent(filters.lead_id)}`;
     }
-    return emails;
+    return request(url);
   },
 
   async createEmailMessage(data: Partial<EmailMessage>): Promise<EmailMessage> {
-    const db = getDB();
-    if (!db.emailMessages) db.emailMessages = [];
-    const newEmail: EmailMessage = {
-      email_id: uuidv4(),
-      lead_id: data.lead_id || undefined,
-      contact_id: data.contact_id || undefined,
-      channel_type: 'Email',
-      subject: data.subject || 'No Subject',
-      body: data.body || '',
-      direction: data.direction || 'Outbound',
-      sender: data.sender || 'me@dexnest.com',
-      recipient: data.recipient || '',
-      status: data.status || 'Sent',
-      timestamp: new Date().toISOString()
-    };
-    db.emailMessages.push(newEmail);
-    saveDB(db);
-    return newEmail;
+    const res = await request('/api/email-messages', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    apiEvents.emit();
+    return res;
   }
 };
-

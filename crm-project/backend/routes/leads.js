@@ -220,4 +220,72 @@ router.delete('/:id', async (req, res, next) => {
   }
 });
 
+// POST /api/leads/:id/convert
+router.post('/:id/convert', async (req, res, next) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { id } = req.params;
+    
+    // Find the lead
+    const leadRes = await client.query('SELECT * FROM leads WHERE lead_id = $1 AND is_deleted = FALSE', [id]);
+    if (leadRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Lead not found' });
+    }
+    const lead = leadRes.rows[0];
+
+    // Update lead status to Converted
+    await client.query(
+      "UPDATE leads SET lead_status = 'Converted', updated_at = CURRENT_TIMESTAMP WHERE lead_id = $1",
+      [id]
+    );
+
+    // Create a new deal
+    const dealName = lead.lead_title + ' Deal';
+    
+    const dealRes = await client.query(
+      `INSERT INTO deals (
+         lead_id, company_id, contact_id, deal_owner, created_by,
+         deal_name, deal_stage, deal_status, priority, probability_percentage,
+         deal_value, currency, sales_pipeline
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, 'Qualification', 'Open', $7, $8, $9, 'INR', 'Standard')
+       RETURNING *`,
+      [
+        id,
+        lead.company_id,
+        lead.primary_contact_id,
+        lead.assigned_to,
+        lead.created_by,
+        dealName,
+        lead.priority,
+        lead.conversion_probability,
+        lead.estimated_revenue
+      ]
+    );
+    const newDeal = dealRes.rows[0];
+
+    // Log activity
+    const userRes = await client.query('SELECT full_name FROM users WHERE user_id = $1', [lead.assigned_to]);
+    const userName = userRes.rows[0]?.full_name || 'System';
+    const activityId = 'act_' + Math.random().toString(36).substr(2, 9);
+    const activityText = `<span>${userName}</span> converted lead <span>${lead.lead_title}</span> into a Deal`;
+
+    await client.query(
+      `INSERT INTO activities (activity_id, action_type, text, created_at)
+       VALUES ($1, $2, $3, CURRENT_TIMESTAMP)`,
+      [activityId, 'convert_lead', activityText]
+    );
+
+    await client.query('COMMIT');
+    res.json(newDeal);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
 export default router;
