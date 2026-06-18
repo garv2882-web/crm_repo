@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { api, type Lead, type Task, type Deal } from '../../api';
+import { api, apiEvents, type Lead, type Task, type Deal, type EmailMessage, type SocialEngagement } from '../../api';
 import { 
   ArrowLeft, 
   Trash2, 
   Handshake, 
   Info, 
   Sliders, 
-  MessageSquare, 
   Building2, 
   User, 
   ShieldAlert, 
   RefreshCw,
-  Clock
+  Clock,
+  Mail,
+  Share2,
+  MessageCircle
 } from 'lucide-react';
 
 export default function LeadDetailsPage() {
@@ -23,21 +25,72 @@ export default function LeadDetailsPage() {
   const [newNote, setNewNote] = useState('');
   const [savingNote, setSavingNote] = useState(false);
 
+  // Tabs & Channels State
+  const [activeTab, setActiveTab] = useState<'notes' | 'channels'>('notes');
+  const [emails, setEmails] = useState<EmailMessage[]>([]);
+  const [socials, setSocials] = useState<SocialEngagement[]>([]);
+  const [savingChannel, setSavingChannel] = useState(false);
+  
+  // Log Email form states
+  const [showLogEmail, setShowLogEmail] = useState(false);
+  const [emailForm, setEmailForm] = useState({
+    subject: '',
+    body: '',
+    direction: 'Outbound' as any,
+    sender: 'me@dexnest.com',
+    recipient: '',
+    status: 'Sent' as any
+  });
+
+  // Log Social form states
+  const [showLogSocial, setShowLogSocial] = useState(false);
+  const [socialForm, setSocialForm] = useState({
+    platform: 'LinkedIn' as any,
+    direction: 'Outbound' as any,
+    content: '',
+    sender_handle: '@me_dexnest'
+  });
+
   const fetchLeadDetails = async () => {
     if (!id) return;
     try {
-      setLoading(true);
       const data = await api.getLead(id);
       setLead(data);
+      if (data && data.contact_email) {
+        setEmailForm(prev => ({ ...prev, recipient: data.contact_email || '' }));
+      }
     } catch (err) {
       console.error('Error fetching lead details:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
+  const fetchChannelsData = async () => {
+    if (!id) return;
+    try {
+      const [emailData, socialData] = await Promise.all([
+        api.getEmailMessages({ lead_id: id }),
+        api.getSocialEngagements({ lead_id: id })
+      ]);
+      setEmails(emailData);
+      setSocials(socialData);
+    } catch (err) {
+      console.error('Error fetching channels data:', err);
+    }
+  };
+
+  const loadAllData = async () => {
+    setLoading(true);
+    await Promise.all([fetchLeadDetails(), fetchChannelsData()]);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchLeadDetails();
+    loadAllData();
+    const unsubscribe = apiEvents.subscribe(() => {
+      fetchLeadDetails();
+      fetchChannelsData();
+    });
+    return unsubscribe;
   }, [id]);
 
   if (loading) {
@@ -96,6 +149,52 @@ export default function LeadDetailsPage() {
       console.error('Error saving note:', err);
     } finally {
       setSavingNote(false);
+    }
+  };
+
+  const handleLogEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lead) return;
+    try {
+      setSavingChannel(true);
+      await api.createEmailMessage({
+        ...emailForm,
+        lead_id: lead.lead_id
+      });
+      setShowLogEmail(false);
+      setEmailForm(prev => ({
+        ...prev,
+        subject: '',
+        body: '',
+        status: 'Sent'
+      }));
+      await fetchChannelsData();
+    } catch (err) {
+      console.error('Error logging email:', err);
+    } finally {
+      setSavingChannel(false);
+    }
+  };
+
+  const handleLogSocial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lead) return;
+    try {
+      setSavingChannel(true);
+      await api.createSocialEngagement({
+        ...socialForm,
+        lead_id: lead.lead_id
+      });
+      setShowLogSocial(false);
+      setSocialForm(prev => ({
+        ...prev,
+        content: ''
+      }));
+      await fetchChannelsData();
+    } catch (err) {
+      console.error('Error logging social interaction:', err);
+    } finally {
+      setSavingChannel(false);
     }
   };
 
@@ -284,56 +383,311 @@ export default function LeadDetailsPage() {
             </div>
           </div>
 
-          {/* Card: Notes Panel */}
+          {/* Card: Notes & Channels Feed Panel */}
           <div className="card">
-            <div className="card-header">
-              <div className="card-title">
-                <MessageSquare className="w-4 h-4" />
-                <span>Internal Notes & Interaction History</span>
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button 
+                  onClick={() => setActiveTab('notes')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activeTab === 'notes' ? '2px solid var(--primary, #3b82f6)' : 'none',
+                    color: activeTab === 'notes' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontWeight: 600,
+                    fontSize: '13.5px',
+                    padding: '12px 0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Internal Notes
+                </button>
+                <button 
+                  onClick={() => setActiveTab('channels')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activeTab === 'channels' ? '2px solid var(--primary, #3b82f6)' : 'none',
+                    color: activeTab === 'channels' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontWeight: 600,
+                    fontSize: '13.5px',
+                    padding: '12px 0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Channels Feed
+                </button>
               </div>
             </div>
+            
             <div className="card-body">
-              <form onSubmit={handleAddNote} style={{ marginBottom: '20px' }}>
-                <div className="form-group" style={{ marginBottom: '12px' }}>
-                  <textarea
-                    className="form-control"
-                    rows={3}
-                    placeholder="Append feedback notes or call logs to lead history..."
-                    value={newNote}
-                    onChange={e => setNewNote(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', resize: 'vertical' }}
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ height: '34px' }} disabled={savingNote}>
-                  {savingNote ? 'Adding...' : 'Add Note'}
-                </button>
-              </form>
-
-              <div className="notes-history" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {noteList.length === 0 ? (
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>No internal notes saved yet.</p>
-                ) : (
-                  noteList.map((note, index) => (
-                    <div key={index} style={{
-                      padding: '12px 16px',
-                      backgroundColor: 'var(--bg-main)',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-color)',
-                      fontSize: '13px',
-                      lineHeight: '1.4'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: 'var(--text-secondary)', fontSize: '11px' }}>
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{note.match(/^\[(.*?)\]/)?.[1] || 'Log'}</span>
-                      </div>
-                      <p style={{ whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
-                        {note.replace(/^\[.*?\]\s*/, '')}
-                      </p>
+              {activeTab === 'notes' ? (
+                <>
+                  <form onSubmit={handleAddNote} style={{ marginBottom: '20px' }}>
+                    <div className="form-group" style={{ marginBottom: '12px' }}>
+                      <textarea
+                        className="form-control"
+                        rows={3}
+                        placeholder="Append feedback notes or call logs to lead history..."
+                        value={newNote}
+                        onChange={e => setNewNote(e.target.value)}
+                        required
+                        style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', resize: 'vertical' }}
+                      />
                     </div>
-                  ))
-                )}
-              </div>
+                    <button type="submit" className="btn btn-primary" style={{ height: '34px' }} disabled={savingNote}>
+                      {savingNote ? 'Adding...' : 'Add Note'}
+                    </button>
+                  </form>
+
+                  <div className="notes-history" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {noteList.length === 0 ? (
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>No internal notes saved yet.</p>
+                    ) : (
+                      noteList.map((note, index) => (
+                        <div key={index} style={{
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--bg-main)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border-color)',
+                          fontSize: '13px',
+                          lineHeight: '1.4'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: 'var(--text-secondary)', fontSize: '11px' }}>
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{note.match(/^\[(.*?)\]/)?.[1] || 'Log'}</span>
+                          </div>
+                          <p style={{ whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                            {note.replace(/^\[.*?\]\s*/, '')}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              ) : (
+                /* Channels Feed Tab */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  
+                  {/* Buttons to show forms */}
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onClick={() => { setShowLogEmail(!showLogEmail); setShowLogSocial(false); }}
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>{showLogEmail ? 'Cancel Email' : 'Log Email'}</span>
+                    </button>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onClick={() => { setShowLogSocial(!showLogSocial); setShowLogEmail(false); }}
+                    >
+                      <Share2 className="w-4 h-4" />
+                      <span>{showLogSocial ? 'Cancel Social' : 'Log Social Outreach'}</span>
+                    </button>
+                  </div>
+
+                  {/* Log Email Form */}
+                  {showLogEmail && (
+                    <form onSubmit={handleLogEmail} style={{ padding: '16px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: 'var(--bg-main)' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: 700 }}>Log Email Activity</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Sender</label>
+                          <input 
+                            type="text" 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={emailForm.sender}
+                            onChange={e => setEmailForm({ ...emailForm, sender: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Recipient</label>
+                          <input 
+                            type="text" 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={emailForm.recipient}
+                            onChange={e => setEmailForm({ ...emailForm, recipient: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Direction</label>
+                          <select 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={emailForm.direction}
+                            onChange={e => setEmailForm({ ...emailForm, direction: e.target.value as any })}
+                          >
+                            <option value="Outbound">Outbound (Sent)</option>
+                            <option value="Inbound">Inbound (Received)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Status</label>
+                          <select 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={emailForm.status}
+                            onChange={e => setEmailForm({ ...emailForm, status: e.target.value as any })}
+                          >
+                            <option value="Sent">Sent</option>
+                            <option value="Opened">Opened</option>
+                            <option value="Clicked">Clicked</option>
+                            <option value="Received">Received</option>
+                            <option value="Failed">Failed</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Subject</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. Confirming Meeting Details"
+                          style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                          value={emailForm.subject}
+                          onChange={e => setEmailForm({ ...emailForm, subject: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Body Message</label>
+                        <textarea 
+                          rows={4}
+                          placeholder="Type details of the conversation..."
+                          style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', fontSize: '12.5px', borderRadius: '4px' }}
+                          value={emailForm.body}
+                          onChange={e => setEmailForm({ ...emailForm, body: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-primary" style={{ height: '32px', alignSelf: 'flex-end' }} disabled={savingChannel}>
+                        {savingChannel ? 'Logging...' : 'Save Email Log'}
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Log Social Form */}
+                  {showLogSocial && (
+                    <form onSubmit={handleLogSocial} style={{ padding: '16px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: 'var(--bg-main)' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: 700 }}>Log Social Outreach / mention</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Platform</label>
+                          <select 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={socialForm.platform}
+                            onChange={e => setSocialForm({ ...socialForm, platform: e.target.value as any })}
+                          >
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Twitter">Twitter (X)</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="Instagram">Instagram</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Sender Handle</label>
+                          <input 
+                            type="text" 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={socialForm.sender_handle}
+                            onChange={e => setSocialForm({ ...socialForm, sender_handle: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Direction</label>
+                          <select 
+                            style={{ width: '100%', height: '32px', border: '1px solid var(--border-color)', padding: '0 8px', fontSize: '12.5px', borderRadius: '4px' }}
+                            value={socialForm.direction}
+                            onChange={e => setSocialForm({ ...socialForm, direction: e.target.value as any })}
+                          >
+                            <option value="Outbound">Outbound ( Outreach )</option>
+                            <option value="Inbound">Inbound ( Mention / DM )</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>Message Details</label>
+                        <textarea 
+                          rows={3}
+                          placeholder="Type details of the outreach..."
+                          style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', fontSize: '12.5px', borderRadius: '4px' }}
+                          value={socialForm.content}
+                          onChange={e => setSocialForm({ ...socialForm, content: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-primary" style={{ height: '32px', alignSelf: 'flex-end' }} disabled={savingChannel}>
+                        {savingChannel ? 'Logging...' : 'Save Social outreach'}
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Chronological Communication Timeline */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {(() => {
+                      const feedItems = [
+                        ...emails.map(e => ({
+                          type: 'email',
+                          id: e.email_id,
+                          timestamp: e.timestamp,
+                          direction: e.direction,
+                          title: e.subject,
+                          body: e.body,
+                          meta: `${e.direction === 'Inbound' ? 'From' : 'To'}: ${e.direction === 'Inbound' ? e.sender : e.recipient} (${e.status})`,
+                          badge: 'Email'
+                        })),
+                        ...socials.map(s => ({
+                          type: 'social',
+                          id: s.engagement_id,
+                          timestamp: s.timestamp,
+                          direction: s.direction,
+                          title: `${s.platform} DM Outreach`,
+                          body: s.content,
+                          meta: `Sender Handle: ${s.sender_handle}`,
+                          badge: s.platform
+                        }))
+                      ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+                      if (feedItems.length === 0) {
+                        return <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>No communication log logged yet.</p>;
+                      }
+
+                      return feedItems.map(item => (
+                        <div key={item.id} style={{
+                          padding: '14px 16px',
+                          backgroundColor: 'var(--bg-main)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border-color)',
+                          fontSize: '13px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {item.type === 'email' ? <Mail className="w-4 h-4 text-blue-500" /> : <MessageCircle className="w-4 h-4 text-purple-500" />}
+                              <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{item.title}</span>
+                            </div>
+                            <span className="badge" style={{ fontSize: '10px', padding: '1px 6px', border: 'none', backgroundColor: item.type === 'email' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(139, 92, 246, 0.1)', color: item.type === 'email' ? '#3b82f6' : '#8b5cf6' }}>
+                              {item.badge}
+                            </span>
+                          </div>
+
+                          <p style={{ color: 'var(--text-primary)', whiteSpace: 'pre-wrap', lineHeight: '1.4', marginBottom: '8px' }}>
+                            {item.body}
+                          </p>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'var(--text-secondary)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px' }}>
+                            <span>{item.meta}</span>
+                            <span>{new Date(item.timestamp).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+
+                </div>
+              )}
             </div>
           </div>
 

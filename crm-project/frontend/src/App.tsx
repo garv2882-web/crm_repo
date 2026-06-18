@@ -11,6 +11,9 @@ import ContactsPage from './pages/Contacts/ContactsPage';
 import DealsPage from './pages/Deals/DealsPage';
 import TasksPage from './pages/Tasks/TasksPage';
 import SettingsPage from './pages/Settings/SettingsPage';
+import CampaignsPage from './pages/Marketing/CampaignsPage';
+import SupportCasesPage from './pages/Support/SupportCasesPage';
+import SolutionsPage from './pages/Support/SolutionsPage';
 import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import SuspendedScreen from './pages/Auth/SuspendedScreen';
@@ -144,6 +147,9 @@ function AppContent() {
                       <Route path="/deals" element={<DealsPage />} />
                       <Route path="/tasks" element={<TasksPage />} />
                       <Route path="/settings" element={<SettingsPage user={currentUser} />} />
+                      <Route path="/marketing" element={<CampaignsPage />} />
+                      <Route path="/support" element={<SupportCasesPage />} />
+                      <Route path="/solutions" element={<SolutionsPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </section>

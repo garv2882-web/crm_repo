@@ -11,7 +11,10 @@ import {
   Settings,
   LogOut,
   ChevronUp,
-  Shield
+  Shield,
+  Megaphone,
+  LifeBuoy,
+  HelpCircle
 } from 'lucide-react';
 import { isAdminEmail } from '../config/adminConfig';
 
@@ -74,6 +77,29 @@ export default function Sidebar({ collapsed, onLogout }: SidebarProps) {
           <NavLink to="/tasks" className={({ isActive }) => isActive ? 'active' : ''}>
             <CheckSquare className="w-5 h-5" />
             <span>Tasks</span>
+          </NavLink>
+        </li>
+        
+        {/* Marketing & Support Section */}
+        <li className="sidebar-header" style={{ padding: '16px 16px 8px', fontSize: '11px', fontWeight: 600, color: 'var(--text-muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {!collapsed && <span>Marketing & Support</span>}
+        </li>
+        <li className="sidebar-item">
+          <NavLink to="/marketing" className={({ isActive }) => isActive ? 'active' : ''}>
+            <Megaphone className="w-5 h-5" />
+            <span>Campaigns</span>
+          </NavLink>
+        </li>
+        <li className="sidebar-item">
+          <NavLink to="/support" className={({ isActive }) => isActive ? 'active' : ''}>
+            <LifeBuoy className="w-5 h-5" />
+            <span>Support Tickets</span>
+          </NavLink>
+        </li>
+        <li className="sidebar-item">
+          <NavLink to="/solutions" className={({ isActive }) => isActive ? 'active' : ''}>
+            <HelpCircle className="w-5 h-5" />
+            <span>Knowledge Base</span>
           </NavLink>
         </li>
         {userPermissions.canAccessIntegrationsPage && (

@@ -88,6 +88,7 @@ export interface Lead {
   estimated_revenue: number;
   conversion_probability: number;
   campaign_name: string;
+  campaign_id?: string;
   tags: string[] | string;
   notes: string;
   created_at: string;
@@ -136,6 +137,73 @@ export interface Task {
   priority: 'Low' | 'Medium' | 'High';
   status: 'Pending' | 'In Progress' | 'Completed';
   created_at: string;
+}
+
+export interface Campaign {
+  campaign_id: string;
+  campaign_name: string;
+  campaign_type: 'Email' | 'Webinar' | 'Social' | 'SEO' | 'Referral' | 'Other';
+  status: 'Planning' | 'Active' | 'Completed' | 'Cancelled';
+  budget: number;
+  actual_cost: number;
+  expected_revenue: number;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SupportCase {
+  case_id: string;
+  case_number: string;
+  subject: string;
+  company_id: string;
+  company_name?: string;
+  assigned_to: string;
+  assigned_user_name?: string;
+  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: 'New' | 'In Progress' | 'On Hold' | 'Resolved' | 'Closed';
+  description: string;
+  solution_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KBArticle {
+  article_id: string;
+  title: string;
+  content: string;
+  category: string;
+  status: 'Draft' | 'Published';
+  created_by: string;
+  creator_name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SocialEngagement {
+  engagement_id: string;
+  lead_id?: string;
+  contact_id?: string;
+  platform: 'LinkedIn' | 'Twitter' | 'Facebook' | 'Instagram';
+  channel_type: 'Social';
+  direction: 'Inbound' | 'Outbound';
+  content: string;
+  sender_handle: string;
+  timestamp: string;
+}
+
+export interface EmailMessage {
+  email_id: string;
+  lead_id?: string;
+  contact_id?: string;
+  channel_type: 'Email';
+  subject: string;
+  body: string;
+  direction: 'Inbound' | 'Outbound';
+  sender: string;
+  recipient: string;
+  status: 'Sent' | 'Opened' | 'Clicked' | 'Failed' | 'Received';
+  timestamp: string;
 }
 
 export interface Activity {
@@ -194,6 +262,11 @@ export interface CRMDatabase {
   activityLog: ActivityLogEntry[]; // admin audit log
   sessions: SessionHistory[];
   settings: CRMSettings;
+  campaigns: Campaign[];
+  supportCases: SupportCase[];
+  kbArticles: KBArticle[];
+  socialEngagements: SocialEngagement[];
+  emailMessages: EmailMessage[];
 }
 
 // Default role permissions templates
@@ -301,11 +374,11 @@ const INITIAL_DB: CRMDatabase = {
     { contact_id: 'b8888888-8888-4888-8888-888888888888', company_id: 'a8888888-8888-4888-8888-888888888888', first_name: 'Amit', last_name: 'Patel', email: 'amit@securex.co', mobile_number: '+91 98765 43217', linkedin_profile: 'https://linkedin.com/in/amitpatel', job_title: 'CISO', department: 'Security', notes: '', created_at: '2024-05-08T10:10:00Z' }
   ],
   leads: [
-    { lead_id: 'f0000001-0000-4000-8000-000000000001', company_id: 'a1111111-1111-4111-8111-111111111111', primary_contact_id: 'b1111111-1111-4111-8111-111111111111', assigned_to: 'e1111111-1111-4111-8111-111111111111', created_by: 'e4444444-4444-4444-8444-444444444444', lead_title: 'CRM Software Proposal', lead_source: 'LinkedIn', lead_status: 'New', priority: 'High', estimated_revenue: 500000, conversion_probability: 45, campaign_name: 'Q2 Tech Outbound', tags: ['CRM', 'Software'], notes: 'Initial interest shown in custom workflow extensions. Requested proposal for 50 licenses.', created_at: '2024-05-20T10:00:00Z', updated_at: '2024-05-20T10:00:00Z' },
-    { lead_id: 'f0000002-0000-4000-8000-000000000002', company_id: 'a2222222-2222-4222-8222-222222222222', primary_contact_id: 'b2222222-2222-4222-8222-222222222222', assigned_to: 'e2222222-2222-4222-8222-222222222222', created_by: 'e1111111-1111-4111-8111-111111111111', lead_title: 'ERP Migration', lead_source: 'Referral', lead_status: 'Qualified', priority: 'Medium', estimated_revenue: 1200000, conversion_probability: 70, campaign_name: 'Partner Networks', tags: ['ERP', 'Migration'], notes: 'Budget is approved. Looking to transition from legacy SAP to cloud platform.', created_at: '2024-05-18T14:30:00Z', updated_at: '2024-05-19T09:15:00Z' },
-    { lead_id: 'f0000003-0000-4000-8000-000000000003', company_id: 'a3333333-3333-4333-8333-333333333333', primary_contact_id: 'b3333333-3333-4333-8333-333333333333', assigned_to: 'e3333333-3333-4333-8333-333333333333', created_by: 'e2222222-2222-4222-8222-222222222222', lead_title: 'Cloud Setup', lead_source: 'Website', lead_status: 'Contacted', priority: 'Low', estimated_revenue: 250000, conversion_probability: 30, campaign_name: 'Inbound Search', tags: ['Cloud', 'AWS'], notes: 'Scheduled discovery call. They want basic pricing for database replication.', created_at: '2024-05-17T11:15:00Z', updated_at: '2024-05-17T11:20:00Z' },
-    { lead_id: 'f0000004-0000-4000-8000-000000000004', company_id: 'a4444444-4444-4444-8444-444444444444', primary_contact_id: 'b4444444-4444-4444-8444-444444444444', assigned_to: 'e1111111-1111-4111-8111-111111111111', created_by: 'e4444444-4444-4444-8444-444444444444', lead_title: 'IT Infrastructure', lead_source: 'LinkedIn', lead_status: 'New', priority: 'High', estimated_revenue: 875000, conversion_probability: 50, campaign_name: 'Q2 Tech Outbound', tags: ['Infrastructure'], notes: 'C-level team is expanding and requires dedicated bare metal hosting nodes.', created_at: '2024-05-16T16:00:00Z', updated_at: '2024-05-16T16:00:00Z' },
-    { lead_id: 'f0000005-0000-4000-8000-000000000005', company_id: 'a5555555-5555-4555-8555-555555555555', primary_contact_id: 'b5555555-5555-4555-8555-555555555555', assigned_to: 'e2222222-2222-4222-8222-222222222222', created_by: 'e3333333-3333-4333-8333-333333333333', lead_title: 'Website Redesign', lead_source: 'Website', lead_status: 'Qualified', priority: 'Medium', estimated_revenue: 320000, conversion_probability: 65, campaign_name: 'Design Showcase', tags: ['Redesign'], notes: 'Needs interactive mockups, full design system, and react code integration. Budget ready.', created_at: '2024-05-15T09:45:00Z', updated_at: '2024-05-16T10:30:00Z' }
+    { lead_id: 'f0000001-0000-4000-8000-000000000001', company_id: 'a1111111-1111-4111-8111-111111111111', primary_contact_id: 'b1111111-1111-4111-8111-111111111111', assigned_to: 'e1111111-1111-4111-8111-111111111111', created_by: 'e4444444-4444-4444-8444-444444444444', lead_title: 'CRM Software Proposal', lead_source: 'LinkedIn', lead_status: 'New', priority: 'High', estimated_revenue: 500000, conversion_probability: 45, campaign_name: 'Q2 Tech Outbound', campaign_id: 'c1111111-1111-4111-8111-111111111111', tags: ['CRM', 'Software'], notes: 'Initial interest shown in custom workflow extensions. Requested proposal for 50 licenses.', created_at: '2024-05-20T10:00:00Z', updated_at: '2024-05-20T10:00:00Z' },
+    { lead_id: 'f0000002-0000-4000-8000-000000000002', company_id: 'a2222222-2222-4222-8222-222222222222', primary_contact_id: 'b2222222-2222-4222-8222-222222222222', assigned_to: 'e2222222-2222-4222-8222-222222222222', created_by: 'e1111111-1111-4111-8111-111111111111', lead_title: 'ERP Migration', lead_source: 'Referral', lead_status: 'Qualified', priority: 'Medium', estimated_revenue: 1200000, conversion_probability: 70, campaign_name: 'Partner Networks', campaign_id: 'c2222222-2222-4222-8222-222222222222', tags: ['ERP', 'Migration'], notes: 'Budget is approved. Looking to transition from legacy SAP to cloud platform.', created_at: '2024-05-18T14:30:00Z', updated_at: '2024-05-19T09:15:00Z' },
+    { lead_id: 'f0000003-0000-4000-8000-000000000003', company_id: 'a3333333-3333-4333-8333-333333333333', primary_contact_id: 'b3333333-3333-4333-8333-333333333333', assigned_to: 'e3333333-3333-4333-8333-333333333333', created_by: 'e2222222-2222-4222-8222-222222222222', lead_title: 'Cloud Setup', lead_source: 'Website', lead_status: 'Contacted', priority: 'Low', estimated_revenue: 250000, conversion_probability: 30, campaign_name: 'Inbound Search', campaign_id: 'c3333333-3333-4333-8333-333333333333', tags: ['Cloud', 'AWS'], notes: 'Scheduled discovery call. They want basic pricing for database replication.', created_at: '2024-05-17T11:15:00Z', updated_at: '2024-05-17T11:20:00Z' },
+    { lead_id: 'f0000004-0000-4000-8000-000000000004', company_id: 'a4444444-4444-4444-8444-444444444444', primary_contact_id: 'b4444444-4444-4444-8444-444444444444', assigned_to: 'e1111111-1111-4111-8111-111111111111', created_by: 'e4444444-4444-4444-8444-444444444444', lead_title: 'IT Infrastructure', lead_source: 'LinkedIn', lead_status: 'New', priority: 'High', estimated_revenue: 875000, conversion_probability: 50, campaign_name: 'Q2 Tech Outbound', campaign_id: 'c1111111-1111-4111-8111-111111111111', tags: ['Infrastructure'], notes: 'C-level team is expanding and requires dedicated bare metal hosting nodes.', created_at: '2024-05-16T16:00:00Z', updated_at: '2024-05-16T16:00:00Z' },
+    { lead_id: 'f0000005-0000-4000-8000-000000000005', company_id: 'a5555555-5555-4555-8555-555555555555', primary_contact_id: 'b5555555-5555-4555-8555-555555555555', assigned_to: 'e2222222-2222-4222-8222-222222222222', created_by: 'e3333333-3333-4333-8333-333333333333', lead_title: 'Website Redesign', lead_source: 'Website', lead_status: 'Qualified', priority: 'Medium', estimated_revenue: 320000, conversion_probability: 65, campaign_name: 'Design Showcase', campaign_id: 'c4444444-4444-4444-8444-444444444444', tags: ['Redesign'], notes: 'Needs interactive mockups, full design system, and react code integration. Budget ready.', created_at: '2024-05-15T09:45:00Z', updated_at: '2024-05-16T10:30:00Z' }
   ],
   deals: [
     { deal_id: 'f0000001-0000-4000-8000-000000000001', lead_id: 'f0000002-0000-4000-8000-000000000002', company_id: 'a2222222-2222-4222-8222-222222222222', contact_id: 'b2222222-2222-4222-8222-222222222222', deal_name: 'ERP Migration Deal', deal_owner: 'e2222222-2222-4222-8222-222222222222', deal_stage: 'Proposal', deal_status: 'Open', sales_pipeline: 'Enterprise', priority: 'High', probability_percentage: 70, deal_value: 1200000, currency: 'INR', created_at: '2024-05-19T10:00:00Z' },
@@ -337,7 +410,29 @@ const INITIAL_DB: CRMDatabase = {
     dealStages: DEFAULT_DEAL_STAGES,
     departments: ['Sales', 'Marketing', 'Engineering', 'HR', 'Executive', 'Operations'],
     roleTemplates: DEFAULT_ROLE_TEMPLATES
-  }
+  },
+  campaigns: [
+    { campaign_id: 'c1111111-1111-4111-8111-111111111111', campaign_name: 'Q2 Tech Outbound', campaign_type: 'Email', status: 'Active', budget: 50000, actual_cost: 42000, expected_revenue: 150000, description: 'Direct outbound emailing to procurement heads.', created_at: '2024-05-01T10:00:00Z', updated_at: '2024-05-01T10:00:00Z' },
+    { campaign_id: 'c2222222-2222-4222-8222-222222222222', campaign_name: 'Partner Networks', campaign_type: 'Referral', status: 'Active', budget: 20000, actual_cost: 15000, expected_revenue: 80000, description: 'Lead generation via consulting partners.', created_at: '2024-05-02T10:00:00Z', updated_at: '2024-05-02T10:00:00Z' },
+    { campaign_id: 'c3333333-3333-4333-8333-333333333333', campaign_name: 'Inbound Search', campaign_type: 'SEO', status: 'Active', budget: 30000, actual_cost: 30000, expected_revenue: 90000, description: 'Google search optimization for CRM keywords.', created_at: '2024-05-03T10:00:00Z', updated_at: '2024-05-03T10:00:00Z' },
+    { campaign_id: 'c4444444-4444-4444-8444-444444444444', campaign_name: 'Design Showcase', campaign_type: 'Social', status: 'Active', budget: 15000, actual_cost: 12000, expected_revenue: 40000, description: 'Dribbble and Behance interactive mockups.', created_at: '2024-05-04T10:00:00Z', updated_at: '2024-05-04T10:00:00Z' }
+  ],
+  supportCases: [
+    { case_id: 's1111111-1111-4111-8111-111111111111', case_number: 'CAS-00101', subject: 'Replication latency in Delhi center', company_id: 'a2222222-2222-4222-8222-222222222222', assigned_to: 'e2222222-2222-4222-8222-222222222222', priority: 'High', status: 'In Progress', description: 'Data replication from primary node is taking up to 5 seconds. Needs DB optimization.', solution_id: 'sol11111-1111-4111-8111-111111111111', created_at: '2026-06-05T09:00:00Z', updated_at: '2026-06-05T10:00:00Z' },
+    { case_id: 's2222222-2222-4222-8222-222222222222', case_number: 'CAS-00102', subject: 'Billing portal invoice export error', company_id: 'a1111111-1111-4111-8111-111111111111', assigned_to: 'e1111111-1111-4111-8111-111111111111', priority: 'Medium', status: 'Resolved', description: 'Unable to download consolidated Q1 invoice PDF. Threw a 500 error page.', solution_id: 'sol22222-2222-4222-8222-222222222222', created_at: '2026-06-04T11:00:00Z', updated_at: '2026-06-04T14:00:00Z' }
+  ],
+  kbArticles: [
+    { article_id: 'sol11111-1111-4111-8111-111111111111', title: 'Resolving Database Replication Latency', content: 'Latency is typically caused by index fragmentation or unoptimized network interfaces. Re-indexing the target tables and ensuring the cluster network mtu is set to 9000 solves 95% of issues.', category: 'Database', status: 'Published', created_by: 'e1111111-1111-4111-8111-111111111111', created_at: '2026-06-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+    { article_id: 'sol22222-2222-4222-8222-222222222222', title: 'Invoice Export Failures', content: 'If consolidated exports timeout, clear your local browser cache or trigger the export by specifying individual month parameters to reduce memory overhead.', category: 'Billing', status: 'Published', created_by: 'e1111111-1111-4111-8111-111111111111', created_at: '2026-06-02T10:00:00Z', updated_at: '2026-06-02T10:00:00Z' }
+  ],
+  socialEngagements: [
+    { engagement_id: 'soc11111-1111-4111-8111-111111111111', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', platform: 'LinkedIn', channel_type: 'Social', direction: 'Inbound', content: 'Loved the presentation slides. Can we align on pricing next week?', sender_handle: '@aman_technova', timestamp: '2026-06-05T09:30:00Z' },
+    { engagement_id: 'soc22222-2222-4222-8222-222222222222', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', platform: 'LinkedIn', channel_type: 'Social', direction: 'Outbound', content: 'Absolutely, I will send a calendar invite.', sender_handle: '@aman_dexnest', timestamp: '2026-06-05T10:15:00Z' }
+  ],
+  emailMessages: [
+    { email_id: 'em111111-1111-4111-8111-111111111111', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', channel_type: 'Email', subject: 'Re: CRM Software Proposal', body: 'Aman, we reviewed the proposal details internally. Can you confirm if support SLA is included in standard fees?', direction: 'Inbound', sender: 'aman@technova.com', recipient: 'aman@dexnest.com', status: 'Received', timestamp: '2026-06-05T08:15:00Z' },
+    { email_id: 'em222222-2222-4222-8222-222222222222', lead_id: 'f0000001-0000-4000-8000-000000000001', contact_id: 'b1111111-1111-4111-8111-111111111111', channel_type: 'Email', subject: 'Re: CRM Software Proposal', body: 'Yes, 24/7 technical chat support and basic SLA of 4 hours response is included in the base proposal.', direction: 'Outbound', sender: 'aman@dexnest.com', recipient: 'aman@technova.com', status: 'Opened', timestamp: '2026-06-05T09:00:00Z' }
+  ]
 };
 
 // State change emitter pub/sub
@@ -965,6 +1060,14 @@ export const api = {
     const db = getDB();
     const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
 
+    let resolvedCampaignName = data.campaign_name || '';
+    if (data.campaign_id) {
+      const camp = (db.campaigns || []).find(c => c.campaign_id === data.campaign_id);
+      if (camp) {
+        resolvedCampaignName = camp.campaign_name;
+      }
+    }
+
     const newLead: Lead = {
       lead_id: uuidv4(),
       company_id: data.company_id || '',
@@ -977,7 +1080,8 @@ export const api = {
       priority: data.priority || 'Medium',
       estimated_revenue: Number(data.estimated_revenue) || 0,
       conversion_probability: Number(data.conversion_probability) || 50,
-      campaign_name: data.campaign_name || '',
+      campaign_name: resolvedCampaignName,
+      campaign_id: data.campaign_id || '',
       tags: data.tags || [],
       notes: data.notes || '',
       created_at: new Date().toISOString(),
@@ -1473,6 +1577,262 @@ export const api = {
     });
 
     saveDB(db);
+  },
+
+  // Campaigns CRUD
+  async getCampaigns(): Promise<Campaign[]> {
+    const db = getDB();
+    return db.campaigns || [];
+  },
+
+  async getCampaign(id: string): Promise<Campaign> {
+    const db = getDB();
+    const camp = (db.campaigns || []).find(c => c.campaign_id === id);
+    if (!camp) throw new Error('Campaign not found');
+    return camp;
+  },
+
+  async createCampaign(data: Partial<Campaign>): Promise<Campaign> {
+    const db = getDB();
+    if (!db.campaigns) db.campaigns = [];
+    const newCamp: Campaign = {
+      campaign_id: uuidv4(),
+      campaign_name: data.campaign_name || 'Unnamed Campaign',
+      campaign_type: data.campaign_type || 'Email',
+      status: data.status || 'Planning',
+      budget: Number(data.budget) || 0,
+      actual_cost: Number(data.actual_cost) || 0,
+      expected_revenue: Number(data.expected_revenue) || 0,
+      description: data.description || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    db.campaigns.push(newCamp);
+    saveDB(db);
+    return newCamp;
+  },
+
+  async updateCampaign(id: string, data: Partial<Campaign>): Promise<Campaign> {
+    const db = getDB();
+    if (!db.campaigns) db.campaigns = [];
+    const idx = db.campaigns.findIndex(c => c.campaign_id === id);
+    if (idx === -1) throw new Error('Campaign not found');
+    db.campaigns[idx] = {
+      ...db.campaigns[idx],
+      ...data,
+      updated_at: new Date().toISOString()
+    };
+    const updated = db.campaigns[idx];
+    saveDB(db);
+    return updated;
+  },
+
+  async deleteCampaign(id: string): Promise<void> {
+    const db = getDB();
+    if (!db.campaigns) db.campaigns = [];
+    db.campaigns = db.campaigns.filter(c => c.campaign_id !== id);
+    saveDB(db);
+  },
+
+  // Support Cases CRUD
+  async getSupportCases(): Promise<SupportCase[]> {
+    const db = getDB();
+    return (db.supportCases || []).map(kase => {
+      const company = db.companies.find(c => c.company_id === kase.company_id);
+      const rep = db.users.find(u => u.user_id === kase.assigned_to);
+      return {
+        ...kase,
+        company_name: company?.company_name || '',
+        assigned_user_name: rep?.full_name || ''
+      };
+    });
+  },
+
+  async getSupportCase(id: string): Promise<SupportCase> {
+    const db = getDB();
+    const kase = (db.supportCases || []).find(c => c.case_id === id);
+    if (!kase) throw new Error('Support Case not found');
+    const company = db.companies.find(c => c.company_id === kase.company_id);
+    const rep = db.users.find(u => u.user_id === kase.assigned_to);
+    return {
+      ...kase,
+      company_name: company?.company_name || '',
+      assigned_user_name: rep?.full_name || ''
+    };
+  },
+
+  async createSupportCase(data: Partial<SupportCase>): Promise<SupportCase> {
+    const db = getDB();
+    if (!db.supportCases) db.supportCases = [];
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e2222222-2222-4222-8222-222222222222"}');
+    
+    const count = (db.supportCases || []).length + 101;
+    const case_number = `CAS-${String(count).padStart(5, '0')}`;
+
+    const newCase: SupportCase = {
+      case_id: uuidv4(),
+      case_number,
+      subject: data.subject || 'New Support Case',
+      company_id: data.company_id || '',
+      assigned_to: data.assigned_to || actor.user_id,
+      priority: data.priority || 'Medium',
+      status: data.status || 'New',
+      description: data.description || '',
+      solution_id: data.solution_id || undefined,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    db.supportCases.push(newCase);
+    saveDB(db);
+    return newCase;
+  },
+
+  async updateSupportCase(id: string, data: Partial<SupportCase>): Promise<SupportCase> {
+    const db = getDB();
+    if (!db.supportCases) db.supportCases = [];
+    const idx = db.supportCases.findIndex(c => c.case_id === id);
+    if (idx === -1) throw new Error('Support Case not found');
+    db.supportCases[idx] = {
+      ...db.supportCases[idx],
+      ...data,
+      updated_at: new Date().toISOString()
+    };
+    const updated = db.supportCases[idx];
+    saveDB(db);
+    return updated;
+  },
+
+  async deleteSupportCase(id: string): Promise<void> {
+    const db = getDB();
+    if (!db.supportCases) db.supportCases = [];
+    db.supportCases = db.supportCases.filter(c => c.case_id !== id);
+    saveDB(db);
+  },
+
+  // Knowledge Base Articles CRUD
+  async getKBArticles(): Promise<KBArticle[]> {
+    const db = getDB();
+    return (db.kbArticles || []).map(art => {
+      const creator = db.users.find(u => u.user_id === art.created_by);
+      return {
+        ...art,
+        creator_name: creator?.full_name || ''
+      };
+    });
+  },
+
+  async getKBArticle(id: string): Promise<KBArticle> {
+    const db = getDB();
+    const art = (db.kbArticles || []).find(a => a.article_id === id);
+    if (!art) throw new Error('Article not found');
+    const creator = db.users.find(u => u.user_id === art.created_by);
+    return {
+      ...art,
+      creator_name: creator?.full_name || ''
+    };
+  },
+
+  async createKBArticle(data: Partial<KBArticle>): Promise<KBArticle> {
+    const db = getDB();
+    if (!db.kbArticles) db.kbArticles = [];
+    const actor = JSON.parse(localStorage.getItem('crm_auth_user') || '{"full_name":"Employee","email":"emp@dexnest.com","user_id":"e1111111-1111-4111-8111-111111111111"}');
+    const newArt: KBArticle = {
+      article_id: uuidv4(),
+      title: data.title || 'Untitled Article',
+      content: data.content || '',
+      category: data.category || 'General',
+      status: data.status || 'Draft',
+      created_by: actor.user_id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    db.kbArticles.push(newArt);
+    saveDB(db);
+    return newArt;
+  },
+
+  async updateKBArticle(id: string, data: Partial<KBArticle>): Promise<KBArticle> {
+    const db = getDB();
+    if (!db.kbArticles) db.kbArticles = [];
+    const idx = db.kbArticles.findIndex(a => a.article_id === id);
+    if (idx === -1) throw new Error('Article not found');
+    db.kbArticles[idx] = {
+      ...db.kbArticles[idx],
+      ...data,
+      updated_at: new Date().toISOString()
+    };
+    const updated = db.kbArticles[idx];
+    saveDB(db);
+    return updated;
+  },
+
+  async deleteKBArticle(id: string): Promise<void> {
+    const db = getDB();
+    if (!db.kbArticles) db.kbArticles = [];
+    db.kbArticles = db.kbArticles.filter(a => a.article_id !== id);
+    saveDB(db);
+  },
+
+  // Social Engagements CRUD
+  async getSocialEngagements(filters?: { lead_id?: string; contact_id?: string }): Promise<SocialEngagement[]> {
+    const db = getDB();
+    let logs = db.socialEngagements || [];
+    if (filters) {
+      if (filters.lead_id) logs = logs.filter(l => l.lead_id === filters.lead_id);
+      if (filters.contact_id) logs = logs.filter(l => l.contact_id === filters.contact_id);
+    }
+    return logs;
+  },
+
+  async createSocialEngagement(data: Partial<SocialEngagement>): Promise<SocialEngagement> {
+    const db = getDB();
+    if (!db.socialEngagements) db.socialEngagements = [];
+    const newLog: SocialEngagement = {
+      engagement_id: uuidv4(),
+      lead_id: data.lead_id || undefined,
+      contact_id: data.contact_id || undefined,
+      platform: data.platform || 'LinkedIn',
+      channel_type: 'Social',
+      direction: data.direction || 'Outbound',
+      content: data.content || '',
+      sender_handle: data.sender_handle || '',
+      timestamp: new Date().toISOString()
+    };
+    db.socialEngagements.push(newLog);
+    saveDB(db);
+    return newLog;
+  },
+
+  // Email Messages CRUD
+  async getEmailMessages(filters?: { lead_id?: string; contact_id?: string }): Promise<EmailMessage[]> {
+    const db = getDB();
+    let emails = db.emailMessages || [];
+    if (filters) {
+      if (filters.lead_id) emails = emails.filter(e => e.lead_id === filters.lead_id);
+      if (filters.contact_id) emails = emails.filter(e => e.contact_id === filters.contact_id);
+    }
+    return emails;
+  },
+
+  async createEmailMessage(data: Partial<EmailMessage>): Promise<EmailMessage> {
+    const db = getDB();
+    if (!db.emailMessages) db.emailMessages = [];
+    const newEmail: EmailMessage = {
+      email_id: uuidv4(),
+      lead_id: data.lead_id || undefined,
+      contact_id: data.contact_id || undefined,
+      channel_type: 'Email',
+      subject: data.subject || 'No Subject',
+      body: data.body || '',
+      direction: data.direction || 'Outbound',
+      sender: data.sender || 'me@dexnest.com',
+      recipient: data.recipient || '',
+      status: data.status || 'Sent',
+      timestamp: new Date().toISOString()
+    };
+    db.emailMessages.push(newEmail);
+    saveDB(db);
+    return newEmail;
   }
 };
 
