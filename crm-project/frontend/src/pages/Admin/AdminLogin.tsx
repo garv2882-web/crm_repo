@@ -57,7 +57,7 @@ export default function AdminLogin() {
           api.saveRawDB(db);
         }
 
-        localStorage.setItem('crm_auth_token', 'mock_jwt_token_admin_' + Math.random().toString(36).substring(2, 9));
+        api.setToken('mock_jwt_token_admin_' + Math.random().toString(36).substring(2, 9));
         localStorage.setItem('crm_auth_user', JSON.stringify(user));
 
         // Log in to admin portal

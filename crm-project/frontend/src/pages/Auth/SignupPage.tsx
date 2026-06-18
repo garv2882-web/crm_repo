@@ -93,7 +93,6 @@ export default function SignupPage({ onSignupSuccess }: SignupPageProps) {
         role
       });
       
-      localStorage.setItem('crm_auth_token', res.token);
       localStorage.setItem('crm_auth_user', JSON.stringify(res.user));
       
       // Auto-login to Admin Portal if allowlisted email

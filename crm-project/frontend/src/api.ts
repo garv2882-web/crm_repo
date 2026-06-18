@@ -481,8 +481,18 @@ function uuidv4(): string {
   });
 }
 
+let activeToken = '';
+
 // REST Client Helper Methods
 export const api = {
+  getToken(): string {
+    return activeToken;
+  },
+
+  setToken(token: string) {
+    activeToken = token;
+  },
+
   // Database access for Context initialization
   getRawDB(): CRMDatabase {
     return getDB();
@@ -507,7 +517,7 @@ export const api = {
 
     // Set token & login user
     const token = 'mock_jwt_token_' + uuidv4();
-    localStorage.setItem('crm_auth_token', token);
+    activeToken = token;
     localStorage.setItem('crm_auth_user', JSON.stringify(user));
 
     // Session tracking
@@ -565,7 +575,7 @@ export const api = {
         db.users.push(newAdmin);
         
         const token = 'mock_jwt_token_' + uuidv4();
-        localStorage.setItem('crm_auth_token', token);
+        activeToken = token;
         localStorage.setItem('crm_auth_user', JSON.stringify(newAdmin));
 
         db.sessions.push({
@@ -599,7 +609,7 @@ export const api = {
       exists.last_active = new Date().toISOString();
       
       const token = 'mock_jwt_token_' + uuidv4();
-      localStorage.setItem('crm_auth_token', token);
+      activeToken = token;
       localStorage.setItem('crm_auth_user', JSON.stringify(exists));
 
       const session_id = 'sess_' + uuidv4();
@@ -661,7 +671,7 @@ export const api = {
       }
     }
 
-    localStorage.removeItem('crm_auth_token');
+    activeToken = '';
     localStorage.removeItem('crm_auth_user');
     localStorage.removeItem('crm_current_session_id');
     localStorage.removeItem('crm_admin_user');

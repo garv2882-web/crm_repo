@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { api } from '../../api';
 import { 
   PieChart, 
   Users, 
@@ -64,7 +65,7 @@ export default function AdminLayout() {
 
   const handleLogout = () => {
     localStorage.removeItem('crm_admin_user');
-    localStorage.removeItem('crm_auth_token');
+    api.setToken('');
     localStorage.removeItem('crm_auth_user');
     localStorage.removeItem('crm_current_session_id');
     navigate('/admin/login');
