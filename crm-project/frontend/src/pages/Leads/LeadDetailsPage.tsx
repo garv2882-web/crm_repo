@@ -356,7 +356,7 @@ export default function LeadDetailsPage() {
                     className="form-control" 
                     value={lead.lead_status} 
                     onChange={handleStatusChange}
-                    style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', backgroundColor: 'white' }}
+                    style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-main)', color: 'var(--text-primary)' }}
                   >
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
@@ -372,7 +372,7 @@ export default function LeadDetailsPage() {
                     className="form-control" 
                     value={lead.priority} 
                     onChange={handlePriorityChange}
-                    style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', backgroundColor: 'white' }}
+                    style={{ width: '100%', height: '38px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-main)', color: 'var(--text-primary)' }}
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>

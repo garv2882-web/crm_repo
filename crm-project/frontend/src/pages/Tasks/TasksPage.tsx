@@ -158,7 +158,8 @@ export default function TasksPage() {
                 padding: '0 12px',
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'white',
+                backgroundColor: 'var(--bg-main)',
+                color: 'var(--text-primary)',
                 fontSize: '13.5px'
               }}
             >
@@ -186,7 +187,7 @@ export default function TasksPage() {
                 padding: '16px 20px',
                 borderBottom: '1px solid var(--border-color)',
                 opacity: t.status === 'Completed' ? 0.6 : 1,
-                backgroundColor: t.status === 'Completed' ? 'var(--bg-main)' : 'white',
+                backgroundColor: t.status === 'Completed' ? 'var(--bg-main)' : 'var(--bg-card)',
                 transition: 'opacity 0.2s ease, background-color 0.2s ease'
               }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flex: 1 }}>

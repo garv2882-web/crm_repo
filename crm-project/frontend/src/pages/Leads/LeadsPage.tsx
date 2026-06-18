@@ -210,7 +210,8 @@ export default function LeadsPage() {
                   padding: '0 12px',
                   border: '1px solid var(--border-color)',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'white',
+                  backgroundColor: 'var(--bg-main)',
+                  color: 'var(--text-primary)',
                   fontSize: '13.5px'
                 }}
               >
@@ -233,7 +234,8 @@ export default function LeadsPage() {
                   padding: '0 12px',
                   border: '1px solid var(--border-color)',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'white',
+                  backgroundColor: 'var(--bg-main)',
+                  color: 'var(--text-primary)',
                   fontSize: '13.5px'
                 }}
               >

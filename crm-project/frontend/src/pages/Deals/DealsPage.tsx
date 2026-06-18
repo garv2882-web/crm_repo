@@ -252,7 +252,7 @@ export default function DealsPage() {
                     return (
                       <div key={d.deal_id} className="kanban-card" style={{
                         padding: '14px',
-                        backgroundColor: 'white',
+                        backgroundColor: 'var(--bg-main)',
                         borderRadius: 'var(--radius-md)',
                         border: '1px solid var(--border-color)',
                         boxShadow: 'var(--shadow-sm)',
