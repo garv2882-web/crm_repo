@@ -2,6 +2,10 @@
   "outputDirectory": "crm-project/frontend/dist",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://crm-repo-50gy.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
