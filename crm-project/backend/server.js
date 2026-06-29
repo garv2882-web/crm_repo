@@ -118,7 +118,7 @@ async function initDb() {
         full_name VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255),
-        role user_role NOT NULL DEFAULT 'Sales',
+        role VARCHAR(255) NOT NULL DEFAULT 'Sales Rep — Standard',
         status VARCHAR(50) DEFAULT 'Active',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -230,6 +230,11 @@ async function initDb() {
       ADD COLUMN IF NOT EXISTS last_active TIMESTAMP,
       ADD COLUMN IF NOT EXISTS notes TEXT,
       ADD COLUMN IF NOT EXISTS custom_permissions JSONB;
+    `);
+
+    // Ensure role column is VARCHAR(255) rather than the restricted user_role enum
+    await client.query(`
+      ALTER TABLE users ALTER COLUMN role TYPE VARCHAR(255);
     `);
 
     const defaultHash = bcrypt.hashSync('password123', 10);
