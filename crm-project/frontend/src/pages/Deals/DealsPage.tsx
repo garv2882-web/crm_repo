@@ -17,6 +17,10 @@ export default function DealsPage() {
   // Search
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Drag and Drop States
+  const [activeDragDealId, setActiveDragDealId] = useState<string | null>(null);
+  const [dragOverStageId, setDragOverStageId] = useState<string | null>(null);
+
   // Creation Modal
   const [showModal, setShowModal] = useState(false);
   const [newDeal, setNewDeal] = useState({
@@ -101,6 +105,64 @@ export default function DealsPage() {
     } catch (err) {
       console.error('Error moving deal stage:', err);
     }
+  };
+
+  const handleMoveDealToStage = async (deal: Deal, nextStage: string) => {
+    if (!userPermissions.canChangeDealStage || !canEditDeal(deal)) return;
+    if (deal.deal_stage === nextStage) return;
+
+    const stagesIds = DEAL_STAGES.map(s => s.id);
+    const nextStageIndex = stagesIds.indexOf(nextStage);
+    if (nextStageIndex < 0) return;
+
+    let nextStatus = deal.deal_status;
+    if (nextStage === 'Closed Won') nextStatus = 'Won';
+    else if (nextStage === 'Closed Lost') nextStatus = 'Lost';
+    else nextStatus = 'Open';
+
+    try {
+      await api.updateDeal(deal.deal_id, {
+        ...deal,
+        deal_stage: nextStage,
+        deal_status: nextStatus
+      });
+    } catch (err) {
+      console.error('Error moving deal stage:', err);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, deal: Deal) => {
+    if (!userPermissions.canChangeDealStage || !canEditDeal(deal)) {
+      e.preventDefault();
+      return;
+    }
+    e.dataTransfer.setData('text/plain', deal.deal_id);
+    setActiveDragDealId(deal.deal_id);
+  };
+
+  const handleDragOver = (e: React.DragEvent, stageId: string) => {
+    e.preventDefault();
+    if (dragOverStageId !== stageId) {
+      setDragOverStageId(stageId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverStageId(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetStageId: string) => {
+    e.preventDefault();
+    setDragOverStageId(null);
+    setActiveDragDealId(null);
+
+    const dealId = e.dataTransfer.getData('text/plain');
+    if (!dealId) return;
+
+    const deal = deals.find(d => d.deal_id === dealId);
+    if (!deal) return;
+
+    await handleMoveDealToStage(deal, targetStageId);
   };
 
   // Filter deals based on view permissions
@@ -195,15 +257,23 @@ export default function DealsPage() {
           const columnTotal = stageDeals.reduce((sum, d) => sum + Number(d.deal_value), 0);
 
           return (
-            <div key={stage.id} className="kanban-column" style={{
-              flex: '0 0 280px',
-              background: 'var(--bg-card)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-color)',
-              display: 'flex',
-              flexDirection: 'column',
-              maxHeight: '75vh'
-            }}>
+            <div 
+              key={stage.id} 
+              className="kanban-column"
+              onDragOver={e => handleDragOver(e, stage.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={e => handleDrop(e, stage.id)}
+              style={{
+                flex: '0 0 280px',
+                background: dragOverStageId === stage.id ? 'var(--bg-main)' : 'var(--bg-card)',
+                borderRadius: 'var(--radius-lg)',
+                border: dragOverStageId === stage.id ? '1px dashed var(--primary)' : '1px solid var(--border-color)',
+                display: 'flex',
+                flexDirection: 'column',
+                maxHeight: '75vh',
+                transition: 'all 0.2s ease'
+              }}
+            >
               {/* Column Header */}
               <div style={{
                 padding: '14px 16px',
@@ -211,7 +281,7 @@ export default function DealsPage() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backgroundColor: 'hsl(210, 40%, 99%)',
+                backgroundColor: 'var(--bg-card-header)',
                 borderTopLeftRadius: 'var(--radius-lg)',
                 borderTopRightRadius: 'var(--radius-lg)'
               }}>
@@ -250,16 +320,29 @@ export default function DealsPage() {
                   stageDeals.map(d => {
                     const editable = canEditDeal(d) && userPermissions.canChangeDealStage;
                     return (
-                      <div key={d.deal_id} className="kanban-card" style={{
-                        padding: '14px',
-                        backgroundColor: 'var(--bg-main)',
-                        borderRadius: 'var(--radius-md)',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: 'var(--shadow-sm)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px'
-                      }}>
+                      <div 
+                        key={d.deal_id} 
+                        className="kanban-card"
+                        draggable={editable}
+                        onDragStart={e => handleDragStart(e, d)}
+                        onDragEnd={() => {
+                          setActiveDragDealId(null);
+                          setDragOverStageId(null);
+                        }}
+                        style={{
+                          padding: '14px',
+                          backgroundColor: 'var(--bg-main)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border-color)',
+                          boxShadow: 'var(--shadow-sm)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          cursor: editable ? 'grab' : 'default',
+                          opacity: activeDragDealId === d.deal_id ? 0.4 : 1,
+                          transition: 'opacity 0.2s ease, transform 0.2s ease'
+                        }}
+                      >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '160px' }}>
                             {d.deal_name}

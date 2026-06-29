@@ -5,3 +5,5 @@ dist/
 .system_generated/
 brain/
 *.tmp
+
+.vercel
