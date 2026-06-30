@@ -1,7 +1,7 @@
-// Admin Allowlist Config - ONLY hrakeshkumar137@gmail.com is authorized as admin
-export const ADMIN_EMAILS: string[] = ['hrakeshkumar137@gmail.com'];
+// Admin Allowlist Config - ONLY hrakeshkumar37@gmail.com is authorized as admin
+export const ADMIN_EMAILS: string[] = ['hrakeshkumar37@gmail.com'];
 
 export function isAdminEmail(email: string): boolean {
   if (!email) return false;
-  return email.trim().toLowerCase() === 'hrakeshkumar137@gmail.com';
+  return email.trim().toLowerCase() === 'hrakeshkumar37@gmail.com';
 }

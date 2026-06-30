@@ -423,173 +423,29 @@ async function initDb() {
 
     console.log('✅ Database tables initialized/altered.');
 
-    // --- SEED RUNNER ---
-    // Seed Users
-    const usersCount = await client.query('SELECT COUNT(*) FROM users');
-    if (parseInt(usersCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding users...');
+    // --- TEMPORARY WIPE AND PROVISION ---
+    // Only run this wipe/provision block if user 'hrakeshkumar37@gmail.com' does not exist yet.
+    // This wipes the demo/sandbox database and configures a clean environment once.
+    const adminCheck = await client.query('SELECT * FROM users WHERE email = $1', ['hrakeshkumar37@gmail.com']);
+    if (adminCheck.rows.length === 0) {
+      console.log('🧹 Wiping old database data and initializing clean production state...');
+      await client.query(`
+        TRUNCATE TABLE 
+          users, companies, contacts, leads, deals, activities, 
+          activity_log, sessions, settings, campaigns, support_cases, 
+          support_tasks, kb_articles, social_engagements, email_messages 
+        CASCADE;
+      `);
+
+      // Seed the single allowed admin user
       const defaultHash = bcrypt.hashSync('password123', 10);
-      for (const u of SEED_USERS) {
-        await client.query(
-          `INSERT INTO users (user_id, full_name, email, role, status, password_hash) 
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [u.user_id, u.full_name, u.email, u.role, u.status, defaultHash]
-        );
-      }
-    }
+      await client.query(
+        `INSERT INTO users (full_name, email, role, status, password_hash) 
+         VALUES ($1, $2, $3, $4, $5)`,
+        ['H Rakesh Kumar', 'hrakeshkumar37@gmail.com', 'Admin', 'Active', defaultHash]
+      );
 
-    // Seed Companies
-    const companiesCount = await client.query('SELECT COUNT(*) FROM companies');
-    if (parseInt(companiesCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding companies...');
-      for (const c of SEED_COMPANIES) {
-        await client.query(
-          `INSERT INTO companies (company_id, company_name, company_code, industry, website, country, state, city, annual_revenue) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [c.company_id, c.company_name, c.company_code, c.industry, c.website, c.country, c.state, c.city, c.annual_revenue]
-        );
-      }
-    }
-
-    // Seed Contacts
-    const contactsCount = await client.query('SELECT COUNT(*) FROM contacts');
-    if (parseInt(contactsCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding contacts...');
-      for (const ct of SEED_CONTACTS) {
-        await client.query(
-          `INSERT INTO contacts (contact_id, company_id, first_name, last_name, email, mobile_number, linkedin_profile, job_title, department) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [ct.contact_id, ct.company_id, ct.first_name, ct.last_name, ct.email, ct.mobile_number, ct.linkedin_profile, ct.job_title, ct.department]
-        );
-      }
-    }
-
-    // Seed Leads
-    const leadsCount = await client.query('SELECT COUNT(*) FROM leads');
-    if (parseInt(leadsCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding leads...');
-      for (const l of SEED_LEADS) {
-        await client.query(
-          `INSERT INTO leads (lead_id, company_id, primary_contact_id, assigned_to, created_by, lead_title, lead_source, lead_status, priority, estimated_revenue, conversion_probability, campaign_name, tags, notes, created_at, updated_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
-          [
-            l.lead_id, l.company_id, l.primary_contact_id, l.assigned_to, l.created_by,
-            l.lead_title, l.lead_source, l.lead_status, l.priority, l.estimated_revenue,
-            l.conversion_probability, l.campaign_name, JSON.stringify(l.tags), l.notes,
-            l.created_at, l.updated_at
-          ]
-        );
-      }
-    }
-
-    // Seed Deals
-    const dealsCount = await client.query('SELECT COUNT(*) FROM deals');
-    if (parseInt(dealsCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding deals...');
-      for (const d of SEED_DEALS) {
-        await client.query(
-          `INSERT INTO deals (deal_id, lead_id, company_id, contact_id, deal_owner, deal_name, deal_stage, deal_status, priority, probability_percentage, deal_value, currency, sales_pipeline, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
-          [
-            d.deal_id, d.lead_id, d.company_id, d.contact_id, d.deal_owner, d.deal_name,
-            d.deal_stage, d.deal_status, d.priority, d.probability_percentage,
-            d.deal_value, d.currency, d.sales_pipeline || 'Standard', d.created_at
-          ]
-        );
-      }
-    }
-
-    // Seed Activities
-    const activitiesCount = await client.query('SELECT COUNT(*) FROM activities');
-    if (parseInt(activitiesCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding activities...');
-      for (const act of SEED_ACTIVITIES) {
-        await client.query(
-          `INSERT INTO activities (activity_id, action_type, text, created_at) 
-           VALUES ($1, $2, $3, $4)`,
-          [act.activity_id, act.action_type, act.text, act.created_at]
-        );
-      }
-    }
-
-    // Seed Campaigns
-    const campaignsCount = await client.query('SELECT COUNT(*) FROM campaigns');
-    if (parseInt(campaignsCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding campaigns...');
-      for (const c of SEED_CAMPAIGNS) {
-        await client.query(
-          `INSERT INTO campaigns (campaign_id, campaign_name, campaign_type, status, budget, actual_cost, expected_revenue, description) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [c.campaign_id, c.campaign_name, c.campaign_type, c.status, c.budget, c.actual_cost, c.expected_revenue, c.description]
-        );
-      }
-    }
-
-    // Seed KB Articles
-    const kbArticlesCount = await client.query('SELECT COUNT(*) FROM kb_articles');
-    if (parseInt(kbArticlesCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding kb_articles...');
-      for (const a of SEED_KB_ARTICLES) {
-        await client.query(
-          `INSERT INTO kb_articles (article_id, title, content, category, status, created_by) 
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [a.article_id, a.title, a.content, a.category, a.status, a.created_by]
-        );
-      }
-    }
-
-    // Seed Support Cases
-    const supportCasesCount = await client.query('SELECT COUNT(*) FROM support_cases');
-    if (parseInt(supportCasesCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding support_cases...');
-      for (const s of SEED_SUPPORT_CASES) {
-        await client.query(
-          `INSERT INTO support_cases (case_id, case_number, subject, company_id, assigned_to, priority, status, description, solution_id) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [s.case_id, s.case_number, s.subject, s.company_id, s.assigned_to, s.priority, s.status, s.description, s.solution_id]
-        );
-        
-        // Add default tasks
-        await client.query(
-          `INSERT INTO support_tasks (case_id, title, is_completed) VALUES 
-           ($1, \'Validate replication error details\', true),
-           ($1, \'Check database locks log\', false),
-           ($1, \'Review index metrics and fragmentation\', false)`,
-          [s.case_id]
-        );
-      }
-    }
-
-    // Seed Social Engagements
-    const socialCount = await client.query('SELECT COUNT(*) FROM social_engagements');
-    if (parseInt(socialCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding social_engagements...');
-      for (const s of SEED_SOCIAL_ENGAGEMENTS) {
-        await client.query(
-          `INSERT INTO social_engagements (engagement_id, lead_id, platform, direction, content, sender_handle) 
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [s.engagement_id, s.lead_id, s.platform, s.direction, s.content, s.sender_handle]
-        );
-      }
-    }
-
-    // Seed Email Messages
-    const emailsCount = await client.query('SELECT COUNT(*) FROM email_messages');
-    if (parseInt(emailsCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding email_messages...');
-      for (const e of SEED_EMAIL_MESSAGES) {
-        await client.query(
-          `INSERT INTO email_messages (email_id, lead_id, subject, body, direction, sender, recipient, status) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [e.email_id, e.lead_id, e.subject, e.body, e.direction, e.sender, e.recipient, e.status]
-        );
-      }
-    }
-
-    // Seed Settings
-    const settingsCount = await client.query('SELECT COUNT(*) FROM settings');
-    if (parseInt(settingsCount.rows[0].count) === 0) {
-      console.log('🌱 Seeding settings...');
+      // Seed default settings config
       const defaultStages = [
         { id: 'Qualification', name: 'Qualification' },
         { id: 'Discovery', name: 'Discovery' },

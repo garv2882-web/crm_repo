@@ -29,12 +29,13 @@ export default function AdminEmployees() {
   // Add Employee Form state
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [newDesignation, setNewDesignation] = useState('');
   const [newDepartment, setNewDepartment] = useState('');
   const [newRole, setNewRole] = useState('Sales Rep — Standard');
   const [newNote, setNewNote] = useState('');
   const [addError, setAddError] = useState('');
-  const [createdInvite, setCreatedInvite] = useState<{ email: string; link: string } | null>(null);
+  const [createdInvite, setCreatedInvite] = useState<{ email: string; password?: string } | null>(null);
 
   // Edit Employee Form state (in Drawer)
   const [editName, setEditName] = useState('');
@@ -105,8 +106,8 @@ export default function AdminEmployees() {
   // Add Employee submit
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newEmail) {
-      setAddError('Full Name and Email are required');
+    if (!newName || !newEmail || !newPassword) {
+      setAddError('Full Name, Email, and Password are required');
       return;
     }
     
@@ -115,19 +116,19 @@ export default function AdminEmployees() {
       const emp = await api.createEmployee({
         full_name: newName,
         email: newEmail,
+        password: newPassword,
         designation: newDesignation,
         department: newDepartment,
         role: newRole,
         notes: newNote
       });
 
-      // Generate simulation signup invitation link
-      const inviteLink = `${window.location.origin}/signup?email=${encodeURIComponent(emp.email)}`;
-      setCreatedInvite({ email: emp.email, link: inviteLink });
+      setCreatedInvite({ email: emp.email, password: newPassword });
       
       // Clear forms
       setNewName('');
       setNewEmail('');
+      setNewPassword('');
       setNewDesignation('');
       setNewDepartment('');
       setNewRole('Sales Rep — Standard');
@@ -508,6 +509,19 @@ export default function AdminEmployees() {
                     />
                   </div>
 
+                  {/* Password field */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Login Password</label>
+                    <input 
+                      type="password"
+                      placeholder="Assign secure login password..."
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      required
+                      style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', fontSize: '13px' }}
+                    />
+                  </div>
+
                   {/* Designation & Department */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -607,38 +621,30 @@ export default function AdminEmployees() {
                   Employee Account Created!
                 </h3>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 20px 0' }}>
-                  The employee record has been seeded in state with status <strong>Pending</strong>.
+                  The employee record has been created successfully. Share these login credentials with the employee:
                 </p>
 
-                {/* Copiable Link block */}
                 <div style={{
                   backgroundColor: 'var(--bg-table-th)',
                   border: '1px solid var(--border-color)',
                   borderRadius: 'var(--radius-md)',
                   padding: '14px',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  flexDirection: 'column',
+                  gap: '8px',
                   marginBottom: '24px',
-                  gap: '10px'
+                  fontSize: '13.5px',
+                  textAlign: 'left'
                 }}>
-                  <span style={{
-                    fontSize: '11px',
-                    fontFamily: 'monospace',
-                    color: 'var(--text-secondary)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    flex: 1,
-                    textAlign: 'left'
-                  }}>
-                    {createdInvite.link}
-                  </span>
+                  <div><strong>Email:</strong> {createdInvite.email}</div>
+                  <div><strong>Password:</strong> {createdInvite.password}</div>
                   <button 
                     onClick={() => {
-                      navigator.clipboard.writeText(createdInvite.link);
+                      navigator.clipboard.writeText(`Email: ${createdInvite.email}\nPassword: ${createdInvite.password}`);
+                      alert('Credentials copied to clipboard!');
                     }}
                     style={{
+                      alignSelf: 'flex-start',
                       padding: '6px 10px',
                       backgroundColor: 'var(--bg-card)',
                       border: '1px solid var(--border-color)',
@@ -648,18 +654,18 @@ export default function AdminEmployees() {
                       alignItems: 'center',
                       gap: '4px',
                       fontSize: '12px',
-                      fontWeight: 500
+                      fontWeight: 500,
+                      marginTop: '6px'
                     }}
                   >
                     <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
+                    <span>Copy Credentials</span>
                   </button>
                 </div>
 
-                {/* Dispatch links */}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <a 
-                    href={`mailto:${createdInvite.email}?subject=Welcome to Dexnest CRM&body=Hi, %0D%0A%0D%0AYou have been invited to join the Dexnest CRM system as a Workspace member. %0D%0A%0D%0APlease use the link below to complete your registration and log in: %0D%0A${encodeURIComponent(createdInvite.link)}`}
+                    href={`mailto:${createdInvite.email}?subject=Welcome to Dexnest CRM&body=Hi, %0D%0A%0D%0AYou have been registered to join Dexnest CRM. %0D%0A%0D%0APlease use your credentials below to log in: %0D%0AEmail: ${createdInvite.email}%0D%0APassword: ${createdInvite.password}`}
                     style={{
                       flex: 1,
                       padding: '12px 0',
@@ -676,7 +682,7 @@ export default function AdminEmployees() {
                     }}
                   >
                     <Mail className="w-4 h-4" />
-                    <span>Email Invitation</span>
+                    <span>Email Credentials</span>
                   </a>
                   <button 
                     onClick={() => setIsAddModalOpen(false)}

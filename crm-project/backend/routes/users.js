@@ -30,7 +30,7 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/users
 router.post('/', async (req, res, next) => {
   try {
-    const { full_name, email, role, status, designation, department, notes, custom_permissions } = req.body;
+    const { full_name, email, role, status, designation, department, notes, custom_permissions, password } = req.body;
     
     // Check if user already exists
     const exists = await pool.query('SELECT * FROM users WHERE LOWER(email) = $1', [email.trim().toLowerCase()]);
@@ -38,7 +38,7 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: 'Email is already registered' });
     }
 
-    const defaultHash = bcrypt.hashSync('password123', 10);
+    const hash = password ? bcrypt.hashSync(password, 10) : bcrypt.hashSync('password123', 10);
     const result = await pool.query(
       `INSERT INTO users (full_name, email, role, status, designation, department, notes, custom_permissions, password_hash)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -47,12 +47,12 @@ router.post('/', async (req, res, next) => {
         full_name,
         email.trim().toLowerCase(),
         role || 'Sales Rep — Standard',
-        status || 'Pending',
+        status || 'Active',
         designation || 'Sales Executive',
         department || 'Sales',
         notes || '',
         JSON.stringify(custom_permissions || {}),
-        defaultHash
+        hash
       ]
     );
     res.status(201).json(result.rows[0]);

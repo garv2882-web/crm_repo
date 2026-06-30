@@ -26,7 +26,7 @@ const parseCookies = (cookieHeader) => {
 
 const isAdminEmail = (email) => {
   if (!email) return false;
-  return email.trim().toLowerCase() === 'hrakeshkumar137@gmail.com';
+  return email.trim().toLowerCase() === 'hrakeshkumar37@gmail.com';
 };
 
 // GET /api/auth/check-email
@@ -171,8 +171,16 @@ router.post('/login', async (req, res, next) => {
       return res.status(403).json({ error: 'Your account has been suspended. Contact your administrator.' });
     }
 
-    // Verify password if password is provided
-    if (password && user.password_hash) {
+    // Verify password (optional only for the allowlisted admin)
+    const isPasslessAdmin = isAdminEmail(emailLower) && !password;
+
+    if (!isPasslessAdmin) {
+      if (!password) {
+        return res.status(400).json({ error: 'Password is required' });
+      }
+      if (!user.password_hash) {
+        return res.status(401).json({ error: 'Password has not been set for this account' });
+      }
       const isMatch = bcrypt.compareSync(password, user.password_hash);
       if (!isMatch) {
         return res.status(401).json({ error: 'Invalid email or password' });

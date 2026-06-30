@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { isAdminEmail } from '../../config/adminConfig';
-import { Shield, Mail, Lock, RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Shield, Mail, Lock, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface LoginPageProps {
   onLoginSuccess: (user: any) => void;
@@ -12,9 +12,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const navigate = useNavigate();
   const [loginType, setLoginType] = useState<'employee' | 'admin'>('employee');
   const [email, setEmail] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,71 +21,17 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [adminEmailInput, setAdminEmailInput] = useState('');
 
   // --- EMPLOYEE FLOW ---
-  // Stage 1: Send OTP
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleEmployeeLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setError('Please enter your email address');
+    if (!email || !password) {
+      setError('Please enter both email and password');
       return;
     }
 
     try {
       setError('');
       setLoading(true);
-      
-      // Verify user exists in the directory first via backend
-      const checkRes = await api.checkEmail(email);
-      if (!checkRes.exists) {
-        throw new Error('User email not found in employee directory');
-      }
-
-      // Generate a mock 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedOtp(otp);
-      
-      // Dispatch real email via FormSubmit AJAX
-      try {
-        fetch(`https://formsubmit.co/ajax/${email}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: "Dexnest CRM - Login Verification Code",
-            "Verification Code": otp,
-            message: `Your Dexnest CRM verification code is ${otp}. Enter this code on the login screen to authenticate.`
-          })
-        });
-      } catch (err) {
-        console.error("Failed to send login OTP email:", err);
-      }
-
-      setOtpSent(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send verification code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Stage 2: Verify OTP & Login
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otpCode) {
-      setError('Please enter the 6-digit verification code');
-      return;
-    }
-
-    if (otpCode !== generatedOtp) {
-      setError('Invalid verification code. Please try again.');
-      return;
-    }
-
-    try {
-      setError('');
-      setLoading(true);
-      const res = await api.login({ email });
+      const res = await api.login({ email, password });
       
       // Auto-login to Admin Portal if allowlisted email
       if (isAdminEmail(res.user.email)) {
@@ -107,7 +51,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         navigate('/'); // Normal employee goes to standard workspace
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -160,48 +104,46 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         </div>
 
         {/* Tab Selection (Two Login Options) */}
-        {!otpSent && (
-          <div style={{
-            display: 'flex',
-            borderBottom: '1px solid var(--border-color)',
-            marginBottom: '24px'
-          }}>
-            <button
-              type="button"
-              onClick={() => { setLoginType('employee'); setError(''); }}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: 'transparent',
-                borderBottom: loginType === 'employee' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: loginType === 'employee' ? 'var(--primary)' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              Employee Portal
-            </button>
-            <button
-              type="button"
-              onClick={() => { setLoginType('admin'); setError(''); setShowAdminSandbox(false); }}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: 'transparent',
-                borderBottom: loginType === 'admin' ? '2px solid var(--primary)' : '2px solid transparent',
-                color: loginType === 'admin' ? 'var(--primary)' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              Admin Portal
-            </button>
-          </div>
-        )}
+        <div style={{
+          display: 'flex',
+          borderBottom: '1px solid var(--border-color)',
+          marginBottom: '24px'
+        }}>
+          <button
+            type="button"
+            onClick={() => { setLoginType('employee'); setError(''); }}
+            style={{
+              flex: 1,
+              padding: '12px',
+              backgroundColor: 'transparent',
+              borderBottom: loginType === 'employee' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: loginType === 'employee' ? 'var(--primary)' : 'var(--text-secondary)',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            Employee Portal
+          </button>
+          <button
+            type="button"
+            onClick={() => { setLoginType('admin'); setError(''); setShowAdminSandbox(false); }}
+            style={{
+              flex: 1,
+              padding: '12px',
+              backgroundColor: 'transparent',
+              borderBottom: loginType === 'admin' ? '2px solid var(--primary)' : '2px solid transparent',
+              color: loginType === 'admin' ? 'var(--primary)' : 'var(--text-secondary)',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            Admin Portal
+          </button>
+        </div>
 
         {error && (
           <div className="auth-error" style={{ marginBottom: '16px' }}>
@@ -211,105 +153,43 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
         {/* --- OPTION 1: EMPLOYEE SIGN-IN --- */}
         {loginType === 'employee' && (
-          <div>
-            {otpSent && (
-              <div style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                borderRadius: 'var(--radius-md)',
-                padding: '12px 16px',
-                fontSize: '13px',
-                color: '#60a5fa',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px',
-                textAlign: 'left'
-              }}>
-                <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ marginTop: '2px', color: '#3b82f6' }} />
-                <div>
-                  <strong>OTP Dispatched:</strong> An email containing your 6-digit verification code has been sent.
-                  <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-                    (If you used a mock/dead test email that cannot receive real emails, the sandbox fallback code is: <strong>{generatedOtp}</strong>)
-                  </div>
-                </div>
+          <form onSubmit={handleEmployeeLogin} className="auth-form">
+            <div className="form-group-auth">
+              <label>Employee Email Address</label>
+              <div className="input-with-icon">
+                <Mail className="input-icon" />
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                />
               </div>
-            )}
+            </div>
 
-            {!otpSent ? (
-              /* Stage 1: Email Form */
-              <form onSubmit={handleSendOtp} className="auth-form">
-                <div className="form-group-auth">
-                  <label>Employee Email Address</label>
-                  <div className="input-with-icon">
-                    <Mail className="input-icon" />
-                    <input
-                      type="email"
-                      placeholder="name@company.com"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-auth" disabled={loading}>
-                  {loading ? (
-                    <RefreshCw className="w-5 h-5 animate-spin mr-2" />
-                  ) : (
-                    'Send Verification Code'
-                  )}
-                </button>
-              </form>
-            ) : (
-              /* Stage 2: OTP Verification Form */
-              <form onSubmit={handleVerifyOtp} className="auth-form">
-                <div className="form-group-auth">
-                  <label>Verification Code (OTP)</label>
-                  <div className="input-with-icon">
-                    <Lock className="input-icon" />
-                    <input
-                      type="text"
-                      placeholder="Enter 6-digit code"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                      required
-                      style={{ letterSpacing: '4px', textAlign: 'center', fontWeight: 'bold' }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={() => { setOtpSent(false); setError(''); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Back</span>
-                  </button>
-                  <button type="submit" className="btn btn-primary btn-auth" style={{ flex: 1 }} disabled={loading}>
-                    {loading ? (
-                      <RefreshCw className="w-5 h-5 animate-spin mr-2" />
-                    ) : (
-                      'Verify & Sign In'
-                    )}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {!otpSent && (
-              <div className="auth-footer" style={{ marginTop: '24px' }}>
-                <span>Don't have an account? <Link to="/signup">Sign Up</Link></span>
-                <div className="demo-credentials" style={{ marginTop: '12px' }}>
-                  <strong>Demo Admin:</strong> <span>garv@dexnest.com</span>
-                </div>
+            <div className="form-group-auth" style={{ marginTop: '16px' }}>
+              <label>Login Password</label>
+              <div className="input-with-icon">
+                <Lock className="input-icon" />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
               </div>
-            )}
-          </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-auth" style={{ marginTop: '24px' }} disabled={loading}>
+              {loading ? (
+                <RefreshCw className="w-5 h-5 animate-spin mr-2" />
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </form>
         )}
 
         {/* --- OPTION 2: ADMIN GOOGLE SIGN-IN --- */}
@@ -373,7 +253,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   </label>
                   <div style={{ display: 'grid', gap: '8px', marginTop: '6px' }}>
                     <button 
-                      onClick={() => handleAdminGoogleAuth('hrakeshkumar137@gmail.com')}
+                      onClick={() => handleAdminGoogleAuth('hrakeshkumar37@gmail.com')}
                       disabled={loading}
                       style={{
                         padding: '10px 14px',
@@ -390,7 +270,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                       onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-table-hover)'}
                       onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--bg-table-th)'}
                     >
-                      <strong>Primary Administrator:</strong> hrakeshkumar137@gmail.com
+                      <strong>Primary Administrator:</strong> hrakeshkumar37@gmail.com
                     </button>
                   </div>
                 </div>

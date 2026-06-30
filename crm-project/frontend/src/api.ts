@@ -467,7 +467,7 @@ export const api = {
     return request(`/api/users/${id}`);
   },
 
-  async createEmployee(data: Partial<User>): Promise<User> {
+  async createEmployee(data: Partial<User> & { password?: string }): Promise<User> {
     const res = await request('/api/users', {
       method: 'POST',
       body: JSON.stringify(data)
