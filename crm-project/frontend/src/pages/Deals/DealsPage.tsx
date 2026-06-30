@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCRM } from '../../context/CRMContext';
 import { api, type Deal } from '../../api';
 import { Plus, Search, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function DealsPage() {
+  const navigate = useNavigate();
   const { 
     deals, 
     companies, 
@@ -329,6 +331,7 @@ export default function DealsPage() {
                           setActiveDragDealId(null);
                           setDragOverStageId(null);
                         }}
+                        onClick={() => navigate(`/deals/${d.deal_id}`)}
                         style={{
                           padding: '14px',
                           backgroundColor: 'var(--bg-main)',
@@ -338,7 +341,7 @@ export default function DealsPage() {
                           display: 'flex',
                           flexDirection: 'column',
                           gap: '6px',
-                          cursor: editable ? 'grab' : 'default',
+                          cursor: 'pointer',
                           opacity: activeDragDealId === d.deal_id ? 0.4 : 1,
                           transition: 'opacity 0.2s ease, transform 0.2s ease'
                         }}
@@ -380,14 +383,14 @@ export default function DealsPage() {
                           }}>
                             <button 
                               disabled={stage.id === DEAL_STAGES[0]?.id}
-                              onClick={() => moveDealStage(d, 'backward')}
+                              onClick={(e) => { e.stopPropagation(); moveDealStage(d, 'backward'); }}
                               style={{ background: 'none', cursor: stage.id === DEAL_STAGES[0]?.id ? 'not-allowed' : 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center' }}
                             >
                               <ArrowLeft className="w-3.5 h-3.5" />
                             </button>
                             <button 
                               disabled={stage.id === DEAL_STAGES[DEAL_STAGES.length - 1]?.id}
-                              onClick={() => moveDealStage(d, 'forward')}
+                              onClick={(e) => { e.stopPropagation(); moveDealStage(d, 'forward'); }}
                               style={{ background: 'none', cursor: stage.id === DEAL_STAGES[DEAL_STAGES.length - 1]?.id ? 'not-allowed' : 'pointer', color: 'var(--primary)', display: 'flex', alignItems: 'center' }}
                             >
                               <ArrowRight className="w-3.5 h-3.5" />

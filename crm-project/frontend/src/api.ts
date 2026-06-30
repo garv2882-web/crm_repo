@@ -104,6 +104,8 @@ export interface Deal {
   contact_id: string;
   contact_first_name?: string;
   contact_last_name?: string;
+  contact_email?: string;
+  contact_mobile?: string;
   deal_owner: string;
   deal_owner_name?: string;
   deal_name: string;
@@ -117,7 +119,11 @@ export interface Deal {
   expected_closing_date?: string;
   notes?: string;
   admin_notes?: string; // Private admin notes
+  product_service?: string;
+  competitors?: string;
+  company_industry?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Task {

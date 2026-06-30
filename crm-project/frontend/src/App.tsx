@@ -9,6 +9,7 @@ import CompaniesPage from './pages/Companies/CompaniesPage';
 import CompanyDetailsPage from './pages/Companies/CompanyDetailsPage';
 import ContactsPage from './pages/Contacts/ContactsPage';
 import DealsPage from './pages/Deals/DealsPage';
+import DealDetailsPage from './pages/Deals/DealDetailsPage';
 import TasksPage from './pages/Tasks/TasksPage';
 import SettingsPage from './pages/Settings/SettingsPage';
 import CampaignsPage from './pages/Marketing/CampaignsPage';
@@ -145,6 +146,7 @@ function AppContent() {
                       <Route path="/companies/:id" element={<CompanyDetailsPage />} />
                       <Route path="/contacts" element={<ContactsPage />} />
                       <Route path="/deals" element={<DealsPage />} />
+                      <Route path="/deals/:id" element={<DealDetailsPage />} />
                       <Route path="/tasks" element={<TasksPage />} />
                       <Route path="/settings" element={<SettingsPage user={currentUser} />} />
                       <Route path="/marketing" element={<CampaignsPage />} />
